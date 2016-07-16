@@ -2,7 +2,6 @@
 
 ## Contents [↶]()
 * **[Introduction](#introduction)**
-* **[Demo](#demo)**
 * **[Browser Support](#browser-support)**
 * **[Installation](#installation)**
 * **[Usage](#usage)**
@@ -24,6 +23,8 @@
 # Clone the repository
 git clone https://github.com/TCCinTaiwan/TcTube
 ```
+修改static/playlist.json，加入自己的歌
+檔案要放在media/video/
 
 ## Usage [↶]()
 run Server:
