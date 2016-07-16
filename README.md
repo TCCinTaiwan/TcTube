@@ -1,73 +1,69 @@
-TcTube
-    0.0.1
-        2015-08-04
-            看到Youtube改版
-            於是我就心血來潮...
-    0.1.0
-        2016-07-06
-            系上實習說要用到網頁撥放器
-            就把原本php版改成Pyhton版
-        2016-07-07
-            修正排版
-            前端Debug訊息群組化
-        2016-07-08
-            自適應多組Size
-            無法Seek提示
-        2016-07-09
-            播放清單JSON檔
-            視窗化
-    0.2.0
-        2016-07-09
-            Youtube(部分支援)
-        2016-07-10
-            使用Youtube API
-            秘訣:
-                停用ADBlock
-                安裝Google Cast
-            按鍵:
-                Ctrl ←: 上一首
-                Ctrl →: 下一首
-                Shift 滾輪: 播放速度
-                ←: 往前
-                →: 往後
-                +: 增加音量
-                -: 減少音量
-                (speace): 播放/暫停
-        2016-07-12
-            Loading影片時顯示控制欄
-            Adblock 偵測
-            加入Youtube速率
-            修改部分jQuery為javascript
-            CSS翻修成全畫面
-    0.2.1
-        2016-07-13
-            加入Nginx，來當Http File Server
-            更新檔案清單顯示
-        2016-07-14
-            簡單多檔案上傳
-        2016-07-15
-            IE webm:
-                https://tools.google.com/dlpage/webmmf/
-            onWheel IE支援
+# [:octocat:TcTube](https://github.com/TCCinTaiwan/TcTube)
 
+## Table of Contents [↶]()
+* **[Introduction](#introduction)**
+* **[Demo](#demo)**
+* **[Browser Support](#browser-support)**
+* **[Installation](#installation)**
+* **[Usage](#usage)**
+* **[Todo](#todo)**
+* **[Contributing](#contributing)**
+* **[History](#history)**
+* **[License](#license)**
 
 ## Introduction [↶]()
-**media file
-部分歌曲無法調整時間Bug
-控制面板延遲
-APP化
-資料庫
-頁面歷史
-選單紅色系
-播放清單
-Vimeo.com
-優酷/土豆網/愛奇藝
-影片預覽
-SSL
-選項:
-    下載檔名格式
-github
-mimetype:hachoir
-IE9:
-    json
-flv 不支援
+這是2016年暑假，我在系上實習，老師叫我們做的系統，我用去年寫的播放器加以改進。
+
+## Browser Support [↶]()
+| ![IE](https://raw.github.com/alrra/browser-logos/master/internet-explorer/internet-explorer_48x48.png) | ![Chrome](https://raw.github.com/alrra/browser-logos/master/chrome/chrome_48x48.png) | ![Firefox](https://raw.github.com/alrra/browser-logos/master/firefox/firefox_48x48.png) | ![Opera](https://raw.github.com/alrra/browser-logos/master/opera/opera_48x48.png) | ![Safari](https://raw.github.com/alrra/browser-logos/master/safari/safari_48x48.png) |
+| --- | --- | --- | --- | --- |
+| IE 11+ △ | Chrome 4.0+ ✔ | Firefox 16.0+ ✔ | Opera 15.0+ ✖ | Safari 4.0+ ✖ |
+
+## Installation [↶]()
+```bash
+# Clone the repository
+git clone https://github.com/TCCinTaiwan/White-Brain
+```
+
+## Usage [↶]()
+run Server:
+```bash
+# Go into the directory
+cd TcTube
+
+# run server
+python main.py
+```
+
+## Todo [↶]()
+1. 部分歌曲無法調整時間Bug
+2. 控制面板延遲
+3. APP化
+4. 資料庫
+5. 頁面歷史
+6. 選單紅色系
+7. 播放清單
+8. Vimeo.com
+9. 優酷/土豆網/愛奇藝
+10. 影片預覽
+11. SSL
+12. 選項:
+    -下載檔名格式
+13. mimetype:hachoir
+14. IE9:
+    -json
+15. flv 不支援
+
+## Contributing [↶]()
+1. Create an issue and describe your idea
+2. Fork it!
+3. Create your feature branch: `git checkout -b my-new-feature`
+4. Commit your changes: `git commit -m 'Add some feature'`
+5. Push to the branch: `git push origin my-new-feature`
+6. Submit a Pull Request
+
+## History [↶]()
+For detailed changelog, check [~~Change Log~~ ](CHANGELOG.md).
+
+## License [↶]()
+check [License](LICENSE).
