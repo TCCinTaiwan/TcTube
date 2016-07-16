@@ -1,6 +1,6 @@
 # [:octocat:TcTube](https://github.com/TCCinTaiwan/TcTube)
 
-## Table of Contents [↶]()
+## Contents [↶]()
 * **[Introduction](#introduction)**
 * **[Demo](#demo)**
 * **[Browser Support](#browser-support)**
@@ -22,7 +22,7 @@
 ## Installation [↶]()
 ```bash
 # Clone the repository
-git clone https://github.com/TCCinTaiwan/White-Brain
+git clone https://github.com/TCCinTaiwan/TcTube
 ```
 
 ## Usage [↶]()
@@ -41,18 +41,21 @@ python main.py
 3. APP化
 4. 資料庫
 5. 頁面歷史
-6. 選單紅色系
-7. 播放清單
-8. Vimeo.com
-9. 優酷/土豆網/愛奇藝
-10. 影片預覽
-11. SSL
-12. 選項:
-    -下載檔名格式
-13. mimetype:hachoir
-14. IE9:
-    -json
-15. flv 不支援
+6. 播放清單
+7. 影片嵌入支援
+    - Vimeo.com
+    - 優酷
+    - 土豆網
+    - 愛奇藝
+    - FaceBook https://developers.facebook.com/docs/plugins/embedded-video-player
+8. 影片預覽
+9. SSL
+10. 選項:
+    - 下載檔名格式
+11. mimetype:hachoir
+12. IE9:
+    - json
+13. flv 不支援
 
 ## Contributing [↶]()
 1. Create an issue and describe your idea
@@ -63,7 +66,7 @@ python main.py
 6. Submit a Pull Request
 
 ## History [↶]()
-For detailed changelog, check [~~Change Log~~ ](CHANGELOG.md).
+For detailed changelog, check [Change Log](CHANGELOG.md).
 
 ## License [↶]()
 check [License](LICENSE).

@@ -1,4 +1,6 @@
-media/
+media/video/
+media/audio/
+nginx-1.10.1/
 #################
 ## Eclipse
 #################
