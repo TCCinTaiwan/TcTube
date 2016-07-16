@@ -1,0 +1,9 @@
+{% extends 'base.htm' %}
+{% block body %}
+    <h1>Upload new File</h1>
+    <form action='' method="POST" enctype="multipart/form-data">
+        <p><input type='file' name='files[]' multiple>
+        <input type='submit' value='upload'>
+        </p>
+    </form>
+{% endblock %}
