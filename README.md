@@ -1,4 +1,5 @@
 # [:octocat:TcTube](https://github.com/TCCinTaiwan/TcTube)
+[![Gitter](https://badges.gitter.im/TCCinTaiwan/TcTube.svg)](https://gitter.im/TCCinTaiwan/TcTube?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Build Status](https://travis-ci.org/TCCinTaiwan/TcTube.svg?branch=TCC)](https://travis-ci.org/TCCinTaiwan/TcTube)
 
 ## Contents [↶]()
 * **[Introduction](#introduction)**
@@ -16,15 +17,15 @@
 ## Browser Support [↶]()
 | ![IE](https://raw.github.com/alrra/browser-logos/master/internet-explorer/internet-explorer_48x48.png) | ![Chrome](https://raw.github.com/alrra/browser-logos/master/chrome/chrome_48x48.png) | ![Firefox](https://raw.github.com/alrra/browser-logos/master/firefox/firefox_48x48.png) | ![Opera](https://raw.github.com/alrra/browser-logos/master/opera/opera_48x48.png) | ![Safari](https://raw.github.com/alrra/browser-logos/master/safari/safari_48x48.png) |
 | --- | --- | --- | --- | --- |
-| IE 11+ △ | Chrome 4.0+ ✔ | Firefox 16.0+ ✔ | Opera 15.0+ ✖ | Safari 4.0+ ✖ |
+| IE 9+ △ | Chrome 4.0+ ✔ | Firefox 16.0+ ✔ | Opera 15.0+ ✖ | Safari 4.0+ ✖ |
 
 ## Installation [↶]()
 ```bash
 # Clone the repository
 git clone https://github.com/TCCinTaiwan/TcTube
 ```
-修改static/playlist.json，加入自己的歌
-檔案要放在media/video/
+音樂檔案要放在 media/video/
+修改 static/playlist.json，改成自己的歌
 
 ## Usage [↶]()
 run Server:

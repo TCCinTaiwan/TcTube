@@ -10,6 +10,7 @@ from pygments.formatters import HtmlFormatter
 from functools import partial
 from datetime import datetime
 import sqlite3
+
 app = Flask(__name__, static_url_path = "", static_folder = "static/")
 app.debug = True
 app.config['VIDEO_FOLDER'] = "media/video/"
@@ -17,26 +18,29 @@ app.config['ALLOWED_EXTENSIONS'] = set([
     # "txt",
     # "pdf",
     # "png", "jpg", "jpeg", "gif",
+    # "db",
     "mp3",
-    "mp4", "webm"
+    "mp4", "webm", "ogg"
 ])
 app.config['NGINX_PORT'] = 8000
+# login_manager = LoginManager()
+# login_manager.init_app(app)
 
 def stream_template(template_name, **context):
     app.update_template_context(context)
-    t = app.jinja_env.get_template(template_name)
-    rv = t.stream(context)
-    rv.enable_buffering(5)
-    return rv
+    template = app.jinja_env.get_template(template_name)
+    templateStream = template.stream(context)
+    templateStream.enable_buffering(5)
+    return templateStream
 
 @app.route('/video/')
-def randomVideo():
+def randomVideo(): # 隨機Video
     with open('static/playlist.json', "r", encoding = 'utf8') as jsonFile:
         jsonData = json.load(jsonFile)
     return video(random.randrange(len(jsonData)))
 
-@app.route('/video', defaults = {'videoNum':1})
 @app.route('/video/<int:videoNum>')
+# @app.route('/video/', defaults = {'videoNum' : 1})
 def video(videoNum):
     return render_template('video.htm', videoNum = videoNum)
 
@@ -77,15 +81,37 @@ def view(path):
     absolutePath = re.match(r"^http(s|)://[^/:]{1,}", request.url).group(0)
     return render_template('viewVideo.htm', videoFile = absolutePath + ":" + str(app.config['NGINX_PORT']) + "/" + path)
 
-@app.route('/download/<path:path>') # 下載檔案(not work)
-def download(path):
-    # response = make_response()
-    # response.headers["Content-Disposition"] = "attachment; filename=" + path
-    return send_from_directory(app.config['VIDEO_FOLDER'], path, as_attachment = True)
+@app.route('/login/', methods = ['GET','POST'])
+def login():
+    if (request.method == 'POST'):
+        return request.form.get('account')
+    return render_template('login.htm', title = 'Login')
 
-@app.route('/youtube/<videoId>') # Youtube
-def youtube(videoId):
-    return render_template('iframe.htm', url = "https://www.youtube.com/embed/" + videoId + "?controls=1&disablekb=1&enablejsapi=1&autohide=1&modestbranding=1&playsinline=1&rel=0&showinfo=0&theme=dark&iv_load_poliucy=3&autoplay=1")
+@app.route('/upload/', methods = ['GET','POST']) # 上傳檔案
+def upload_file():
+    if (request.method == 'POST'):
+        files = request.files.getlist('files[]')
+        uploadFilesStatus = []
+        for file in files:
+            filename = file.filename
+            if allowed_file(filename):
+                print("Uploaded a File!!")
+                filename = filename_filter(filename)
+                file.save(os.path.join(app.config['VIDEO_FOLDER'], filename))
+                uploadFilesStatus.append((0, filename)) # 0: success
+            else:
+                print("Unsupported File Type!!")
+                uploadFilesStatus.append((1, "Unsupported File Type")) # 1: failed
+        successFiles = [info for status, info  in uploadFilesStatus if status == 0]
+        return "<h2>上傳" + str(len(files)) + "個檔案中，成功" + str(len(successFiles)) + "個檔案</h2><p>" + "</p><p>".join(successFiles) + "</p>"
+    return render_template('upload.htm', title = 'Upload')
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[-1] in app.config['ALLOWED_EXTENSIONS']
+def filename_filter(filename):
+    # filename = re.sub('[" "\/\--]+', '-', filename)
+    # filename = re.sub(r':-', ':', filename)
+    # filename = re.sub(r'^-|-$', '', filename)
+    return filename
 
 @app.route("/media/<path:path>") # 轉址到nginx伺服器
 def media(path):
@@ -93,10 +119,10 @@ def media(path):
     # print("重導向: " + mediaFileUrl)
     return redirect(mediaFileUrl, code = 302)
 
-@app.route('/stream/<script>') # PHP
+@app.route('/script/<script>') # PHP(Stream)
 def execute_python(script):
     return execute(script, "py")
-@app.route('/stream/<script>.<scriptType>') # 執行Python檔案，即時回傳結果
+@app.route('/script/<script>.<scriptType>') # 執行Python檔案，即時回傳結果(Stream)
 def execute(script, scriptType):
     args = request.query_string.decode("utf-8").split("&")
     def inner():
@@ -133,37 +159,10 @@ def execute(script, scriptType):
     tmpl = env.get_template('stream.htm')
     return Response(tmpl.generate(result = inner()))
 
-@app.route('/login/', methods = ['GET','POST'])
-def login():
-    if (request.method == 'POST'):
-        return request.query_string.decode("utf-8")
-    return render_template('login.htm', title = 'Login')
+@app.route('/youtube/<videoId>') # Youtube
+def youtube(videoId):
+    return render_template('iframe.htm', url = "https://www.youtube.com/embed/" + videoId + "?controls=1&disablekb=1&enablejsapi=1&autohide=1&modestbranding=1&playsinline=1&rel=0&showinfo=0&theme=dark&iv_load_poliucy=3&autoplay=1")
 
-@app.route('/upload/', methods = ['GET','POST']) # 上傳檔案
-def upload_file():
-    if (request.method == 'POST'):
-        files = request.files.getlist('files[]')
-        uploadFilesStatus = []
-        for file in files:
-            filename = file.filename
-            if allowed_file(filename):
-                print("Uploaded a File!!")
-                filename = filename_filter(filename)
-                file.save(os.path.join(app.config['VIDEO_FOLDER'], filename))
-                uploadFilesStatus.append((0, filename)) # 0: success
-            else:
-                print("Unsupported File Type!!")
-                uploadFilesStatus.append((1, "Unsupported File Type")) # 1: failed
-        successFiles = [info for status, info  in uploadFilesStatus if status == 0]
-        return "<h2>上傳" + str(len(files)) + "個檔案中，成功" + str(len(successFiles)) + "個檔案</h2><p>" + "</p><p>".join(successFiles) + "</p>"
-    return render_template('upload.htm', title = 'Upload')
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[-1] in app.config['ALLOWED_EXTENSIONS']
-def filename_filter(filename):
-    # filename = re.sub('[" "\/\--]+', '-', filename)
-    # filename = re.sub(r':-', ':', filename)
-    # filename = re.sub(r'^-|-$', '', filename)
-    return filename
 
 # @app.route('/camera/')
 # def camera():

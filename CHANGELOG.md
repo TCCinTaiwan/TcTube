@@ -45,6 +45,7 @@
     - 更新檔案清單顯示
 * 2016-07-14
     + 簡單多檔案上傳
+## 0.2.2
 * 2016-07-15
     - IE webm:
         * https://tools.google.com/dlpage/webmmf/
@@ -52,3 +53,9 @@
     - Youtube影片IE跳過
 * 2016-07-16
     + 上傳Github
+* 2016-07-17
+    + IE9 部分JavaScript支援
+    + 修正/video/<int> 亂導引Bug
+    + 按鍵:
+        * 0~9: 跳到播放時間0% ~ 90%
+    + 修正Youtube iframe IE不能載入Bug
