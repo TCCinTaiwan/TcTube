@@ -273,7 +273,7 @@ function indexRate(offset, newRate) {
 function index(offset) { // 歌曲索引(通用)
     // 假如沒傳入參數，直接採用預設值，即Python自動產生的數字或使用者輸入的數字
     // 缺少Youtube判斷
-    if (isUndefined($)) {
+    if (isUndefined(offset)) {
         videoNum = defaultVideoNum;
     } else {
         videoNum = ((videoNum + offset) % playlist.length + playlist.length) % playlist.length;
@@ -285,7 +285,7 @@ function index(offset) { // 歌曲索引(通用)
     }
     if (typeof playlist[videoNum].file === "object") { // 假如檔案為陣列，代表有多個檔案都是同一部
         video.src = "http://" + window.location.host + ":8000/" + playlist[videoNum].file[0]; // 假設第一部影片為預設載入的影片
-        if (isUndefined($) || isUndefined($)) {
+        if (isUndefined(window.player) || isUndefined(window.player.loadVideoByUrl)) {
             frame.src = "about:blank";
         } else {
             player.stopVideo();
@@ -311,7 +311,7 @@ function index(offset) { // 歌曲索引(通用)
         if (playlist[videoNum].file.includes("blob:") || playlist[videoNum].file.includes("http:") || playlist[videoNum].file.includes("https:")) { // 絕對位址
             if (playlist[videoNum].file.includes("www.youtube")) {  // youtube
                 // 依據Youtube API是否載入來改變Youtube影片來源
-                if (isUndefined($) || isUndefined($)) {
+                if (isUndefined(window.player) || isUndefined(window.player.loadVideoByUrl)) {
                     frame.src = playlist[videoNum].file + "?autoplay=" + ((localStorage.getItem("autoplay")) ? 1 : 0) + "&controls=0&disablekb=1&enablejsapi=1&autohide=1&modestbranding=1&playsinline=1&rel=0&showinfo=0&theme=dark&iv_load_poliucy=3&cc_load_policy=1";
                 } else {
                     player.loadVideoByUrl(playlist[videoNum].file + "?autoplay=" + ((localStorage.getItem("autoplay")) ? 1 : 0) + "&controls=0&disablekb=1&enablejsapi=1&autohide=1&modestbranding=1&playsinline=1&rel=0&showinfo=0&theme=dark&iv_load_poliucy=3&cc_load_policy=1"); // &origin=http%3A%2F%2F" + window.location.host
@@ -337,7 +337,7 @@ function index(offset) { // 歌曲索引(通用)
                 video.hidden = true;
             } else { // 其他網站(http)
                 video.src = playlist[videoNum].file;
-                if (isUndefined($) || isUndefined($)) {
+                if (isUndefined(window.player) || isUndefined(window.player.loadVideoByUrl)) {
                     frame.src = "about:blank";
                 } else {
                     player.stopVideo();
@@ -355,7 +355,7 @@ function index(offset) { // 歌曲索引(通用)
             }
         } else { // 相對位址(本機檔案)
             video.src = "http://" + window.location.host + ":8000/" + playlist[videoNum].file;
-            if (isUndefined($) || isUndefined($)) {
+            if (isUndefined(window.player) || isUndefined(window.player.loadVideoByUrl)) {
                 frame.src = "about:blank";
             } else {
                 player.stopVideo();
@@ -384,7 +384,7 @@ function index(offset) { // 歌曲索引(通用)
     console.log("%c" + playlist[videoNum].file, "color: blue;")
 
     // 設定視窗標題
-    if (isUndefined($)) {
+    if (isUndefined(playlist[videoNum].artist)) {
         document.title = playlist[videoNum].title;
     } else {
         document.title = playlist[videoNum].artist + " - " + playlist[videoNum].title;
@@ -551,7 +551,7 @@ jQuery(document).ready(function init() { // 載入完成後執行
 
     window.onfocus = function(event) { // 切換回來時
         console.log("window.onFocus()");
-        if (!isUndefined($) && !panel.closed) {
+        if (!isUndefined(panel) && !panel.closed) {
             panel.video.pause();
             if (video.src != panel.video.src) {
                 video.src = panel.video.src;
@@ -578,13 +578,13 @@ jQuery(document).ready(function init() { // 載入完成後執行
             size.className = "zoomOut";
         }
     };
-    if (!isUndefined($)) {
+    if (!isUndefined(document.onfullscreenchange)) {
         document.onfullscreenchange = onFullscreenChange;
-    } else if (!isUndefined($)) {
+    } else if (!isUndefined(document.onwebkitfullscreenchange)) {
         document.onwebkitfullscreenchange = onFullscreenChange;
-    } else if (!isUndefined($)) {
+    } else if (!isUndefined(document.onmozfullscreenchange)) {
         document.onmozfullscreenchange = onFullscreenChange;
-    } else if (!isUndefined($)) {
+    } else if (!isUndefined(document.onMSFullscreenChange)) {
         document.onMSFullscreenChange = onFullscreenChange;
     }
 
@@ -621,13 +621,13 @@ jQuery(document).ready(function init() { // 載入完成後執行
 
     video.onloadedmetadata = function(event) {
         console.log("video.loadedmetadata()");
-        // if (!isUndefined($)) {
+        // if (!isUndefined(playbackRate)) {
         //     video.playbackRate = playbackRate;
         // }
-        // if (!isUndefined($)) {
+        // if (!isUndefined(playVolume)) {
         //     video.volume = playVolume;
         // }
-        if (!isUndefined($)) {
+        if (!isUndefined(window.playTime)) {
             video.currentTime = window.playTime;
             delete window.playTime; // 釋放，避免下一首一樣從一半開始
         }
@@ -699,9 +699,9 @@ jQuery(document).ready(function init() { // 載入完成後執行
             indexRate((event.wheelDelta <= 0 || event.detail > 0) ? -1 : 1);
         }
     };
-    if (!isUndefined($)) {
+    if (!isUndefined(video.onwheel)) {
         video.onwheel = onVideoWheel;
-    } else if (!isUndefined($)) {
+    } else if (!isUndefined(video.onmousewheel)) {
         video.onmousewheel = onVideoWheel;
     }
 
@@ -711,9 +711,9 @@ jQuery(document).ready(function init() { // 載入完成後執行
             indexRate((event.wheelDelta <= 0 || event.detail > 0) ? -1 : 1);
         }
     };
-    if (!isUndefined($)) {
+    if (!isUndefined(frame.onwheel)) {
         frame.onwheel = onFrameWheel;
-    } else if (!isUndefined($)) {
+    } else if (!isUndefined(frame.onmousewheel)) {
         frame.onmousewheel = onFrameWheel;
     }
     video.oncontextmenu = function(event) { // 右鍵
@@ -778,9 +778,9 @@ jQuery(document).ready(function init() { // 載入完成後執行
             video.volume = (tempChange < 0) ? ((video.volume >= 0.1) ? video.volume - 0.1 : 0) : ((video.volume <= 0.9) ? video.volume + 0.1 : 1);
         }
     };
-    if (!isUndefined($)) {
+    if (!isUndefined(volume.onwheel)) {
         volume.onwheel = onVolumeWheel;
-    } else if (!isUndefined($)) {
+    } else if (!isUndefined(volume.onmousewheel)) {
         volume.onmousewheel = onVolumeWheel;
     }
 
@@ -809,9 +809,9 @@ jQuery(document).ready(function init() { // 載入完成後執行
     function onRateWheel(event) { // 滾輪調整速率
         indexRate((event.wheelDelta <= 0 || event.detail > 0) ? -1 : 1);
     };
-    if (!isUndefined($)) {
+    if (!isUndefined(rate.onwheel)) {
         rate.onwheel = onRateWheel;
-    } else if (!isUndefined($)) { // IE
+    } else if (!isUndefined(rate.onmousewheel)) { // IE
         rate.onmousewheel = onRateWheel;
     }
     rate.onclick = function(event) { //輸入速率
@@ -831,7 +831,7 @@ jQuery(document).ready(function init() { // 載入完成後執行
     };
 
     openPanel.onclick = function(event) { // 開新頁
-        if (isUndefined($)) {
+        if (isUndefined(ispanel)) {
             video.pause();
             // window.opener = null;
             // window.close();

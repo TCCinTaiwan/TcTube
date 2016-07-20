@@ -67,6 +67,7 @@ python main.py
 12. 資料庫歌單
 13. Youtube Rate onWeel
 14. 時間進度Seekable
+15. SSO
 
 ## Contributing [↶]()
 1. Create an issue and describe your idea

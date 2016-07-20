@@ -1,5 +1,8 @@
 # TcTube
-## 0.2.2
+## 0.2.3
+* 2016-07-20
+    + 整理Login logout功能
+    + 修正isUndefined($) 導致影片不能播放Bug
 * 2016-07-19
     + Login部分功能
 * 2016-07-18
@@ -7,6 +10,7 @@
     + 開始使用isUndefined
     + ChangLog使用倒敘法
     + SQL草稿
+## 0.2.2
 * 2016-07-17
     + IE9 部分JavaScript支援
     + 修正/video/<int> 亂導引Bug

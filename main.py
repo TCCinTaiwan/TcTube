@@ -1,5 +1,5 @@
 # coding=utf-8
-from flask import Flask, render_template, request, send_file, redirect, Response, send_from_directory, make_response, stream_with_context, url_for
+from flask import Flask, render_template, request, send_file, redirect, Response, send_from_directory, make_response, stream_with_context, url_for, abort, flash
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager, UserMixin, login_required, login_user, current_user, logout_user, confirm_login, login_fresh
 # from flask.ext.admin import helpers, expose
@@ -35,7 +35,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + app.config['DATABASE_FILE
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
-
+login_manager.login_view = "login"
+login_manager.session_protection = "strong"
 class User(db.Model):
     __tablename__    = 'users'
     COMPERENCE_ADMIN = 0
@@ -98,21 +99,36 @@ class User(db.Model):
         return self.id
 
     @classmethod
-    def get(cls, account):
+    def getByAccount(cls, account):
         return cls.query.filter_by(account = account).first()
+    def get(id):
+        return User.query.filter_by(id = id).first()
 
-@login_manager.request_loader
-def load_user(request):
-    token = request.headers.get('Authorization')
-    if token is None:
-        token = request.args.get('token')
+@login_manager.user_loader
+def load_user(user_id):
+    return User.get(user_id)
 
-    if token is not None:
-        account, password = token.split(":") # naive token
-        user = User.get(account)
-        if (user.password == password):
-            return user
-    return None
+@login_manager.header_loader
+def load_user_from_header(header_val):
+    header_val = header_val.replace('Basic ', '', 1)
+    try:
+        header_val = base64.b64decode(header_val)
+    except TypeError:
+        pass
+    return User.query.filter_by(api_key = header_val).first()
+
+# @login_manager.request_loader
+# def load_user(request):
+#     token = request.headers.get('Authorization')
+#     if token is None:
+#         token = request.args.get('token')
+
+#     if token is not None:
+#         account, password = token.split(":") # naive token
+#         user = User.getByAccount(account)
+#         if (user.password == password):
+#             return user
+#     return None
 
 def stream_tmeplate(template_name, **context):
     app.update_template_context(context)
@@ -122,10 +138,10 @@ def stream_tmeplate(template_name, **context):
     return templateStream
 
 @app.route("/listUser/") # http://127.0.0.1/listUser/?token=john987john987:123
-# @login_required
+@login_required
 def sql():
     users = User.query.all()
-    return u"<br>".join([u"{0} {1}: {2}".format(user.id, user.name, user.email) for user in users])
+    return current_user.name + u"""<br>""" + u"<br>".join([u"{0} {1}: {2}".format(user.id, user.name, user.email) for user in users])
 
 @app.route('/video/')
 def randomVideo(): # 隨機Video
@@ -134,7 +150,6 @@ def randomVideo(): # 隨機Video
     return video(random.randrange(len(jsonData)))
 
 @app.route('/video/<int:videoNum>')
-# @app.route('/video/', defaults = {'videoNum' : 1})
 def video(videoNum):
     return render_template('video.htm', videoNum = videoNum)
 
@@ -146,6 +161,7 @@ def index():
 def listRoot():
     return list("")
 @app.route('/list/<string:path>')
+@login_required
 def list(path):
     def formattime(time):
         return datetime.strftime(
@@ -180,6 +196,8 @@ class LoginForm(form.Form):
     account = fields.TextField(validators = [validators.required()])
     password = fields.PasswordField(validators = [validators.required()])
     submit = fields.SubmitField("Send")
+class LogoutForm(form.Form):
+    submit = fields.SubmitField("登出")
 
 class SignupForm(form.Form):
     account   = fields.TextField(
@@ -239,29 +257,32 @@ def login():
     form = LoginForm(request.form)
     # if (request.method == 'POST'):
     if form.validate():
-        user = User.get(form.account.data)
+        user = User.getByAccount(form.account.data)
         if user:
             if (user.password == form.password.data):
             # if bcrypt.check_password_hash(user.password, form.password.data):
-                # user.authenticated = True
+                user.authenticated = True
                 user.login_time = datetime.utcnow()
                 user.login_ip = request.remote_addr
-                # db.session.add(User("test", "test", "Mr. Test", "test@example.com", phone = "0123456789"))
                 db.session.add(user)
                 db.session.commit()
                 login_user(user, remember = True)
-                return "login success!!"
+                next = request.args.get('next')
+                flash('Logged in successfully.')
+                # else:
+                # return "login success!!"
+                return redirect(next or url_for("index"))
     return render_template('login.htm', title = "Login", form = form)
 
-
-
-@app.route('/logout', methods=['POST'])
+@app.route('/logout', methods = ['POST'])
 @login_required
 def logout():
-   """ logout user """
-   session.pop('login', None)
-   logout_user()
-   return "logout success!!"
+    """ logout user """
+    # session.pop('login', None)
+    logout_user()
+    next = request.args.get('next')
+    return redirect(next or url_for("index"))
+
 @app.route('/upload/', methods = ['GET','POST']) # 上傳檔案
 def upload_file():
     if (request.method == 'POST'):

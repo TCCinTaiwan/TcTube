@@ -1,0 +1,14 @@
+<script>
+    document.onreadystatechange = function (event) {
+        if (document.readyState == "complete") {
+            logout.onclick = function() {
+                var form = document.createElement("form");
+                form.setAttribute("method", "post");
+                form.setAttribute("action", '/logout');
+                document.body.appendChild(form);    // Not entirely sure if this is necessary
+                form.submit();
+            }
+        }
+    }
+</script>
+<button id="logout">登出</button>

@@ -1,5 +1,18 @@
 {% extends 'base.htm' %}
-
+{% block javascript %}
+    <script>
+        document.onreadystatechange = function (event) {
+            if (document.readyState == "complete") {
+            files.onchange = function (event) {
+                console.dir(files.files);
+                for (var i = files.files.length - 1; i >= 0; i--) {
+                    console.dir(files.files[i].size);
+                }
+            }
+            }
+        }
+    </script>
+{% endblock %}
 {% block body %}
     <h1>Upload new Files</h1>
     <form action='' method="POST" enctype="multipart/form-data">
@@ -8,12 +21,4 @@
             <input type='submit' value='upload'>
         </p>
     </form>
-    <script>
-        files.onchange = function (event) {
-            console.dir(files.files);
-            for (var i = files.files.length - 1; i >= 0; i--) {
-                console.dir(files.files[i].size);
-            }
-        }
-    </script>
 {% endblock %}
