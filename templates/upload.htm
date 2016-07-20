@@ -1,10 +1,19 @@
 {% extends 'base.htm' %}
+
 {% block body %}
     <h1>Upload new Files</h1>
     <form action='' method="POST" enctype="multipart/form-data">
         <p>
-            <input type='file' name='files[]' multiple>
+            <input id="files" type='file' name='files[]' multiple>
             <input type='submit' value='upload'>
         </p>
     </form>
+    <script>
+        files.onchange = function (event) {
+            console.dir(files.files);
+            for (var i = files.files.length - 1; i >= 0; i--) {
+                console.dir(files.files[i].size);
+            }
+        }
+    </script>
 {% endblock %}

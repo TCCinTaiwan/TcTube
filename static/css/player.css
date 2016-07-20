@@ -1,0 +1,324 @@
+html {
+    height: 100%;
+    font-family: Microsoft JhengHei;
+}
+body {
+    overflow: hidden;
+    margin: 0;
+    height: 100%;
+}
+#videoFrame {
+    height: 100%;
+    width: 100%;
+    margin: 0px auto;
+    background: #CCC;
+}
+video,
+#frame {
+    height: 100%;
+    width: 100%;
+    max-height: 100%;
+    max-width: 100%;
+    background: #000;
+    z-index: 100;
+}
+#controlBar {
+    position: relative;
+    width: 100%;
+    margin-top: -40px;
+    height: 40px;
+    z-index: 150;
+}
+/*transform: rotate(90deg) translate(245px);*/
+/*#videoFrame.window video,
+#videoFrame.window #frame {
+    width: 640px;
+    height: 360px;
+}
+@media (min-width: 640px) and (min-height: 360px) {
+    #videoFrame.window {
+        width: 640px;
+    }
+    #videoFrame.window video,
+    #videoFrame.window #frame {
+        width: 640px;
+        height: 360px;
+    }
+    #controlBar {
+        width: 640px;
+    }
+}
+@media (min-width: 854px) and (min-height: 480px) {
+    #videoFrame.window {
+        width: 854px;
+    }
+    #videoFrame.window video,
+    #videoFrame.window #frame {
+        width: 854px;
+        height: 480px;
+    }
+    #controlBar {
+        width: 854px;
+    }
+}
+@media (min-width: 1040px) and (min-height: 585px) {
+    #videoFrame.window {
+        width: 1040px;
+    }
+    #videoFrame.window video,
+    #videoFrame.window #frame {
+        width: 1040px;
+        height: 585px;
+    }
+    #controlBar {
+        width: 1040px;
+    }
+}
+@media (min-width: 1120px) and (min-height: 630px) {
+    #videoFrame.window {
+        width: 1120px;
+    }
+    #videoFrame.window video,
+    #videoFrame.window #frame {
+        width: 1120px;
+        height: 630px;
+    }
+    #controlBar {
+        width: 1120px;
+    }
+}
+@media (min-width: 1280px) and (min-height: 720px) {
+    #videoFrame.window {
+        width: 1280px;
+    }
+    #videoFrame.window video,
+    #videoFrame.window #frame {
+        width: 1280px;
+        height: 720px;
+    }
+    #controlBar {
+        width: 1280px;
+    }
+}
+@media (min-width: 1366px) and (min-height: 768px) {
+    #videoFrame.window {
+        width: 1366px;
+    }
+    #videoFrame.window video,
+    #videoFrame.window #frame {
+        width: 1366px;
+        height: 768px;
+    }
+    #controlBar {
+        width: 1366px;
+    }
+}
+@media (min-width: 1600px) and (min-height: 900px) {
+    #videoFrame.window {
+        width: 1600px;
+    }
+    #videoFrame.window video,
+    #videoFrame.window #frame {
+        width: 1600px;
+        height: 900px;
+    }
+    #controlBar {
+        width: 1600px;
+    }
+}
+@media (min-width: 1920px) and (min-height: 1080px) {
+    #videoFrame.window {
+        width: 1920px;
+    }
+    #videoFrame.window video,
+    #videoFrame.window #frame {
+        width: 1920px;
+        height: 1080px;
+    }
+    #controlBar {
+        width: 1920px;
+    }
+}
+@media (min-width: 2560px) and (min-height: 1440px) {
+    #videoFrame.window {
+        width: 2560px;
+    }
+    #videoFrame.window video,
+    #videoFrame.window #frame {
+        width: 2560px;
+        height: 1440px;
+    }
+    #controlBar {
+        width: 2560px;
+    }
+}*/
+/*#videoFrame.fullpage #controlBar {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+#videoFrame.fullscreen {
+    width: 100%;
+}
+#videoFrame.fullscreen #controlBar {
+    width: 100%;
+}
+#videoFrame.fullscreen video,
+#videoFrame.fullscreen #frame {
+    width: 100%;
+}*/
+#controlBar > * {
+    display: none;
+    float: left;
+    vertical-align: middle;
+}
+#controlBar.show:hover,
+body.wait #controlBar {
+    background: rgba(0, 0, 0, 0.6);
+}
+#controlBar.show:hover > *,
+body.wait #controlBar > * {
+    display: inline-block;
+}
+#controlBar button {
+    margin: 2px;
+    border: 0;
+    color: #fff;
+    background: red;
+    font: .8em FontAwesome;
+    width: 30px;
+    line-height: 30px;
+    text-align: center;
+    border-radius: 100%;
+}
+
+#volume {
+    width: 40px;
+    height: 40px;
+}
+#volume:hover #volumeSlider {
+    display: inline-block;
+}
+#volumeSlider {
+    display: none;
+    width: 4px;
+    height: 100px;
+    border-radius: 2px;
+}
+#volume div {
+    margin-left: -5px;
+    position: relative;
+    top: -150px;
+    text-align: center;
+}
+#volume div:hover #volumeSlider  {
+    display: inline-block;
+    width: 10px;
+    border-radius: 5px;
+}
+
+#progress {
+    width: 300px;
+    height: 4px;
+    margin: 18px 15px;
+    border-radius: 2px;
+}
+#progress:hover {
+    height: 10px;
+    margin: 15px 15px;
+    border-radius: 5px;
+}
+
+#time,
+#rate {
+    margin: 5px 5px 5px 5px;
+    color: white;
+    cursor: default;
+    font-size: 30px;
+    line-height: 26px;
+}
+#currentTime {
+    margin: 5px;
+}
+#duration {
+    margin: 5px;
+}
+#size {
+    float: right;
+}
+#size.zoomOut::before {
+    content: "\f0b2";
+}
+#size.zoomIn::before {
+    content: "\f0c8";
+}
+
+#play.play::before {
+    content: "\f04b";
+}
+#play.pause::before {
+    content: "\f04c";
+}
+#volume button.volumeUp::before {
+    content: "\f028";
+}
+#volume button.volumeDown::before {
+    content: "\f027";
+}
+#volume button.volumeOff::before {
+    content: "\f026";
+}
+#openPanel {
+    float: right;
+}
+#openPanel::before {
+    content: "\f096";
+}
+.stop::before {
+    content: "\f04d";
+}
+.backward::before {
+    content: "\f04a";
+}
+.forward::before {
+    content: "\f04e";
+}
+.fast-backward::before {
+    content: "\f049";
+}
+.fast-forward::before {
+    content: "\f050";
+}
+.step-backward::before {
+    content: "\f048";
+}
+.step-forward::before {
+    content: "\f051";
+}
+#list {
+    display: none;
+    position: absolute;
+    top: 0;
+    width: 400px;
+    background: rgba(0, 0, 0, 0.4);
+    color: #FFFFFF;
+}
+#contextMenu {
+    position: fixed;
+    /*position: absolute;*/
+    size: 50px 100px;
+    background: white;
+    z-index: 200; /* 大於畫布 */
+}
+#contextMenu > div {
+    background: black;
+    display: block;
+    color: #FF3333;
+    padding: 2px 10px;
+    border-width: 1px;
+    border-color: grey;
+    border-style: solid;
+}
+#contextMenu > div:hover {
+    background-color: grey;
+}

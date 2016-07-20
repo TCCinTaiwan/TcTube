@@ -1,5 +1,11 @@
 # coding=utf-8
 from flask import Flask, render_template, request, send_file, redirect, Response, send_from_directory, make_response, stream_with_context, url_for
+from flask.ext.sqlalchemy import SQLAlchemy
+from flask.ext.login import LoginManager, UserMixin, login_required, login_user, current_user, logout_user, confirm_login, login_fresh
+# from flask.ext.admin import helpers, expose
+from wtforms import form, fields, validators
+
+import binascii
 import os
 # from OpenSSL import SSL
 import cv2, re, json, random, subprocess
@@ -23,15 +29,103 @@ app.config['ALLOWED_EXTENSIONS'] = set([
     "mp4", "webm", "ogg"
 ])
 app.config['NGINX_PORT'] = 8000
-# login_manager = LoginManager()
-# login_manager.init_app(app)
+app.config['DATABASE_FILE'] = 'member.db'
+app.config["SECRET_KEY"] = binascii.hexlify(os.urandom(24))
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + app.config['DATABASE_FILE']
+db = SQLAlchemy(app)
+login_manager = LoginManager()
+login_manager.init_app(app)
 
-def stream_template(template_name, **context):
+class User(db.Model):
+    __tablename__    = 'users'
+    COMPERENCE_ADMIN = 0
+    COMPERENCE_USER = 10
+    MIN_USERNAME_LEN = 3
+    MAX_USERNAME_LEN = 20
+    MIN_PASSWORD_LEN = 4
+    MAX_PASSWORD_LEN = 40
+    id = db.Column(db.Integer, primary_key = True, autoincrement = True)
+    account = db.Column(db.String(64), index = True, unique = True)
+    password = db.Column(db.String(64))
+    name = db.Column(db.String(64))
+    email = db.Column(db.String(120), index = True, unique = True)
+    phone = db.Column(db.String(64), nullable = True)
+    birthday = db.Column(db.Date, nullable = True)
+    creating_time = db.Column(db.DateTime, default = datetime.utcnow(), nullable=True)
+    login_time = db.Column(db.DateTime, default = datetime.utcnow(), nullable=True)
+    login_ip = db.Column(db.String(32), nullable = True)
+    competence = db.Column(db.Integer, default = COMPERENCE_USER)
+    # @property
+    # def password(self):
+    #     raise AttributeError('password is not a readable attribute')
+    # @password.setter
+    # def password(self, password):
+    #     self.password_hash = generate_password_hash(password)
+    # def verify_password(self, password):
+    #     return bcrypt.check_password_hash(self.password_hash, password)
+
+    def __init__(self, account, password, name, email, creating_time = None, login_time = None, competence = COMPERENCE_USER, birthday = None, phone = None):
+        self.account = account
+        self.password = password
+        self.name = name
+        self.email = email
+        if phone is not None:
+            self.phone = phone
+        if birthday is not None:
+            self.birthday = birthday
+        if creating_time is None:
+            creating_time = datetime.utcnow()
+        self.creating_time = creating_time
+        if login_time is None:
+            login_time = datetime.utcnow()
+        self.login_time = login_time
+        self.competence = competence
+
+    def __repr__(self):
+        return '<User %r>' % (self.name)
+
+    # Flask-Login integration
+    def is_authenticated(self):
+        return True
+
+    def is_active(self):
+        return True
+
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        return self.id
+
+    @classmethod
+    def get(cls, account):
+        return cls.query.filter_by(account = account).first()
+
+@login_manager.request_loader
+def load_user(request):
+    token = request.headers.get('Authorization')
+    if token is None:
+        token = request.args.get('token')
+
+    if token is not None:
+        account, password = token.split(":") # naive token
+        user = User.get(account)
+        if (user.password == password):
+            return user
+    return None
+
+def stream_tmeplate(template_name, **context):
     app.update_template_context(context)
     template = app.jinja_env.get_template(template_name)
     templateStream = template.stream(context)
     templateStream.enable_buffering(5)
     return templateStream
+
+@app.route("/listUser/") # http://127.0.0.1/listUser/?token=john987john987:123
+# @login_required
+def sql():
+    users = User.query.all()
+    return u"<br>".join([u"{0} {1}: {2}".format(user.id, user.name, user.email) for user in users])
 
 @app.route('/video/')
 def randomVideo(): # 隨機Video
@@ -81,12 +175,93 @@ def view(path):
     absolutePath = re.match(r"^http(s|)://[^/:]{1,}", request.url).group(0)
     return render_template('viewVideo.htm', videoFile = absolutePath + ":" + str(app.config['NGINX_PORT']) + "/" + path)
 
+# Define login and registration forms (for flask-login)
+class LoginForm(form.Form):
+    account = fields.TextField(validators = [validators.required()])
+    password = fields.PasswordField(validators = [validators.required()])
+    submit = fields.SubmitField("Send")
+
+class SignupForm(form.Form):
+    account   = fields.TextField(
+        'Account',
+        [
+            validators.Length(
+                min = User.MIN_USERNAME_LEN,
+                max = User.MAX_USERNAME_LEN
+            ),
+            validators.Regexp(
+                "^[a-zA-Z0-9]*$",
+                message = "Username can only contain letters and numbers"
+            )
+        ]
+    )
+    name = fields.TextField(
+        'Name',
+        [
+            validators.Required()
+        ]
+    )
+    email = fields.TextField(
+        'Email',
+        [
+            validators.Required(),
+            validators.Email()
+        ]
+    )
+    password = fields.PasswordField(
+        'New Password',
+        [
+            validators.Length(
+                min = User.MIN_PASSWORD_LEN,
+                max= User.MAX_PASSWORD_LEN
+            )
+        ]
+    )
+    confirm = fields.PasswordField(
+        'Repeat Password',
+        [
+            validators.Required(),
+            validators.EqualTo(
+                'password',
+                message = 'Passwords must match'
+            )
+        ]
+    )
+    submit = fields.SubmitField("Send")
+
+@app.route('/signup/')
+def signup():
+    form = SignupForm(request.form)
+    return render_template('signup.htm', title = "Sign Up", form = form)
+
 @app.route('/login/', methods = ['GET','POST'])
 def login():
-    if (request.method == 'POST'):
-        return request.form.get('account')
-    return render_template('login.htm', title = 'Login')
+    form = LoginForm(request.form)
+    # if (request.method == 'POST'):
+    if form.validate():
+        user = User.get(form.account.data)
+        if user:
+            if (user.password == form.password.data):
+            # if bcrypt.check_password_hash(user.password, form.password.data):
+                # user.authenticated = True
+                user.login_time = datetime.utcnow()
+                user.login_ip = request.remote_addr
+                # db.session.add(User("test", "test", "Mr. Test", "test@example.com", phone = "0123456789"))
+                db.session.add(user)
+                db.session.commit()
+                login_user(user, remember = True)
+                return "login success!!"
+    return render_template('login.htm', title = "Login", form = form)
 
+
+
+@app.route('/logout', methods=['POST'])
+@login_required
+def logout():
+   """ logout user """
+   session.pop('login', None)
+   logout_user()
+   return "logout success!!"
 @app.route('/upload/', methods = ['GET','POST']) # 上傳檔案
 def upload_file():
     if (request.method == 'POST'):

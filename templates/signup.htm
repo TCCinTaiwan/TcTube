@@ -1,12 +1,22 @@
 {% extends 'base.htm' %}
 {% block body %}
-    <h1>Login</h1>
+    <h1>Sign Up</h1>
     <form action='' method="POST">
+
         {{ form.account.label }}
         {{ form.account }}
 
+        {{ form.name.label }}
+        {{ form.name }}
+
+        {{ form.email.label }}
+        {{ form.email }}
+
         {{ form.password.label }}
         {{ form.password }}
+
+        {{ form.confirm.label }}
+        {{ form.confirm }}
 
         {{ form.submit }}
     </form>

@@ -25,8 +25,16 @@
 git clone https://github.com/TCCinTaiwan/TcTube
 ```
 音樂檔案要放在 media/video/
-修改 static/playlist.json，改成自己的歌
-
+修改 [static/playlist.json](static/playlist.json)，改成自己的歌
+```json
+[
+    {
+        "file": "filename.webm",
+        "title": "Title",
+        "artist": "Artist"
+    }
+]
+```
 ## Usage [↶]()
 run Server:
 ```bash
@@ -38,26 +46,27 @@ python main.py
 ```
 
 ## Todo [↶]()
-1. 部分歌曲無法調整時間Bug
+1. 資料庫
 2. 控制面板延遲
 3. APP化
-4. 資料庫
-5. 頁面歷史
-6. 播放清單
-7. 影片嵌入支援
+4. 頁面歷史
+5. 播放清單
+6. 影片嵌入支援
     - Vimeo.com
-    - 優酷
+    - 優酷 http://open.youku.com/tools
     - 土豆網
     - 愛奇藝
     - FaceBook https://developers.facebook.com/docs/plugins/embedded-video-player
-8. 影片預覽
-9. SSL
-10. 選項:
+    - flv
+7. 影片預覽
+8. SSL
+9. 選項:
     - 下載檔名格式
-11. mimetype:hachoir
-12. IE9:
-    - json
-13. flv 不支援
+10. mimetype:hachoir
+11. Blob
+12. 資料庫歌單
+13. Youtube Rate onWeel
+14. 時間進度Seekable
 
 ## Contributing [↶]()
 1. Create an issue and describe your idea
