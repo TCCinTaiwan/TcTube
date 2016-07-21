@@ -1,6 +1,7 @@
 {% extends 'base.htm' %}
 {% block body %}
     {% include 'logout.htm' %}
+    {% include 'message.htm' %}
     <table>
         <caption>{{ folderpath }}</caption>
         <thead>
@@ -34,7 +35,7 @@
                 <td>{{ file['size'] }}</td>
                 <td>
                     {% if file['type'] != "folder" %}
-                        <a style="float: right;" href="{{ file['url'] }}" class="{{ file['type'] }}" download>下載</a>
+                        <a style="float: right;" href="{{ file['download_url'] }}" class="{{ file['type'] }}" download>下載</a>
                     {% endif %}
                 </td>
                 <td>{{ file['ctime'] }}</td>

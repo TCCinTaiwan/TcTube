@@ -26,9 +26,6 @@ if (!String.prototype.includes) { // IE includes
         }
     };
 }
-function isUndefined(value) {
-    return typeof value === 'undefined';
-}
 function onYouTubeIframeAPIReady() {
     console.log("onYouTubeIframeAPIReady()");
     delete window.player;
@@ -97,8 +94,8 @@ function debug() {
     groupCollapsed = false;
 }
 function updateTimerDisplay() { // 刷新時間(待整合video.timeupdate())
-    if (!frame.hidden && !isUndefined(window.player)) {
-        if (!isUndefined(player.getDuration)) {
+    if (!frame.hidden && typeof window.player !== 'undefined') {
+        if (typeof player.getDuration !== 'undefined') {
             if (!isNaN(player.getDuration())) {
                 if (player.getDuration() == Infinity) { // 無限大(保安 可以告訴我檔案多大嗎!!)
                     duration.textContent = "??:??";
@@ -106,7 +103,7 @@ function updateTimerDisplay() { // 刷新時間(待整合video.timeupdate())
                     duration.textContent = formatTime(player.getDuration());
                 }
             }
-            if (!isUndefined(player.getCurrentTime)) {
+            if (typeof player.getCurrentTime !== 'undefined') {
                 if (!isNaN(player.getCurrentTime())) {
                     if (player.getCurrentTime() == Infinity) { // 無限大(保安 可以告訴我檔案多大嗎!!)
                         currentTime.textContent = "??:??";
@@ -146,10 +143,10 @@ function loadJSON(file, callback) { // 載入Json檔
     xmlHttpRequest.send(null);
 }
 function Draw(obj, percente, direction, reverse) { // 填充百分比(通用)
-    if(isUndefined(direction)) {
+    if(typeof direction === 'undefined') {
         direction = "x";
     }
-    if(isUndefined(reverse)) {
+    if(typeof reverse === 'undefined') {
         reverse = false;
     }
     content = obj.getContext("2d");
@@ -215,10 +212,10 @@ function refreshVolume() { // 音量改變事件(通用) 100 1
     }
 }
 function calcPercente(e, direction, reverse) { // 計算百分比(通用)
-    if(isUndefined(direction)) {
+    if(typeof direction === 'undefined') {
         direction = "x";
     }
-    if(isUndefined(reverse)) {
+    if(typeof reverse === 'undefined') {
         reverse = false;
     }
     if (direction == "x") {
@@ -273,7 +270,7 @@ function indexRate(offset, newRate) {
 function index(offset) { // 歌曲索引(通用)
     // 假如沒傳入參數，直接採用預設值，即Python自動產生的數字或使用者輸入的數字
     // 缺少Youtube判斷
-    if (isUndefined(offset)) {
+    if (typeof offset === 'undefined') {
         videoNum = defaultVideoNum;
     } else {
         videoNum = ((videoNum + offset) % playlist.length + playlist.length) % playlist.length;
@@ -285,7 +282,7 @@ function index(offset) { // 歌曲索引(通用)
     }
     if (typeof playlist[videoNum].file === "object") { // 假如檔案為陣列，代表有多個檔案都是同一部
         video.src = "http://" + window.location.host + ":8000/" + playlist[videoNum].file[0]; // 假設第一部影片為預設載入的影片
-        if (isUndefined(window.player) || isUndefined(window.player.loadVideoByUrl)) {
+        if (typeof window.player === 'undefined' || typeof window.player.loadVideoByUrl === 'undefined') {
             frame.src = "about:blank";
         } else {
             player.stopVideo();
@@ -311,7 +308,7 @@ function index(offset) { // 歌曲索引(通用)
         if (playlist[videoNum].file.includes("blob:") || playlist[videoNum].file.includes("http:") || playlist[videoNum].file.includes("https:")) { // 絕對位址
             if (playlist[videoNum].file.includes("www.youtube")) {  // youtube
                 // 依據Youtube API是否載入來改變Youtube影片來源
-                if (isUndefined(window.player) || isUndefined(window.player.loadVideoByUrl)) {
+                if (typeof window.player === 'undefined' || typeof window.player.loadVideoByUrl === 'undefined') {
                     frame.src = playlist[videoNum].file + "?autoplay=" + ((localStorage.getItem("autoplay")) ? 1 : 0) + "&controls=0&disablekb=1&enablejsapi=1&autohide=1&modestbranding=1&playsinline=1&rel=0&showinfo=0&theme=dark&iv_load_poliucy=3&cc_load_policy=1";
                 } else {
                     player.loadVideoByUrl(playlist[videoNum].file + "?autoplay=" + ((localStorage.getItem("autoplay")) ? 1 : 0) + "&controls=0&disablekb=1&enablejsapi=1&autohide=1&modestbranding=1&playsinline=1&rel=0&showinfo=0&theme=dark&iv_load_poliucy=3&cc_load_policy=1"); // &origin=http%3A%2F%2F" + window.location.host
@@ -337,7 +334,7 @@ function index(offset) { // 歌曲索引(通用)
                 video.hidden = true;
             } else { // 其他網站(http)
                 video.src = playlist[videoNum].file;
-                if (isUndefined(window.player) || isUndefined(window.player.loadVideoByUrl)) {
+                if (typeof window.player === 'undefined' || typeof window.player.loadVideoByUrl === 'undefined') {
                     frame.src = "about:blank";
                 } else {
                     player.stopVideo();
@@ -355,7 +352,7 @@ function index(offset) { // 歌曲索引(通用)
             }
         } else { // 相對位址(本機檔案)
             video.src = "http://" + window.location.host + ":8000/" + playlist[videoNum].file;
-            if (isUndefined(window.player) || isUndefined(window.player.loadVideoByUrl)) {
+            if (typeof window.player === 'undefined' || typeof window.player.loadVideoByUrl === 'undefined') {
                 frame.src = "about:blank";
             } else {
                 player.stopVideo();
@@ -384,7 +381,7 @@ function index(offset) { // 歌曲索引(通用)
     console.log("%c" + playlist[videoNum].file, "color: blue;")
 
     // 設定視窗標題
-    if (isUndefined(playlist[videoNum].artist)) {
+    if (typeof playlist[videoNum].artist === 'undefined') {
         document.title = playlist[videoNum].title;
     } else {
         document.title = playlist[videoNum].artist + " - " + playlist[videoNum].title;
@@ -551,10 +548,11 @@ jQuery(document).ready(function init() { // 載入完成後執行
 
     window.onfocus = function(event) { // 切換回來時
         console.log("window.onFocus()");
-        if (!isUndefined(panel) && !panel.closed) {
+        if (typeof panel !== 'undefined' && !panel.closed) {
             panel.video.pause();
             if (video.src != panel.video.src) {
                 video.src = panel.video.src;
+                window.location = panel.location; // 變網址
                 playTime = panel.video.currentTime;
             } else {
                 video.currentTime = panel.video.currentTime;
@@ -578,13 +576,13 @@ jQuery(document).ready(function init() { // 載入完成後執行
             size.className = "zoomOut";
         }
     };
-    if (!isUndefined(document.onfullscreenchange)) {
+    if (typeof document.onfullscreenchange !== 'undefined') {
         document.onfullscreenchange = onFullscreenChange;
-    } else if (!isUndefined(document.onwebkitfullscreenchange)) {
+    } else if (typeof document.onwebkitfullscreenchange !== 'undefined') {
         document.onwebkitfullscreenchange = onFullscreenChange;
-    } else if (!isUndefined(document.onmozfullscreenchange)) {
+    } else if (typeof document.onmozfullscreenchange !== 'undefined') {
         document.onmozfullscreenchange = onFullscreenChange;
-    } else if (!isUndefined(document.onMSFullscreenChange)) {
+    } else if (typeof document.onMSFullscreenChange !== 'undefined') {
         document.onMSFullscreenChange = onFullscreenChange;
     }
 
@@ -609,6 +607,9 @@ jQuery(document).ready(function init() { // 載入完成後執行
                 video.volume = (video.volume >= 0.1) ? video.volume - 0.1 : 0;
             } else if (event.keyCode == 32) {
                 playAndPause();
+            } else if (event.keyCode == 122) {
+                event.preventDefault(); //關閉預設全螢幕功能
+                fullScreen();
             }
         }
     };
@@ -621,18 +622,28 @@ jQuery(document).ready(function init() { // 載入完成後執行
 
     video.onloadedmetadata = function(event) {
         console.log("video.loadedmetadata()");
-        // if (!isUndefined(playbackRate)) {
+        // if (typeof playbackRate !== 'undefined') {
         //     video.playbackRate = playbackRate;
         // }
-        // if (!isUndefined(playVolume)) {
+        // if (typeof playVolume !== 'undefined') {
         //     video.volume = playVolume;
         // }
-        if (!isUndefined(window.playTime)) {
+        if (typeof window.playTime !== 'undefined') {
             video.currentTime = window.playTime;
             delete window.playTime; // 釋放，避免下一首一樣從一半開始
         }
         if (localStorage.getItem("autoplay")) {
-            video.play();
+            if (typeof panel !== 'undefined' && !panel.closed) {
+            } else {
+                video.play();
+            }
+        }
+        if (typeof ispanel !== "undefined") {
+            if (opener.video.src != video.src) {
+                opener.video.src = video.src;
+                opener.location = window.location; // 變網址
+                opener.video.currentTime = video.currentTime;
+            }
         }
     };
     video.onloadstart = function(event) {
@@ -668,6 +679,9 @@ jQuery(document).ready(function init() { // 載入完成後執行
         // if (video.seekable.end.length > 0) {
             Draw(progress, video.currentTime / video.duration);
         }
+        if (typeof ispanel !== "undefined") {
+            window.opener.video.currentTime = video.currentTime;
+        }
     };
     video.ondurationchange = function(event) { // 影片長度改變
         console.log("video.onDurationchange()");
@@ -699,9 +713,9 @@ jQuery(document).ready(function init() { // 載入完成後執行
             indexRate((event.wheelDelta <= 0 || event.detail > 0) ? -1 : 1);
         }
     };
-    if (!isUndefined(video.onwheel)) {
+    if (typeof video.onwheel !== 'undefined') {
         video.onwheel = onVideoWheel;
-    } else if (!isUndefined(video.onmousewheel)) {
+    } else if (typeof video.onmousewheel !== 'undefined') {
         video.onmousewheel = onVideoWheel;
     }
 
@@ -711,9 +725,9 @@ jQuery(document).ready(function init() { // 載入完成後執行
             indexRate((event.wheelDelta <= 0 || event.detail > 0) ? -1 : 1);
         }
     };
-    if (!isUndefined(frame.onwheel)) {
+    if (typeof frame.onwheel !== 'undefined') {
         frame.onwheel = onFrameWheel;
-    } else if (!isUndefined(frame.onmousewheel)) {
+    } else if (typeof frame.onmousewheel !== 'undefined') {
         frame.onmousewheel = onFrameWheel;
     }
     video.oncontextmenu = function(event) { // 右鍵
@@ -778,9 +792,9 @@ jQuery(document).ready(function init() { // 載入完成後執行
             video.volume = (tempChange < 0) ? ((video.volume >= 0.1) ? video.volume - 0.1 : 0) : ((video.volume <= 0.9) ? video.volume + 0.1 : 1);
         }
     };
-    if (!isUndefined(volume.onwheel)) {
+    if (typeof volume.onwheel !== 'undefined') {
         volume.onwheel = onVolumeWheel;
-    } else if (!isUndefined(volume.onmousewheel)) {
+    } else if (typeof volume.onmousewheel !== 'undefined') {
         volume.onmousewheel = onVolumeWheel;
     }
 
@@ -809,9 +823,9 @@ jQuery(document).ready(function init() { // 載入完成後執行
     function onRateWheel(event) { // 滾輪調整速率
         indexRate((event.wheelDelta <= 0 || event.detail > 0) ? -1 : 1);
     };
-    if (!isUndefined(rate.onwheel)) {
+    if (typeof rate.onwheel !== 'undefined') {
         rate.onwheel = onRateWheel;
-    } else if (!isUndefined(rate.onmousewheel)) { // IE
+    } else if (typeof rate.onmousewheel !== 'undefined') { // IE
         rate.onmousewheel = onRateWheel;
     }
     rate.onclick = function(event) { //輸入速率
@@ -831,19 +845,19 @@ jQuery(document).ready(function init() { // 載入完成後執行
     };
 
     openPanel.onclick = function(event) { // 開新頁
-        if (isUndefined(ispanel)) {
+        if (typeof ispanel === "undefined") {
             video.pause();
             // window.opener = null;
             // window.close();
             panel = window.open(window.location.href, "dialog", "width=640, height=360,toolbar=no,menubar=no,scrollbars=no,resizable=no,location=no,status=no");
             panel.playTime = video.currentTime;
-            panel.ispanel = window.video;
+            panel.ispanel = true;
             // panel.playbackRate = video.playbackRate;
             // panel.playVolume = video.volume;
         } else {
             window.close();
-            ispanel.play();
-            ispanel.currentTime = video.currentTime;
+            window.opener.video.play();
+            window.opener.currentTime = video.currentTime;
         }
     };
 

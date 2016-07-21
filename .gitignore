@@ -1,7 +1,5 @@
-media/video/
-media/audio/
-nginx-1.10.1/
-SQLiteDatabaseBrowserPortable/
+media/video/*
+media/audio/*
 hidden/
 #################
 ## Eclipse

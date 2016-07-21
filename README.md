@@ -13,11 +13,11 @@
 
 ## Introduction [↶]()
 這是2016年暑假，我在系上實習，老師叫我們做的系統，我用去年寫的播放器加以改進。
-
+![截圖](screenshot.png)
 ## Browser Support [↶]()
-| ![IE](https://raw.github.com/alrra/browser-logos/master/internet-explorer/internet-explorer_48x48.png) | ![Chrome](https://raw.github.com/alrra/browser-logos/master/chrome/chrome_48x48.png) | ![Firefox](https://raw.github.com/alrra/browser-logos/master/firefox/firefox_48x48.png) | ![Opera](https://raw.github.com/alrra/browser-logos/master/opera/opera_48x48.png) | ![Safari](https://raw.github.com/alrra/browser-logos/master/safari/safari_48x48.png) |
-| --- | --- | --- | --- | --- |
-| IE 9+ △ | Chrome 4.0+ ✔ | Firefox 16.0+ ✔ | Opera 15.0+ ✖ | Safari 4.0+ ✖ |
+| ![IE](https://raw.github.com/alrra/browser-logos/master/internet-explorer/internet-explorer_48x48.png) | ![Chrome](https://raw.github.com/alrra/browser-logos/master/chrome/chrome_48x48.png) | ![Firefox](https://raw.github.com/alrra/browser-logos/master/firefox/firefox_48x48.png) | ![Opera](https://raw.github.com/alrra/browser-logos/master/opera/opera_48x48.png) | ![Safari](https://raw.github.com/alrra/browser-logos/master/safari/safari_48x48.png) | ![VIVALDI](https://vivaldi.com/assets/vivaldi.svg)
+| --- | --- | --- | --- | --- | --- |
+| IE 9+ ✔ | Chrome 4.0+ ✔ | Firefox 16.0+ ✔ | Opera 37.0+ ✔ | Safari 4.0+ ✖ |  Vivaldi 1+ ✔ |
 
 ## Installation [↶]()
 ```bash
@@ -62,12 +62,19 @@ python main.py
 8. SSL
 9. 選項:
     - 下載檔名格式
-10. mimetype:hachoir
+10. 檔案類型分析(不是以副檔名分析)
 11. Blob
 12. 資料庫歌單
-13. Youtube Rate onWeel
-14. 時間進度Seekable
-15. SSO
+13. 時間進度Seekable
+14. SSO
+15. dtree
+16. localization:
+    - Babel
+17. 資料庫:
+    - 部門
+        + select users.id, users.account, users.password, users.name , users.affiliation, department.name as affiliation_name, users.email, users.phone, users.birthday, users.creating_time, users.login_time, users.login_ip, users.competence from users join department on users.affiliation = department.id;
+    - 歌曲
+        + SELECT videos.*,videoSources.source FROM videos left join videoSources on videoSources.video_id = videos.id
 
 ## Contributing [↶]()
 1. Create an issue and describe your idea

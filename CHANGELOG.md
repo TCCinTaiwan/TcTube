@@ -1,24 +1,31 @@
 # TcTube
+## 0.2.4
+* 2016-07-21
+    - 修正全螢幕不同步問題(F11)
+    - 面板功能部分修補:
+        + 影像同步
+        + 一起換首
 ## 0.2.3
 * 2016-07-20
-    + 整理Login logout功能
-    + 修正isUndefined($) 導致影片不能播放Bug
+    - 整理Login logout功能
+    - 修正isUndefined($) 導致影片不能播放Bug
+    - 取消使用isUndefined，因為會有錯誤
 * 2016-07-19
-    + Login部分功能
+    - Login部分功能
 * 2016-07-18
-    + 分離CSS Javascript
-    + 開始使用isUndefined
-    + ChangLog使用倒敘法
-    + SQL草稿
+    - 分離CSS Javascript
+    - 開始使用isUndefined
+    - ChangLog使用倒敘法
+    - SQL草稿
 ## 0.2.2
 * 2016-07-17
-    + IE9 部分JavaScript支援
-    + 修正/video/<int> 亂導引Bug
-    + 按鍵:
+    - IE9 部分JavaScript支援
+    - 修正/video/<int> 亂導引Bug
+    - 按鍵:
         * 0~9: 跳到播放時間0% ~ 90%
-    + 修正Youtube iframe IE不能載入Bug
+    - 修正Youtube iframe IE不能載入Bug
 * 2016-07-16
-    + 上傳Github
+    - 上傳Github
 * 2016-07-15
     - IE webm:
         * https://tools.google.com/dlpage/webmmf/
@@ -26,7 +33,7 @@
     - Youtube影片IE跳過
 ## 0.2.1
 * 2016-07-14
-    + 簡單多檔案上傳
+    - 簡單多檔案上傳
 * 2016-07-13
     - 加入Nginx，來當Http File Server
     - 更新檔案清單顯示
@@ -52,7 +59,7 @@
         * -: 減少音量
         * (speace): 播放/暫停
 * 2016-07-09
-    + Youtube(部分支援)
+    - Youtube(部分支援)
 ## 0.1.0
 * 2016-07-09
     - 播放清單JSON檔

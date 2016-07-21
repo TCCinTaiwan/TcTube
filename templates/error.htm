@@ -1,0 +1,16 @@
+{% extends 'base.htm' %}
+{% block body %}
+    <script type="text/javascript">
+        {% if redirect != None %}
+            {% if redirectTime != None %}
+                redirectTime = {{ redirectTime }};
+            {% else %}
+                redirectTime = 10000;
+            {% endif %}
+            setTimeout(function Redirect() {
+                window.location = "{{ redirect }}";
+            }, redirectTime);
+        {% endif %}
+    </script>
+    <h1>{{ error }}</h1>
+{% endblock %}

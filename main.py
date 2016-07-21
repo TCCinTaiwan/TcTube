@@ -1,5 +1,18 @@
 # coding=utf-8
-from flask import Flask, render_template, request, send_file, redirect, Response, send_from_directory, make_response, stream_with_context, url_for, abort, flash
+from flask import (
+    Flask,
+    render_template,
+    request,
+    send_file,
+    redirect,
+    Response,
+    send_from_directory,
+    make_response,
+    stream_with_context,
+    url_for,
+    abort,
+    flash
+)
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager, UserMixin, login_required, login_user, current_user, logout_user, confirm_login, login_fresh
 # from flask.ext.admin import helpers, expose
@@ -30,12 +43,13 @@ app.config['ALLOWED_EXTENSIONS'] = set([
 ])
 app.config['NGINX_PORT'] = 8000
 app.config['DATABASE_FILE'] = 'member.db'
-app.config["SECRET_KEY"] = binascii.hexlify(os.urandom(24))
+# app.config["SECRET_KEY"] = binascii.hexlify(os.urandom(24))
+app.config["SECRET_KEY"] = "0" * 24
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + app.config['DATABASE_FILE']
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = "login"
+# login_manager.login_view = "login"
 login_manager.session_protection = "strong"
 class User(db.Model):
     __tablename__    = 'users'
@@ -50,6 +64,7 @@ class User(db.Model):
     password = db.Column(db.String(64))
     name = db.Column(db.String(64))
     email = db.Column(db.String(120), index = True, unique = True)
+    affiliation = db.Column(db.Integer)
     phone = db.Column(db.String(64), nullable = True)
     birthday = db.Column(db.Date, nullable = True)
     creating_time = db.Column(db.DateTime, default = datetime.utcnow(), nullable=True)
@@ -65,11 +80,12 @@ class User(db.Model):
     # def verify_password(self, password):
     #     return bcrypt.check_password_hash(self.password_hash, password)
 
-    def __init__(self, account, password, name, email, creating_time = None, login_time = None, competence = COMPERENCE_USER, birthday = None, phone = None):
+    def __init__(self, account, password, name, email, affiliation = None, creating_time = None, login_time = None, competence = COMPERENCE_USER, birthday = None, phone = None):
         self.account = account
         self.password = password
         self.name = name
         self.email = email
+        self.affiliation = affiliation
         if phone is not None:
             self.phone = phone
         if birthday is not None:
@@ -101,8 +117,10 @@ class User(db.Model):
     @classmethod
     def getByAccount(cls, account):
         return cls.query.filter_by(account = account).first()
-    def get(id):
-        return User.query.filter_by(id = id).first()
+
+    @classmethod
+    def get(cls,id):
+        return cls.query.filter_by(id = id).first()
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -117,6 +135,11 @@ def load_user_from_header(header_val):
         pass
     return User.query.filter_by(api_key = header_val).first()
 
+@login_manager.unauthorized_handler
+def unauthorized():
+    flash('請登入再繼續')
+    next = request.url_rule
+    return redirect(url_for('login', next = next))
 # @login_manager.request_loader
 # def load_user(request):
 #     token = request.headers.get('Authorization')
@@ -129,7 +152,6 @@ def load_user_from_header(header_val):
 #         if (user.password == password):
 #             return user
 #     return None
-
 def stream_tmeplate(template_name, **context):
     app.update_template_context(context)
     template = app.jinja_env.get_template(template_name)
@@ -140,8 +162,12 @@ def stream_tmeplate(template_name, **context):
 @app.route("/listUser/") # http://127.0.0.1/listUser/?token=john987john987:123
 @login_required
 def sql():
-    users = User.query.all()
-    return current_user.name + u"""<br>""" + u"<br>".join([u"{0} {1}: {2}".format(user.id, user.name, user.email) for user in users])
+    if current_user.competence >= 5:
+        return render_template('error.htm', title = "Error",error = "權限不足", redirect = "/", redirectTime = 100), 403
+    users = User.query.filter(User.competence > current_user.competence)
+    # users = User.query.all()
+    return render_template('listUser.htm', title = "List Users", users = users)
+
 
 @app.route('/video/')
 def randomVideo(): # 隨機Video
@@ -176,26 +202,27 @@ def list(path):
             "index": index,
             "name": file,
             "url": ("/view/" if (os.path.isfile(filepath)) else "/list/") + file,
+            "download_url": "/media/" + file,
             "type": "file" if os.path.isfile(filepath) else "folder" if os.path.isdir(filepath) else "unknown",
             "mtime": formattime(os.path.getmtime(filepath)),
             "ctime": formattime(os.path.getctime(filepath)),
             "atime": formattime(os.path.getatime(filepath)),
             "size": os.path.getsize(filepath)
         })
-    return render_template("list.htm", title = 'List', files = files, folderpath = path)
+    return render_template("list.htm", title = 'List', files = files, folderpath = "/" + path)
 # def mimetype(filepath):
 #     return magic.from_file(filepath)
 
 @app.route('/view/<path:path>') # 強制檢視影片，而不是看瀏覽器而下載或觀看
 def view(path):
     absolutePath = re.match(r"^http(s|)://[^/:]{1,}", request.url).group(0)
-    return render_template('viewVideo.htm', videoFile = absolutePath + ":" + str(app.config['NGINX_PORT']) + "/" + path)
+    return render_template('viewMedia.htm', mediaFile = absolutePath + ":" + str(app.config['NGINX_PORT']) + "/" + path)
 
 # Define login and registration forms (for flask-login)
 class LoginForm(form.Form):
     account = fields.TextField(validators = [validators.required()])
     password = fields.PasswordField(validators = [validators.required()])
-    submit = fields.SubmitField("Send")
+    submit = fields.SubmitField("Sign In")
 class LogoutForm(form.Form):
     submit = fields.SubmitField("登出")
 
