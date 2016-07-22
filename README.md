@@ -75,6 +75,7 @@ python main.py
         + select users.id, users.account, users.password, users.name , users.affiliation, department.name as affiliation_name, users.email, users.phone, users.birthday, users.creating_time, users.login_time, users.login_ip, users.competence from users join department on users.affiliation = department.id;
     - 歌曲
         + SELECT videos.*,videoSources.source FROM videos left join videoSources on videoSources.video_id = videos.id
+18. 跑馬燈
 
 ## Contributing [↶]()
 1. Create an issue and describe your idea

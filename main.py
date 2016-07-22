@@ -17,6 +17,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager, UserMixin, login_required, login_user, current_user, logout_user, confirm_login, login_fresh
 # from flask.ext.admin import helpers, expose
 from wtforms import form, fields, validators
+from functools import wraps, partial
 
 import binascii
 import os
@@ -159,11 +160,21 @@ def stream_tmeplate(template_name, **context):
     templateStream.enable_buffering(5)
     return templateStream
 
+def access_permission(func = None, level = None):
+    if not func:
+        return partial(access_permission, level = level)
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        print('[%s] 呼叫 %s(), user = %s, level = %d' % (datetime.utcnow(), func, current_user, level if level != None else -1))
+        if current_user.competence > level:
+            return render_template('error.htm', title = "Forbidden",error = "權限不足", redirect = "/", redirectTime = 100), 403
+        return func(*args, **kwargs)
+    return wrapper
+
 @app.route("/listUser/") # http://127.0.0.1/listUser/?token=john987john987:123
 @login_required
+@access_permission(level = 5)
 def sql():
-    if current_user.competence >= 5:
-        return render_template('error.htm', title = "Error",error = "權限不足", redirect = "/", redirectTime = 100), 403
     users = User.query.filter(User.competence > current_user.competence)
     # users = User.query.all()
     return render_template('listUser.htm', title = "List Users", users = users)
@@ -180,13 +191,16 @@ def video(videoNum):
     return render_template('video.htm', videoNum = videoNum)
 
 @app.route('/')
+@login_required
+@access_permission(level = 10)
 def index():
-    return listRoot()
+    return render_template("index.htm", title = 'Index')
 
 @app.route('/list/')
 def listRoot():
     return list("")
 @app.route('/list/<string:path>')
+@access_permission(level = 5)
 @login_required
 def list(path):
     def formattime(time):
@@ -220,9 +234,9 @@ def view(path):
 
 # Define login and registration forms (for flask-login)
 class LoginForm(form.Form):
-    account = fields.TextField(validators = [validators.required()])
-    password = fields.PasswordField(validators = [validators.required()])
-    submit = fields.SubmitField("Sign In")
+    account = fields.TextField("帳號", validators = [validators.required()])
+    password = fields.PasswordField("密碼", validators = [validators.required()])
+    submit = fields.SubmitField("登入", render_kw = {"class": "123"})
 class LogoutForm(form.Form):
     submit = fields.SubmitField("登出")
 

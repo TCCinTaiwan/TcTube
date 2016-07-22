@@ -4,231 +4,237 @@
 {% block css %}
 <!-- <link rel="stylesheet" type="text/css" href=""> -->
 <style type="text/css">
-@import "css/reset.css";
-.font{
-
-}
+@import "/css/reset.css";
 html {
     width: 100%;
     height: 100%;
     overflow: hidden;
 }
-body { 
+body {
     width: 100%;
     height: 100%;
     margin: 0;
     padding: 15% 0;
-    background-image: url("../loginBackGround.jpg"); 
-    background-repeat: no-repeat; 
+    background-image: url("../loginBackGround.jpg");
+    background-repeat: no-repeat;
     background-position: center center;
 }
 form > h1 {
     margin: 0 auto;
+    font-size: 24px;
 }
 form {
-	display: table;
+    display: table;
     width: 400px;
     padding: 20px 0 10px 0;
-	margin: 0 auto;
+    margin: 0 auto;
     text-align: center;
-	border-radius: 10px;
-    background: rgba(125, 125, 125, 0.6);
+    border-radius: 10px;
+    background: rgba(150, 150, 150, 0.5);
+    -webkit-user-select: none; /* 不可選字 */
 }
 form > * {
-	display: table-row;
+    display: table-row;
 }
 form > div > label {
-	margin: 10px 0 0 10px;
-	float: left;
-	clear: left;
-	display: table-cell;
+    margin: 10px 0 4px 10px;
+    float: left;
+    clear: left;
+    display: table-cell;
 }
 form > div > input {
-	margin: 0px 15px 10px 15px;
-	width: 90%;
-	float: left;
-	clear: left;
-	display: table-cell;
-	border-radius: 5px;
+    margin: 4px 15px 10px 15px;
+    width: 90%;
+    float: left;
+    clear: left;
+    display: table-cell;
+    border-radius: 5px;
+    border: 0px;
 }
 form > input {
-	margin: 10px auto;
-	padding: 0 20px;
-	height: 25px;
-	border-radius: 2px;
+    margin: 10px auto;
+    padding: 0 20px;
+    height: 25px;
+    border-radius: 2px;
+    border: 0px;
+    background: rgba(255, 255, 255, 1);
 }
+input:-webkit-autofill { /* 清除自動填充顏色 */
+    -webkit-box-shadow: 0 0 0px 1000px white inset;
+}
+/*::selection {
+    color: red;
+    background: yellow;
+}*/
 @media (max-width: 400px) {
-	form {
-	    width:100%;
-	}
+    form {
+        width:100%;
+    }
 }
 @media (max-height: 1160px) {
-	body {
-    	padding: 450px 0;
-	}
+    body {
+        padding: 450px 0;
+    }
 }
 @media (max-height: 1060px) {
-	body {
-    	padding: 400px 0;
-	}
+    body {
+        padding: 400px 0;
+    }
 }
 @media (max-height: 960px) {
-	body {
-    	padding: 350px 0;
-	}
+    body {
+        padding: 350px 0;
+    }
 }
 @media (max-height: 860px) {
-	body {
-    	padding: 300px 0;
-	}
+    body {
+        padding: 300px 0;
+    }
 }
 @media (max-height: 760px) {
-	body {
-    	padding: 250px 0;
-	}
+    body {
+        padding: 250px 0;
+    }
 }
 @media (max-height: 660px) {
-	body {
-    	padding: 200px 0;
-	}
+    body {
+        padding: 200px 0;
+    }
 }
 @media (max-height: 610px) {
-	body {
-    	padding: 175px 0;
-	}
+    body {
+        padding: 175px 0;
+    }
 }
 @media (max-height: 560px) {
-	body {
-    	padding: 150px 0;
-	}
+    body {
+        padding: 150px 0;
+    }
 }
 @media (max-height: 510px) {
-	body {
-    	padding: 125px 0;
-	}
+    body {
+        padding: 125px 0;
+    }
 }
 @media (max-height: 460px) {
-	body {
-    	padding: 100px 0;
-	}
+    body {
+        padding: 100px 0;
+    }
 }
 @media (max-height: 410px) {
-	body {
-    	padding: 75px 0;
-	}
+    body {
+        padding: 75px 0;
+    }
 }
 @media (max-height: 360px) {
-	body {
-    	padding: 50px 0;
-	}
+    body {
+        padding: 50px 0;
+    }
 }
 @media (max-height: 350px) {
-	body {
-    	padding: 40px 0;
-	}
+    body {
+        padding: 40px 0;
+    }
 }
 @media (max-height: 340px) {
-	body {
-    	padding: 35px 0;
-	}
+    body {
+        padding: 35px 0;
+    }
 }
 @media (max-height: 320px) {
-	body {
-    	padding: 30px 0;
-	}
+    body {
+        padding: 30px 0;
+    }
 }
 @media (max-height: 310px) {
-	body {
-    	padding: 25px 0;
-	}
+    body {
+        padding: 25px 0;
+    }
 }
 @media (max-height: 290px) {
-	body {
-    	padding: 15px 0;
-	}
+    body {
+        padding: 15px 0;
+    }
 }
 @media (max-height: 280px) {
-	body {
-    	padding: 10px 0;
-	}
+    body {
+        padding: 10px 0;
+    }
 }
 @media (max-height: 270px) {
-	body {
-    	padding: 5px 0;
-	}
+    body {
+        padding: 5px 0;
+    }
 }
 @media (max-height: 260px) {
-	body {
-	    padding: 0px;
-	}
+    body {
+        padding: 0px;
+    }
 }
 @media (max-height: 230px) {
-	form {
-	    height: 100%;
-		border-radius: 0;
-	}
+    form {
+        height: 100%;
+        border-radius: 0;
+    }
 }
 @media (max-height: 220px) {
-	form {
-	    padding-top: 15px;
-	}
-	form > div > label {
-		margin-top: 7.5px;
-	}
-	form > div > input {
-		margin-bottom: 7.5px;
-	}
+    form {
+        padding-top: 15px;
+    }
+    form > div > label {
+        margin-top: 7.5px;
+    }
+    form > div > input {
+        margin-bottom: 7.5px;
+    }
 }
 @media (max-height: 210px) {
-	form {
-	    padding-top: 10px;
-	}
-	form > div > label {
-		margin-top: 5px;
-	}
-	form > div > input {
-		margin-bottom: 5px;
-	}
+    form {
+        padding-top: 10px;
+    }
+    form > div > label {
+        margin-top: 5px;
+    }
+    form > div > input {
+        margin-bottom: 5px;
+    }
 }
 @media (max-height: 200px) {
-	form {
-	    padding-top: 5px;
-	}
-	form > div > label {
-		margin-top: 2.5px;
-	}
-	form > div > input {
-		margin-bottom: 2.5px;
-	}
-	form > h1 {
-		font-size: 24px;
-	}
+    form {
+        padding-top: 5px;
+    }
+    form > div > label {
+        margin-top: 2.5px;
+    }
+    form > div > input {
+        margin-bottom: 2.5px;
+    }
 }
 @media (max-height: 190px) {
-	form {
-	    padding-top: 0px;
-	}
-	form > h1 {
-		font-size: 21px;
-	}
+    form {
+        padding-top: 0px;
+    }
+    form > h1 {
+        font-size: 21px;
+    }
 }
 @media (max-height: 180px) {
-	form > h1 {
-		font-size: 18px;
-	}
+    form > h1 {
+        font-size: 18px;
+    }
 }
 @media (max-height: 170px) {
-	form > h1 {
-		font-size: 15px;
-	}
+    form > h1 {
+        font-size: 15px;
+    }
 }
 @media (max-height: 160px) {
-	form > h1 {
-		display: none;
-	}
+    form > h1 {
+        display: none;
+    }
 }
 /*body {
-	padding: 50vh 0;
+    padding: 50vh 0;
 }*/
 </style>
 
@@ -237,7 +243,7 @@ form > input {
   </head>
 {% block body %}
     <form action='' method="POST">
-		<h1>登入</h1>
+        <h1>TcTube</h1>
         <div>
             {{ form.account.label }}
             {{ form.account }}

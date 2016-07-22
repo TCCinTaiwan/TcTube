@@ -1,0 +1,78 @@
+{% extends 'base.htm' %}
+
+{% block css %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="css/marquee.css">
+<link rel="stylesheet" type="text/css" href="css/dtree.css">
+<style>
+    html,
+    body {
+        height: 100%;
+        width: 100%;
+
+    }
+    #menu {
+        height: 100%;
+        width: 200px;
+        background: #FFFFCC;
+    }
+    #menu > div > .dTreeNode {
+        font-size: 30px;
+        background: red;
+        padding: 10px;
+    }
+    #menu > div > .dTreeNode > img {
+        display: none;
+    }
+</style>
+{% endblock %}
+{% block javascript %}
+<script src="/js/jquery-1.12.4.min.js"></script>
+<script src="/js/jquery.marquee.min.js"></script>
+<script type="text/javascript" src="js/dtree.js"></script>
+<script>
+    document.addEventListener("readystatechange", function init(event) {
+        if (document.readyState === "complete") {
+            console.log("complete");
+            dtree = new dTree('dtree');
+            dtree.add(0,-1,'選單');
+            dtree.add(1,0,'基本功能');
+            dtree.add(2,1,'檔案清單','list');
+            dtree.add(3,1,'影片','video','開啟影片播放','','img/trash.gif');
+            dtree.add(4,0,'進階功能');
+            dtree.add(5,4,'列出使用者','listUser','開啟影片播放','','img/trash.gif');
+            dtree.add(6,0,'登出', "", "", icon = "img/folder.gif");
+            menu.innerHTML  = dtree;
+            // jQuery('.marquee').marquee({
+            //     speed: 5000,
+            //     gap: 50,
+            //     delayBeforeStart: 0,
+            //     direction: 'left',
+            //     duplicated: true,
+            //     pauseOnHover: true
+            // });
+            jQuery("#marquee").marquee({
+                speed: 10
+            });// 執行跑馬燈
+        }
+    }, false);
+</script>
+{% endblock %}
+{% block body %}
+    <!-- {% include 'functions/logout.htm' %} -->
+    <!-- <div id="menu"></div> -->
+    <header id="header" class="">
+        <img src="Favicon.png" alt="">TcTube
+    </header><!-- /header -->
+    <menu id="menu" type="context toolbar"></menu>
+    <div id="content">
+        
+    </div>
+    <!-- {% include 'functions/message.htm' %} -->
+    <ul id="marquee" class="marquee">
+        <li><h3>1 2 3 4 5 6 7 8 9 10 1 2 3 4 5 6 7 8 9 10 1 2 3 4 5 6 7 8 9 10 1 2 3 4 5 6 7 8 9 10 1 2 3 4 5 6 7 8 9 10 1 2 3 4 5 6 7 8 9 10 1 2 3 4 5 6 7 8 9 10 1 2 3 4 5 6 7 8 9 10 </h3></li>
+        <li><h3>456</h3></li>
+        <li><h3>789</h3></li>
+        <li><h3>ABC</h3></li>
+    </ul>
+{% endblock %}
