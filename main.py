@@ -30,7 +30,7 @@ from pygments.formatters import HtmlFormatter
 from functools import partial
 from datetime import datetime
 import sqlite3
-
+from urllib.parse import urlparse
 app = Flask(__name__, static_url_path = "", static_folder = "static/")
 app.debug = True
 app.config['VIDEO_FOLDER'] = "media/video/"
@@ -52,8 +52,18 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 # login_manager.login_view = "login"
 login_manager.session_protection = "strong"
+class Video(db.Model):
+    __tablename__ = 'videos'
+    id = db.Column(db.Integer, primary_key = True, autoincrement = True)
+    title = db.Column(db.String(64))
+    artist = db.Column(db.String(64))
+    def  __init__(self, title, artist):
+        self.title = title
+        self.artist = artist
+    def __repr__(self):
+        return '<Video %r>' % (self.title)
 class User(db.Model):
-    __tablename__    = 'users'
+    __tablename__ = 'users'
     COMPERENCE_ADMIN = 0
     COMPERENCE_USER = 10
     MIN_USERNAME_LEN = 3
@@ -123,6 +133,13 @@ class User(db.Model):
     def get(cls,id):
         return cls.query.filter_by(id = id).first()
 
+@app.before_request
+def check_login():
+    print([item for item in current_user])
+    # if request.endpoint == 'static' and not current_user.is_authenticated:
+    #     return render_template('error.htm', title = "Forbidden",error = "權限不足", redirect = "/", redirectTime = 100), 403
+    return None
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.get(user_id)
@@ -139,7 +156,7 @@ def load_user_from_header(header_val):
 @login_manager.unauthorized_handler
 def unauthorized():
     flash('請登入再繼續')
-    next = request.url_rule
+    next = urlparse(request.url).path
     return redirect(url_for('login', next = next))
 # @login_manager.request_loader
 # def load_user(request):
@@ -153,6 +170,8 @@ def unauthorized():
 #         if (user.password == password):
 #             return user
 #     return None
+
+
 def stream_tmeplate(template_name, **context):
     app.update_template_context(context)
     template = app.jinja_env.get_template(template_name)
@@ -160,6 +179,7 @@ def stream_tmeplate(template_name, **context):
     templateStream.enable_buffering(5)
     return templateStream
 
+# 裝飾
 def access_permission(func = None, level = None):
     if not func:
         return partial(access_permission, level = level)
@@ -170,6 +190,13 @@ def access_permission(func = None, level = None):
             return render_template('error.htm', title = "Forbidden",error = "權限不足", redirect = "/", redirectTime = 100), 403
         return func(*args, **kwargs)
     return wrapper
+
+
+@app.route('/')
+@login_required
+@access_permission(level = 10)
+def index():
+    return render_template("index.htm", title = 'Index')
 
 @app.route("/listUser/") # http://127.0.0.1/listUser/?token=john987john987:123
 @login_required
@@ -187,19 +214,15 @@ def randomVideo(): # 隨機Video
     return video(random.randrange(len(jsonData)))
 
 @app.route('/video/<int:videoNum>')
-def video(videoNum):
-    return render_template('video.htm', videoNum = videoNum)
-
-@app.route('/')
 @login_required
 @access_permission(level = 10)
-def index():
-    return render_template("index.htm", title = 'Index')
+def video(videoNum):
+    return render_template('video.htm', videoNum = videoNum)
 
 @app.route('/list/')
 def listRoot():
     return list("")
-@app.route('/list/<string:path>')
+@app.route('/list/<string:path>/')
 @access_permission(level = 5)
 @login_required
 def list(path):
@@ -210,24 +233,28 @@ def list(path):
         )
     files = []
     folderpath = os.path.join(app.config['VIDEO_FOLDER'] , path)
+    path = "/" + path
     for index, file in enumerate(os.listdir(folderpath)):
         filepath = os.path.join(folderpath, file)
+        relativepath = os.path.join(path, file)
         files.append({
             "index": index,
             "name": file,
-            "url": ("/view/" if (os.path.isfile(filepath)) else "/list/") + file,
-            "download_url": "/media/" + file,
+            "url": ("/view" if (os.path.isfile(filepath)) else "/list") + relativepath,
+            "download_url": "/media" + relativepath,
             "type": "file" if os.path.isfile(filepath) else "folder" if os.path.isdir(filepath) else "unknown",
             "mtime": formattime(os.path.getmtime(filepath)),
             "ctime": formattime(os.path.getctime(filepath)),
             "atime": formattime(os.path.getatime(filepath)),
             "size": os.path.getsize(filepath)
         })
-    return render_template("list.htm", title = 'List', files = files, folderpath = "/" + path)
+    return render_template("list.htm", title = 'List', files = files, folderpath = path)
 # def mimetype(filepath):
 #     return magic.from_file(filepath)
 
+
 @app.route('/view/<path:path>') # 強制檢視影片，而不是看瀏覽器而下載或觀看
+@login_required
 def view(path):
     absolutePath = re.match(r"^http(s|)://[^/:]{1,}", request.url).group(0)
     return render_template('viewMedia.htm', mediaFile = absolutePath + ":" + str(app.config['NGINX_PORT']) + "/" + path)
@@ -325,6 +352,8 @@ def logout():
     return redirect(next or url_for("index"))
 
 @app.route('/upload/', methods = ['GET','POST']) # 上傳檔案
+@login_required
+@access_permission(level = 5)
 def upload_file():
     if (request.method == 'POST'):
         files = request.files.getlist('files[]')

@@ -109,40 +109,50 @@ python main.py
     ```
     - **Double quotes**. Single quotes are OK only when nested within double quotes.
     ```javascript
+    # good :white_check_mark:
     var foo = "Hello, world.";
     var bar = "Hello, 'world.'";
+    # bad :x:
     var foo = 'Hello, world.';
     ```
     - Functions are followed by no space.
     ```
+    # good :white_check_mark:
     function foo() {
         ...
     }
+    # bad :x:
     function foo () {
         ...
     }
     ```
     - Always put spaces around operators (= + - * /), and after commas.
     ```javascript
+    # good :white_check_mark:
     var x = y + z;
     var values = ["Apple", "Ball", "Cat"];
+    # bad :x:
     var x=y+z;
     var values=["Apple","Ball","Cat"];
     ```
     - Argument definitions are followed by no spaces.
     ```
+    # good :white_check_mark:
     function foo(a, b, c) {
         ...
     }
+    # bad :x:
     function foo( a, b, c ) {
         ...
     }
     ```
     - A **single space** will always and should only follow semi-colons when defining object literals.
     ```
+    # good :white_check_mark:
     var foo = {
         bar: 1
     }
+    # bad :x:
     var foo = {
         bar : 1
     }
@@ -152,9 +162,11 @@ python main.py
     ```
     - A **single space** will always follow conditional statements.
     ```
+    # good :white_check_mark:
     if (true) {
        ...
     }
+    # bad :x:
     if(true) {
        ...
     }
