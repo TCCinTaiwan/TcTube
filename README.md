@@ -90,120 +90,120 @@ python main.py
 
 ## Coding Style [↶]()
 ### JavaScript [↶]()
-    - No tabs. **Four spaces**.
-    - No trailing whitespace.
-    - Always use semicolons and don't rely on implicit insertion.
-    - use **lowerCamelCase** for identifier names (variables and functions).
-        + :white_check_mark: good
-        ```javascript
-        var helloWorld = "Hello, world."; // lowerCamelCase
-        var strHelloWorld = "Hello, world."; // Hungarian Notation + lowerCamelCase
-        ```
-        + :x: bad
-        ```javascript
-        var HelloWorld = "Hello, world."; // UpperCamelCase, Pascal
-        var helloworld = "Hello, world."; // lowercase
-        var HELLOWORLD = "Hello, world."; // UPPERCASE
-        var Hello_World = "Hello, world."; // Capitalized_Words_With_Underscores
-        var HELLO_WORLD = "Hello, world."; // UPPER_CASE_WITH_UNDERSCORES
-        var hello_world = "Hello, world."; // lower_case_with_underscores
-        var hello-world = "Hello, world."; // lower-case-hyphens
-        var HELLO-WORLD = "Hello, world."; // UPPER-CASE-HYPHENS
+- No tabs. **Four spaces**.
+- No trailing whitespace.
+- Always use semicolons and don't rely on implicit insertion.
+- use **lowerCamelCase** for identifier names (variables and functions).
+    + :white_check_mark: good
+    ```javascript
+    var helloWorld = "Hello, world."; // lowerCamelCase
+    var strHelloWorld = "Hello, world."; // Hungarian Notation + lowerCamelCase
+    ```
+    + :x: bad
+    ```javascript
+    var HelloWorld = "Hello, world."; // UpperCamelCase, Pascal
+    var helloworld = "Hello, world."; // lowercase
+    var HELLOWORLD = "Hello, world."; // UPPERCASE
+    var Hello_World = "Hello, world."; // Capitalized_Words_With_Underscores
+    var HELLO_WORLD = "Hello, world."; // UPPER_CASE_WITH_UNDERSCORES
+    var hello_world = "Hello, world."; // lower_case_with_underscores
+    var hello-world = "Hello, world."; // lower-case-hyphens
+    var HELLO-WORLD = "Hello, world."; // UPPER-CASE-HYPHENS
+    ...
+    ```
+- **Double quotes**. Single quotes are OK only when nested within double quotes.
+    + :white_check_mark: good
+    ```javascript
+    var foo = "Hello, world.";
+    var bar = "Hello, 'world.'";
+    ```
+    + :x: bad
+    ```javascript
+    var foo = 'Hello, world.';
+    ```
+- Functions are followed by no space.
+    + :white_check_mark: good
+    ```javascript
+    function foo() {
         ...
-        ```
-    - **Double quotes**. Single quotes are OK only when nested within double quotes.
-        + :white_check_mark: good
-        ```javascript
-        var foo = "Hello, world.";
-        var bar = "Hello, 'world.'";
-        ```
-        + :x: bad
-        ```javascript
-        var foo = 'Hello, world.';
-        ```
-    - Functions are followed by no space.
-        + :white_check_mark: good
-        ```javascript
-        function foo() {
-            ...
-        }
-        ```
-        + :x: bad
-        ```javascript
-        function foo () {
-            ...
-        }
-        ```
-    - Always put spaces around operators (= + - * /), and after commas.
-        + :white_check_mark: good
-        ```javascript
-        var x = y + z;
-        var values = ["Apple", "Ball", "Cat"];
-        ```
-        + :x: bad
-        ```javascript
-        var x=y+z;
-        var values=["Apple","Ball","Cat"];
-        ```
-    - Argument definitions are followed by no spaces.
-        + :white_check_mark: good
-        ```javascript
-        function foo(a, b, c) {
-            ...
-        }
-        ```
-        + :x: bad
-        ```javascript
-        function foo( a, b, c ) {
-            ...
-        }
-        ```
-    - A **single space** will always and should only follow semi-colons when defining object literals.
-        + :white_check_mark: good
-        ```javascript
-        var foo = {
-            bar: 1
-        };
-        ```
-        + :x: bad
-        ```javascript
-        var foo = {
-            bar : 1
-        };
-        var foo = {
-            bar:1
-        };
-        ```
-    - A **single space** will always follow conditional statements.
-        + :white_check_mark: good
-        ```javascript
-        if (true) {
-           ...
-        }
-        ```
-        + :x: bad
-        ```javascript
-        if(true) {
-           ...
-        }
-        if(true){
-           ...
-        }
-        ```
-    - General rules for complex (compound) statements:
-        + Put the opening bracket at the end of the first line.
-        + Use one space before the opening bracket.
-        + Put the closing bracket on a new line, without leading spaces.
-        + Do not end a complex statement with a semicolon.
-        ```javascript
-        function formatTime(seconds) {
-            minutes = Math.floor(seconds / 60);
-            minutes = (minutes >= 10) ? minutes : "0" + minutes;
-            seconds = Math.floor(seconds % 60);
-            seconds = (seconds >= 10) ? seconds : "0" + seconds;
-            return minutes + ":" + seconds;
-        }
-        ```
+    }
+    ```
+    + :x: bad
+    ```javascript
+    function foo () {
+        ...
+    }
+    ```
+- Always put spaces around operators (= + - * /), and after commas.
+    + :white_check_mark: good
+    ```javascript
+    var x = y + z;
+    var values = ["Apple", "Ball", "Cat"];
+    ```
+    + :x: bad
+    ```javascript
+    var x=y+z;
+    var values=["Apple","Ball","Cat"];
+    ```
+- Argument definitions are followed by no spaces.
+    + :white_check_mark: good
+    ```javascript
+    function foo(a, b, c) {
+        ...
+    }
+    ```
+    + :x: bad
+    ```javascript
+    function foo( a, b, c ) {
+        ...
+    }
+    ```
+- A **single space** will always and should only follow semi-colons when defining object literals.
+    + :white_check_mark: good
+    ```javascript
+    var foo = {
+        bar: 1
+    };
+    ```
+    + :x: bad
+    ```javascript
+    var foo = {
+        bar : 1
+    };
+    var foo = {
+        bar:1
+    };
+    ```
+- A **single space** will always follow conditional statements.
+    + :white_check_mark: good
+    ```javascript
+    if (true) {
+       ...
+    }
+    ```
+    + :x: bad
+    ```javascript
+    if(true) {
+       ...
+    }
+    if(true){
+       ...
+    }
+    ```
+- General rules for complex (compound) statements:
+    + Put the opening bracket at the end of the first line.
+    + Use one space before the opening bracket.
+    + Put the closing bracket on a new line, without leading spaces.
+    + Do not end a complex statement with a semicolon.
+    ```javascript
+    function formatTime(seconds) {
+        minutes = Math.floor(seconds / 60);
+        minutes = (minutes >= 10) ? minutes : "0" + minutes;
+        seconds = Math.floor(seconds % 60);
+        seconds = (seconds >= 10) ? seconds : "0" + seconds;
+        return minutes + ":" + seconds;
+    }
+    ```
 ## History [↶]()
 For detailed changelog, check [Change Log](CHANGELOG.md).
 
