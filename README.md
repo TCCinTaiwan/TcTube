@@ -9,7 +9,7 @@
 * **[Todo](#todo)**
 * **[Contributing](#contributing)**
 * **[Coding Style](#coding-style)**
-    - **[javascript](#javascript)**
+    - **[javascript](#javascript-)**
 * **[History](#history)**
 * **[License](#license)**
 
