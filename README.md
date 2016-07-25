@@ -94,86 +94,100 @@ python main.py
     - No trailing whitespace.
     - Always use semicolons and don't rely on implicit insertion.
     - use **lowerCamelCase** for identifier names (variables and functions).
-    ```javascript
-    # good :white_check_mark:
-    var helloWorld = "Hello, world."; // lowerCamelCase
-    var strHelloWorld = "Hello, world."; // Hungarian Notation + lowerCamelCase
-    # bad :x:
-    var HelloWorld = "Hello, world."; // UpperCamelCase, Pascal
-    var helloworld = "Hello, world."; // lowercase
-    var HELLOWORLD = "Hello, world."; // UPPERCASE
-    var Hello_World = "Hello, world."; // Capitalized_Words_With_Underscores
-    var HELLO_WORLD = "Hello, world."; // UPPER_CASE_WITH_UNDERSCORES
-    var hello_world = "Hello, world."; // lower_case_with_underscores
-    ...
-    ```
+        + :white_check_mark: good
+        ```javascript
+        var helloWorld = "Hello, world."; // lowerCamelCase
+        var strHelloWorld = "Hello, world."; // Hungarian Notation + lowerCamelCase
+        ```
+        + :x: bad
+        ```javascript
+        var HelloWorld = "Hello, world."; // UpperCamelCase, Pascal
+        var helloworld = "Hello, world."; // lowercase
+        var HELLOWORLD = "Hello, world."; // UPPERCASE
+        var Hello_World = "Hello, world."; // Capitalized_Words_With_Underscores
+        var HELLO_WORLD = "Hello, world."; // UPPER_CASE_WITH_UNDERSCORES
+        var hello_world = "Hello, world."; // lower_case_with_underscores
+        ...
+        ```
     - **Double quotes**. Single quotes are OK only when nested within double quotes.
-    ```javascript
-    # good :white_check_mark:
-    var foo = "Hello, world.";
-    var bar = "Hello, 'world.'";
-    # bad :x:
-    var foo = 'Hello, world.';
-    ```
+        + :white_check_mark: good
+        ```javascript
+        var foo = "Hello, world.";
+        var bar = "Hello, 'world.'";
+        ```
+        + :x: bad
+        ```javascript
+        var foo = 'Hello, world.';
+        ```
     - Functions are followed by no space.
-    ```
-    # good :white_check_mark:
-    function foo() {
-        ...
-    }
-    # bad :x:
-    function foo () {
-        ...
-    }
-    ```
+        + :white_check_mark: good
+        ```javascript
+        function foo() {
+            ...
+        }
+        ```
+        + :x: bad
+        ```javascript
+        function foo () {
+            ...
+        }
+        ```
     - Always put spaces around operators (= + - * /), and after commas.
-    ```javascript
-    # good :white_check_mark:
-    var x = y + z;
-    var values = ["Apple", "Ball", "Cat"];
-    # bad :x:
-    var x=y+z;
-    var values=["Apple","Ball","Cat"];
-    ```
+        + :white_check_mark: good
+        ```javascript
+        var x = y + z;
+        var values = ["Apple", "Ball", "Cat"];
+        ```
+        + :x: bad
+        ```javascript
+        var x=y+z;
+        var values=["Apple","Ball","Cat"];
+        ```
     - Argument definitions are followed by no spaces.
-    ```
-    # good :white_check_mark:
-    function foo(a, b, c) {
-        ...
-    }
-    # bad :x:
-    function foo( a, b, c ) {
-        ...
-    }
-    ```
+        + :white_check_mark: good
+        ```javascript
+        function foo(a, b, c) {
+            ...
+        }
+        ```
+        + :x: bad
+        ```javascript
+        function foo( a, b, c ) {
+            ...
+        }
+        ```
     - A **single space** will always and should only follow semi-colons when defining object literals.
-    ```
-    # good :white_check_mark:
-    var foo = {
-        bar: 1
-    }
-    # bad :x:
-    var foo = {
-        bar : 1
-    }
-    var foo = {
-        bar:1
-    }
-    ```
+        + :white_check_mark: good
+        ```javascript
+        var foo = {
+            bar: 1
+        };
+        ```
+        + :x: bad
+        ```javascript
+        var foo = {
+            bar : 1
+        };
+        var foo = {
+            bar:1
+        };
+        ```
     - A **single space** will always follow conditional statements.
-    ```
-    # good :white_check_mark:
-    if (true) {
-       ...
-    }
-    # bad :x:
-    if(true) {
-       ...
-    }
-    if(true){
-       ...
-    }
-    ```
+        + :white_check_mark: good
+        ```javascript
+        if (true) {
+           ...
+        }
+        ```
+        + :x: bad
+        ```javascript
+        if(true) {
+           ...
+        }
+        if(true){
+           ...
+        }
+        ```
 ## History [↶]()
 For detailed changelog, check [Change Log](CHANGELOG.md).
 
