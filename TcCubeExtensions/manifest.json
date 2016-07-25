@@ -1,0 +1,53 @@
+{
+  "manifest_version": 2,
+  "name": "TcCube Extension",
+  "description": "This extension demonstrates a browser action with TcCube.",
+  "version": "0.0.1",
+  "homepage_url": "http://github.com/TCCinTaiwan",
+  // "background" : {
+  //   "scripts" : [
+  //     "background.js"
+  //   ],
+  //   "persistent" : true
+  // },
+  "content_security_policy" : "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'; img-src *; media-src *",
+  "content_scripts" : [
+    {
+      "matches" : [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js" : [
+        "contentscript.js"
+      ],
+      "all_frames" : false
+    }
+  ],
+  "commands" : {
+    "reload_extension" : {
+      "suggested_key" : {
+        "default" : "Ctrl+Shift+Q",
+        "windows" : "Ctrl+Shift+Q",
+        "mac" : "MacCtrl+Shift+Q",
+        "chromeos" : "Ctrl+Shift+Q",
+        "linux" : "Ctrl+Shift+Q"
+      },
+      "description" : "Shortcut for reloading TcCube"
+    }
+  },
+
+  "icons": {
+    "48": "Favicon.png"
+  },
+  "permissions": [
+    "tabs",
+    "activeTab",
+    "http://*/*",
+    "https://*/*"
+  ],
+  "browser_action": {
+    "default_popup": "Tc.htm",
+    "default_icon": "Favicon.png",
+    "default_title" : "TcCube"
+  }
+}

@@ -13,6 +13,8 @@ ul.marquee {
 	clear: left;/* Firefox 顯示會從中間開始 */
 	/*background-color: #f2f2ff;*/
 	/*border: 1px solid #08084d;*/
+    background: black;
+    color: rgb(0, 255, 0);
 }
 
 ul.marquee li {
@@ -24,13 +26,13 @@ ul.marquee li {
 	white-space: nowrap; /* keep all text on a single line */
 
 	/* optional styles for appearance */
-	font: normal 30px 'sourcehansans-tc', Arial, Helvetica, sans-serif ;
-	padding: 0px 0px;
+	font: normal 36px 'sourcehansans-tc', Arial, Helvetica, sans-serif ;
+	padding: 5px 0px;
 }
 ul.marquee li h3{
 	white-space: nowrap; /* keep all text on a single line */
 
 	/* optional styles for appearance */
-	font: normal 30px 'sourcehansans-tc', Arial, Helvetica, sans-serif ;
+	font: normal 36px 'sourcehansans-tc', Arial, Helvetica, sans-serif ;
 	padding: 0px 0px;
 }

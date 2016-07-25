@@ -149,31 +149,31 @@ function Draw(obj, percente, direction, reverse) { // 填充百分比(通用)
     if(typeof reverse === 'undefined') {
         reverse = false;
     }
-    content = obj.getContext("2d");
+    objContent = obj.getContext("2d");
     if (obj == volumeSlider || video.hidden) {
-        content.fillStyle = "rgb(255,200,200)";
+        objContent.fillStyle = "rgb(255,200,200)";
     } else if (video.seekable.end.length == 0) {
-        content.fillStyle = "rgb(200,200,255)";
+        objContent.fillStyle = "rgb(200,200,255)";
     } else {
         try {
             if (video.seekable.end(0) != 0) {
-                content.fillStyle = "rgb(255,200,200)";
+                objContent.fillStyle = "rgb(255,200,200)";
             } else {
-                content.fillStyle = "rgb(200,100,100)";
+                objContent.fillStyle = "rgb(200,100,100)";
             }
         } catch (error) {
-            content.fillStyle = "rgb(200,100,100)";
+            objContent.fillStyle = "rgb(200,100,100)";
         }
     }
-    content.clearRect(0, 0, obj.width, obj.height);
-    content.fillRect(0, 0, obj.width, obj.height);
-    content.fillStyle = "rgb(255,0,0)";
+    objContent.clearRect(0, 0, obj.width, obj.height);
+    objContent.fillRect(0, 0, obj.width, obj.height);
+    objContent.fillStyle = "rgb(255,0,0)";
     x = obj.width * ((direction == "x") ? percente : 1);
     y = obj.height * ((direction == "y") ? percente : 1);
     if (reverse) {
-        content.fillRect(obj.width - x, obj.height - y, obj.width, obj.height);
+        objContent.fillRect(obj.width - x, obj.height - y, obj.width, obj.height);
     } else {
-        content.fillRect(0, 0, x, y);
+        objContent.fillRect(0, 0, x, y);
     }
 }
 function refreshVolume() { // 音量改變事件(通用) 100 1
@@ -679,7 +679,7 @@ jQuery(document).ready(function init() { // 載入完成後執行
         // if (video.seekable.end.length > 0) {
             Draw(progress, video.currentTime / video.duration);
         }
-        if (typeof ispanel !== "undefined") {
+        if (typeof ispanel !== "undefined" && opener.video.currentTime !== video.currentTime) {
             window.opener.video.currentTime = video.currentTime;
         }
     };
@@ -735,10 +735,6 @@ jQuery(document).ready(function init() { // 載入完成後執行
         contextMenu.style.left = event.clientX + "px";
         contextMenu.style.top = event.clientY + "px";
         contextMenu.hidden = false;
-        // if (!contextMenu.hidden) {
-        //     contextMenu.hidden = true;
-        // } else {
-        // }
         return false; // 這層已處理完，所以取消事件
     };
     video.ondblclick = function(event) {
@@ -849,7 +845,7 @@ jQuery(document).ready(function init() { // 載入完成後執行
             video.pause();
             // window.opener = null;
             // window.close();
-            panel = window.open(window.location.href, "dialog", "width=640, height=360,toolbar=no,menubar=no,scrollbars=no,resizable=no,location=no,status=no");
+            panel = window.open(window.location.href, "dialog", "width=854, height=480,toolbar=no,menubar=no,scrollbars=no,resizable=no,location=no,status=no");
             panel.playTime = video.currentTime;
             panel.ispanel = true;
             // panel.playbackRate = video.playbackRate;

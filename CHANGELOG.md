@@ -1,10 +1,20 @@
 # TcTube
+## 0.2.6
+* 2016-07-25
+    - setup.py草稿
+    - ReadMe加入Coding Style
+* 2016-07-23
+    - 初步Chrome Extensions
 ## 0.2.5
 * 2016-07-22
     - 簡單加入跑馬燈
     - 登入權限
     - 加入dTree選單
     - 更改logout觸發方式
+    - requirements草稿
+    - 首頁基本版型
+    - dTree onclick()
+    - 修正未登入重導向錯誤Bug
 ## 0.2.4
 * 2016-07-21
     - 修正全螢幕不同步問題(F11)

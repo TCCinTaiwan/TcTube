@@ -1,5 +1,5 @@
 # [:octocat:TcTube](https://github.com/TCCinTaiwan/TcTube)
-[![Gitter](https://badges.gitter.im/TCCinTaiwan/TcTube.svg)](https://gitter.im/TCCinTaiwan/TcTube?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Build Status](https://travis-ci.org/TCCinTaiwan/TcTube.svg?branch=TCC)](https://travis-ci.org/TCCinTaiwan/TcTube)
+[![Version](https://img.shields.io/badge/lastest_version-0.2.6-blue.svg)](https://github.com/TCCinTaiwan/TcTube/releases) [![Gitter](https://badges.gitter.im/TCCinTaiwan/TcTube.svg)](https://gitter.im/TCCinTaiwan/TcTube?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Build Status](https://travis-ci.org/TCCinTaiwan/TcTube.svg?branch=TCC)](https://travis-ci.org/TCCinTaiwan/TcTube)
 
 ## Contents [↶]()
 * **[Introduction](#introduction)**
@@ -8,6 +8,8 @@
 * **[Usage](#usage)**
 * **[Todo](#todo)**
 * **[Contributing](#contributing)**
+* **[Coding Style](#coding-style)**
+    - **[javascript](#javascript)**
 * **[History](#history)**
 * **[License](#license)**
 
@@ -67,15 +69,16 @@ python main.py
 12. 資料庫歌單
 13. 時間進度Seekable
 14. SSO
-15. dtree
-16. localization:
+15. localization:
     - Babel
-17. 資料庫:
+16. 資料庫:
     - 部門
         + select users.id, users.account, users.password, users.name , users.affiliation, department.name as affiliation_name, users.email, users.phone, users.birthday, users.creating_time, users.login_time, users.login_ip, users.competence from users join department on users.affiliation = department.id;
     - 歌曲
         + SELECT videos.*,videoSources.source FROM videos left join videoSources on videoSources.video_id = videos.id
-18. 跑馬燈
+17. 加入uwsgi
+18. 播放器重構
+19. Chrome Extensions
 
 ## Contributing [↶]()
 1. Create an issue and describe your idea
@@ -85,8 +88,82 @@ python main.py
 5. Push to the branch: `git push origin my-new-feature`
 6. Submit a Pull Request
 
+## Coding Style [↶]()
+* ### JavaScript [↶]()
+    - No tabs. **Four spaces**.
+    - No trailing whitespace.
+    - Always use semicolons and don't rely on implicit insertion.
+    - use **lowerCamelCase** for identifier names (variables and functions).
+    ```javascript
+    # good :white_check_mark:
+    var helloWorld = "Hello, world."; // lowerCamelCase
+    var strHelloWorld = "Hello, world."; // Hungarian Notation + lowerCamelCase
+    # bad :x:
+    var HelloWorld = "Hello, world."; // UpperCamelCase, Pascal
+    var helloworld = "Hello, world."; // lowercase
+    var HELLOWORLD = "Hello, world."; // UPPERCASE
+    var Hello_World = "Hello, world."; // Capitalized_Words_With_Underscores
+    var HELLO_WORLD = "Hello, world."; // UPPER_CASE_WITH_UNDERSCORES
+    var hello_world = "Hello, world."; // lower_case_with_underscores
+    ...
+    ```
+    - **Double quotes**. Single quotes are OK only when nested within double quotes.
+    ```javascript
+    var foo = "Hello, world.";
+    var bar = "Hello, 'world.'";
+    var foo = 'Hello, world.';
+    ```
+    - Functions are followed by no space.
+    ```
+    function foo() {
+        ...
+    }
+    function foo () {
+        ...
+    }
+    ```
+    - Always put spaces around operators (= + - * /), and after commas.
+    ```javascript
+    var x = y + z;
+    var values = ["Apple", "Ball", "Cat"];
+    var x=y+z;
+    var values=["Apple","Ball","Cat"];
+    ```
+    - Argument definitions are followed by no spaces.
+    ```
+    function foo(a, b, c) {
+        ...
+    }
+    function foo( a, b, c ) {
+        ...
+    }
+    ```
+    - A **single space** will always and should only follow semi-colons when defining object literals.
+    ```
+    var foo = {
+        bar: 1
+    }
+    var foo = {
+        bar : 1
+    }
+    var foo = {
+        bar:1
+    }
+    ```
+    - A **single space** will always follow conditional statements.
+    ```
+    if (true) {
+       ...
+    }
+    if(true) {
+       ...
+    }
+    if(true){
+       ...
+    }
+    ```
 ## History [↶]()
 For detailed changelog, check [Change Log](CHANGELOG.md).
 
 ## License [↶]()
-check [License](LICENSE).
+check [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE).

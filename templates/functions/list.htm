@@ -1,0 +1,43 @@
+<table>
+    <caption>{{ folderpath }}</caption>
+    <thead>
+        <tr>
+            <th>編號</th>
+            <th>檔名</th>
+            <th>大小</th>
+            <th>下載</th>
+            <th>修改時間</th>
+            <th>創建時間</th>
+            <th>存取時間</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% if folderpath != "/" %}
+        <tr>
+            <td></td>
+            <td><a href=".." title="">..</a></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    {% endif %}
+    {% for file in files %}
+        <tr>
+            <td>{{ file['index'] + 1 }}</td>
+            <td>
+                <a href="{{ file['url'] }}" class="{{ file['type'] }}">{{ file['name'] }}</a>
+            </td>
+            <td>{{ file['size'] }}</td>
+            <td>
+                {% if file['type'] != "folder" %}
+                    <a style="float: right;" href="{{ file['download_url'] }}" class="{{ file['type'] }}" download>下載</a>
+                {% endif %}
+            </td>
+            <td>{{ file['ctime'] }}</td>
+            <td>{{ file['atime'] }}</td>
+            <td>{{ file['mtime'] }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

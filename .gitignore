@@ -1,6 +1,7 @@
 media/video/*
 media/audio/*
 hidden/
+*.pem
 #################
 ## Eclipse
 #################

@@ -1,42 +1,6 @@
 {% extends 'base.htm' %}
 {% block body %}
-    {% include 'logout.htm' %}
-    {% include 'message.htm' %}
-    <table>
-        <caption>{{ current_user.name }}</caption>
-        <thead>
-            <tr>
-                <th>id</th>
-                <th>account</th>
-                <th>password</th>
-                <th>name</th>
-                <th>email</th>
-                <th>affiliation</th>
-                <th>phone</th>
-                <th>birthday</th>
-                <th>creating_time</th>
-                <th>login_time</th>
-                <th>login_ip</th>
-                <th>competence</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for user in users %}
-            <tr>
-                <td>{{ user.id }}</td>
-                <td>{{ user.account }}</td>
-                <td>{{ user.password }}</td>
-                <td>{{ user.name }}</td>
-                <td>{{ user.email }}</td>
-                <td>{{ user.affiliation }}</td>
-                <td>{{ user.phone }}</td>
-                <td>{{ user.birthday }}</td>
-                <td>{{ user.creating_time }}</td>
-                <td>{{ user.login_time }}</td>
-                <td>{{ user.login_ip }}</td>
-                <td>{{ user.competence }}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    {% include 'functions/logout.htm' %}
+    {% include 'functions/message.htm' %}
+    {% include 'functions/listUser.htm' %}
 {% endblock %}

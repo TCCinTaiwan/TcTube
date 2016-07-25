@@ -18,11 +18,13 @@
 
 |--------------------------------------------------*/
 
-
+/*
+2016-07-22 TCC add onclick
+*/
 
 // Node object
 
-function Node(id, pid, name, url, title, target, icon, iconOpen, open) {
+function Node(id, pid, name, url, title, target, icon, iconOpen, open, onclick) {
 
 	this.id = id;
 
@@ -39,6 +41,8 @@ function Node(id, pid, name, url, title, target, icon, iconOpen, open) {
 	this.icon = icon;
 
 	this.iconOpen = iconOpen;
+
+	this.onclick = onclick;
 
 	this._io = open || false;
 
@@ -58,7 +62,7 @@ function Node(id, pid, name, url, title, target, icon, iconOpen, open) {
 
 // Tree object
 
-function dTree(objName, objId) {
+function dTree(objName) {
 
 	this.config = {
 
@@ -116,8 +120,6 @@ function dTree(objName, objId) {
 
 	this.obj = objName;
 
-	this.id = objId;
-
 	this.aNodes = [];
 
 	this.aIndent = [];
@@ -136,9 +138,9 @@ function dTree(objName, objId) {
 
 // Adds a new node to the node array
 
-dTree.prototype.add = function(id, pid, name, url, title, target, icon, iconOpen, open) {
+dTree.prototype.add = function(id, pid, name, url, title, target, icon, iconOpen, open, onclick) {
 
-	this.aNodes[this.aNodes.length] = new Node(id, pid, name, url, title, target, icon, iconOpen, open);
+	this.aNodes[this.aNodes.length] = new Node(id, pid, name, url, title, target, icon, iconOpen, open, onclick);
 
 };
 
@@ -261,8 +263,22 @@ dTree.prototype.node = function(node, nodeId) {
 		str += '<img id="i' + this.obj + nodeId + '" src="' + ((node._io) ? node.iconOpen : node.icon) + '" alt="" />';
 
 	}
+	if (node.onclick) {
 
-	if (node.url) {
+		str += '<a id="s' + this.obj + nodeId + '" class="' + ((this.config.useSelection) ? ((node._is ? 'nodeSel' : 'node')) : 'node') + '" onclick="' + node.onclick + '"';
+
+		if (node.title) str += ' title="' + node.title + '"';
+
+		if (node.target) str += ' target="' + node.target + '"';
+
+		if (this.config.useStatusText) str += ' onmouseover="window.status=\'' + node.name + '\';return true;" onmouseout="window.status=\'\';return true;" ';
+
+		if (this.config.useSelection && ((node._hc && this.config.folderLinks) || !node._hc))
+
+			str += ' onclick="javascript: ' + this.obj + '.s(' + nodeId + ');"';
+
+		str += '>';
+	} else if (node.url) {
 
 		str += '<a id="s' + this.obj + nodeId + '" class="' + ((this.config.useSelection) ? ((node._is ? 'nodeSel' : 'node')) : 'node') + '" href="' + node.url + '"';
 
