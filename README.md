@@ -107,6 +107,8 @@ python main.py
         var Hello_World = "Hello, world."; // Capitalized_Words_With_Underscores
         var HELLO_WORLD = "Hello, world."; // UPPER_CASE_WITH_UNDERSCORES
         var hello_world = "Hello, world."; // lower_case_with_underscores
+        var hello-world = "Hello, world."; // lower-case-hyphens
+        var HELLO-WORLD = "Hello, world."; // UPPER-CASE-HYPHENS
         ...
         ```
     - **Double quotes**. Single quotes are OK only when nested within double quotes.
@@ -186,6 +188,20 @@ python main.py
         }
         if(true){
            ...
+        }
+        ```
+    - General rules for complex (compound) statements:
+        + Put the opening bracket at the end of the first line.
+        + Use one space before the opening bracket.
+        + Put the closing bracket on a new line, without leading spaces.
+        + Do not end a complex statement with a semicolon.
+        ```javascript
+        function formatTime(seconds) {
+            minutes = Math.floor(seconds / 60);
+            minutes = (minutes >= 10) ? minutes : "0" + minutes;
+            seconds = Math.floor(seconds % 60);
+            seconds = (seconds >= 10) ? seconds : "0" + seconds;
+            return minutes + ":" + seconds;
         }
         ```
 ## History [↶]()
