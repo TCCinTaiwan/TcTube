@@ -89,7 +89,7 @@ python main.py
 6. Submit a Pull Request
 
 ## Coding Style [↶]()
-* ### JavaScript [↶]()
+### JavaScript [↶]()
     - No tabs. **Four spaces**.
     - No trailing whitespace.
     - Always use semicolons and don't rely on implicit insertion.
