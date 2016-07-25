@@ -1,7 +1,7 @@
 # [:octocat:TcTube](https://github.com/TCCinTaiwan/TcTube)
 [![Version](https://img.shields.io/badge/lastest_version-0.2.6-blue.svg)](https://github.com/TCCinTaiwan/TcTube/releases) [![Gitter](https://badges.gitter.im/TCCinTaiwan/TcTube.svg)](https://gitter.im/TCCinTaiwan/TcTube?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Build Status](https://travis-ci.org/TCCinTaiwan/TcTube.svg?branch=TCC)](https://travis-ci.org/TCCinTaiwan/TcTube)
 
-## Contents [↶]()
+## Contents[↶](#)
 * **[Introduction](#introduction)**
 * **[Browser Support](#browser-support)**
 * **[Installation](#installation)**
@@ -9,19 +9,19 @@
 * **[Todo](#todo)**
 * **[Contributing](#contributing)**
 * **[Coding Style](#coding-style)**
-    - **[javascript](#javascript-)**
+    - **[javascript](#javascript)**
 * **[History](#history)**
 * **[License](#license)**
 
-## Introduction [↶]()
+## Introduction[↶](#)
 這是2016年暑假，我在系上實習，老師叫我們做的系統，我用去年寫的播放器加以改進。
 ![截圖](screenshot.png)
-## Browser Support [↶]()
+## Browser Support[↶](#)
 | ![IE](https://raw.github.com/alrra/browser-logos/master/internet-explorer/internet-explorer_48x48.png) | ![Chrome](https://raw.github.com/alrra/browser-logos/master/chrome/chrome_48x48.png) | ![Firefox](https://raw.github.com/alrra/browser-logos/master/firefox/firefox_48x48.png) | ![Opera](https://raw.github.com/alrra/browser-logos/master/opera/opera_48x48.png) | ![Safari](https://raw.github.com/alrra/browser-logos/master/safari/safari_48x48.png) | ![VIVALDI](https://vivaldi.com/assets/vivaldi.svg)
 | --- | --- | --- | --- | --- | --- |
 | IE 9+ ✔ | Chrome 4.0+ ✔ | Firefox 16.0+ ✔ | Opera 37.0+ ✔ | Safari 4.0+ ✖ |  Vivaldi 1+ ✔ |
 
-## Installation [↶]()
+## Installation[↶](#)
 ```bash
 # Clone the repository
 git clone https://github.com/TCCinTaiwan/TcTube
@@ -37,7 +37,7 @@ git clone https://github.com/TCCinTaiwan/TcTube
     }
 ]
 ```
-## Usage [↶]()
+## Usage[↶](#)
 run Server:
 ```bash
 # Go into the directory
@@ -47,7 +47,7 @@ cd TcTube
 python main.py
 ```
 
-## Todo [↶]()
+## Todo[↶](#)
 1. 資料庫
 2. 控制面板延遲
 3. APP化
@@ -80,7 +80,7 @@ python main.py
 18. 播放器重構
 19. Chrome Extensions
 
-## Contributing [↶]()
+## Contributing[↶](#)
 1. Create an issue and describe your idea
 2. Fork it!
 3. Create your feature branch: `git checkout -b my-new-feature`
@@ -88,12 +88,12 @@ python main.py
 5. Push to the branch: `git push origin my-new-feature`
 6. Submit a Pull Request
 
-## Coding Style [↶]()
-### JavaScript [↶]()
-- No tabs. **Four spaces**.
-- No trailing whitespace.
-- Always use semicolons and don't rely on implicit insertion.
-- use **lowerCamelCase** for identifier names (variables and functions).
+## Coding Style[↶](#)
+### JavaScript[↶](#)
+* No tabs. **Four spaces**.
+* No trailing whitespace.
+* Always use semicolons and don't rely on implicit insertion.
+* use **lowerCamelCase** for identifier names (variables and functions).
     + :white_check_mark: good
     ```javascript
     var helloWorld = "Hello, world."; // lowerCamelCase
@@ -111,7 +111,7 @@ python main.py
     var HELLO-WORLD = "Hello, world."; // UPPER-CASE-HYPHENS
     ...
     ```
-- **Double quotes**. Single quotes are OK only when nested within double quotes.
+* **Double quotes**. Single quotes are OK only when nested within double quotes.
     + :white_check_mark: good
     ```javascript
     var foo = "Hello, world.";
@@ -121,7 +121,7 @@ python main.py
     ```javascript
     var foo = 'Hello, world.';
     ```
-- Functions are followed by no space.
+* Functions are followed by no space.
     + :white_check_mark: good
     ```javascript
     function foo() {
@@ -134,7 +134,7 @@ python main.py
         ...
     }
     ```
-- Always put spaces around operators (= + - * /), and after commas.
+* Always put spaces around operators (= + - * /), and after commas.
     + :white_check_mark: good
     ```javascript
     var x = y + z;
@@ -145,7 +145,7 @@ python main.py
     var x=y+z;
     var values=["Apple","Ball","Cat"];
     ```
-- Argument definitions are followed by no spaces.
+* Argument definitions are followed by no spaces.
     + :white_check_mark: good
     ```javascript
     function foo(a, b, c) {
@@ -158,7 +158,7 @@ python main.py
         ...
     }
     ```
-- A **single space** will always and should only follow semi-colons when defining object literals.
+* A **single space** will always and should only follow semi-colons when defining object literals.
     + :white_check_mark: good
     ```javascript
     var foo = {
@@ -174,7 +174,7 @@ python main.py
         bar:1
     };
     ```
-- A **single space** will always follow conditional statements.
+* A **single space** will always follow conditional statements.
     + :white_check_mark: good
     ```javascript
     if (true) {
@@ -190,7 +190,7 @@ python main.py
        ...
     }
     ```
-- General rules for complex (compound) statements:
+* General rules for complex (compound) statements:
     + Put the opening bracket at the end of the first line.
     + Use one space before the opening bracket.
     + Put the closing bracket on a new line, without leading spaces.
@@ -204,8 +204,9 @@ python main.py
         return minutes + ":" + seconds;
     }
     ```
-## History [↶]()
+
+## History[↶](#)
 For detailed changelog, check [Change Log](CHANGELOG.md).
 
-## License [↶]()
+## License[↶](#)
 check [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE).
