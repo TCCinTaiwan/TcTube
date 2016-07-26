@@ -1,5 +1,8 @@
 # TcTube
 ## 0.2.6
+* 2016-07-26
+    - TcCube 擴充套件抓影片
+    - 跑馬燈、選單使用資料庫
 * 2016-07-25
     - setup.py草稿
     - ReadMe加入Coding Style

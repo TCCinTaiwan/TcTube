@@ -13,13 +13,16 @@
     header {
         background: blue;
         color: white;
-        height: 150px;
-        line-height: 150px;
+        height: 70px;
+        line-height: 70px;
         padding: 5px 150px;
     }
     header > * {
         display: inline-block;
         vertical-align: middle;
+    }
+    header > img {
+        height: 50px;
     }
     header > h1 {
         margin-left: 30px;
@@ -27,7 +30,7 @@
     }
     #menu {
         position: absolute;
-        top: 160px;
+        top: 130px;
         left: 0;
         bottom: 0;
         width: 298px;
@@ -55,13 +58,8 @@
         right: 0;
         left: 300px;
         bottom: 0;
-        top: 160px;
+        top: 130px;
         overflow: auto;
-        padding: 50px 0 0 0;
-    }
-    main > #marquee {
-        position: fixed;
-        top: 160px;
     }
 </style>
 {% endblock %}
@@ -76,14 +74,17 @@
             if (typeof menu !== "undefined") {
                 dtree = new dTree('dtree');
                 dtree.add(0, -1, '選單');
-                dtree.add(1, 0, '基本功能');
-                dtree.add(2, 1, '影片', 'video', '開啟影片播放');
-                dtree.add(3, 0, '進階功能');
-                dtree.add(4, 3, '檔案清單', 'list');
-                dtree.add(5, 3, '上傳影片', 'upload');
-                dtree.add(6, 3, '列出使用者', 'listUser', '開啟影片播放');
-                dtree.add(7, 0, 'Script', "script/helloworld");
-                dtree.add(8, 0, '登出', "", "", "", "img/notwork.png", "" , "", "logout();");
+                {% for item in menu %}
+                    dtree.add({{item.id}}, {{item.parent_id}}, "{{item.name}}", "{{item.url}}", "{{item.title}}", "{{item.target}}", "{{item.icon}}", "{{item.icon_open}}", "", "{{item.onclick}}");
+                {% endfor %}
+                    // dtree.add(2, 1, '影片', 'video', '開啟影片播放');
+                    // dtree.add(3, 0, '進階功能');
+                    // dtree.add(4, 3, '檔案清單', 'list');
+                    // dtree.add(5, 3, '上傳影片', 'upload');
+                    // dtree.add(6, 3, '管理公告', 'announcements');
+                    // dtree.add(7, 3, '列出使用者', 'listUser');
+                    // dtree.add(8, 0, 'Script', "script/helloworld");
+                    // dtree.add(9, 0, '登出', "", "", "", "img/notwork.png", "" , "", "logout();");
                 menu.innerHTML  = dtree;
             }
             // jQuery('.marquee').marquee({
@@ -108,13 +109,12 @@
         <img src="Favicon.png" alt=""><h1>TcTube</h1>
     </header><!-- /header -->
     <nav id="menu" type="context toolbar"></nav>
+    <ul id="marquee" class="marquee">
+    {% for announcement in announcements %}
+        <li><h3>{{announcement.message}}</h3></li>
+    {% endfor %}
+    </ul>
     <main id="content">
-        <ul id="marquee" class="marquee">
-            <li><h3>1 2 3 4 5 6 7 8 9 10 1 2 3 4 5 6 7 8 9 10 1 2 3 4 5 6 7 8 9 10 1 2 3 4 5 6 7 8 9 10 1 2 3 4 5 6 7 8 9 10 1 2 3 4 5 6 7 8 9 10 1 2 3 4 5 6 7 8 9 10 1 2 3 4 5 6 7 8 9 10 </h3></li>
-            <li><h3>456</h3></li>
-            <li><h3>789</h3></li>
-            <li><h3>ABC</h3></li>
-        </ul>
         main..............................................................................main..............................................................................main..............................................................................main..............................................................................main..............................................................................main..............................................................................main..............................................................................main..............................................................................<br/>
         test..............................................................................test..............................................................................test..............................................................................test..............................................................................test..............................................................................test..............................................................................test..............................................................................test..............................................................................<br/>
         .<br/>

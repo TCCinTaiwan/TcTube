@@ -52,6 +52,34 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 # login_manager.login_view = "login"
 login_manager.session_protection = "strong"
+class Announcement(db.Model):
+    __tablename__ = 'announcements'
+    id = db.Column(db.Integer, primary_key = True, autoincrement = True)
+    message = db.Column(db.String(64))
+    def  __init__(self, message):
+        self.message = message
+    def __repr__(self):
+        return '<Announcement %r>' % (self.id)
+class Menu(db.Model):
+    __tablename__ = 'menu'
+    id = db.Column(db.Integer, primary_key = True, autoincrement = True)
+    parent_id = db.Column(db.Integer)
+    name = db.Column(db.String(64))
+    url = db.Column(db.String(64))
+    title = db.Column(db.String(64))
+    onclick = db.Column(db.String(64))
+    icon = db.Column(db.String(64))
+    icon_open = db.Column(db.String(64))
+    def  __init__(self, parent_id, name, url, title, onclick, icon, icon_open):
+        self.parent_id = parent_id
+        self.name = name
+        self.url = url
+        self.title = title
+        self.onclick = onclick
+        self.icon = icon
+        self.icon_open = icon_open
+    def __repr__(self):
+        return '<Menu %r>' % (self.name)
 class Video(db.Model):
     __tablename__ = 'videos'
     id = db.Column(db.Integer, primary_key = True, autoincrement = True)
@@ -196,7 +224,9 @@ def access_permission(func = None, level = None):
 @login_required
 @access_permission(level = 10)
 def index():
-    return render_template("index.htm", title = 'Index')
+    announcements = Announcement.query.all()
+    menu = Menu.query.all()
+    return render_template("index.htm", title = 'Index', announcements = announcements, menu = menu)
 
 @app.route("/listUser/") # http://127.0.0.1/listUser/?token=john987john987:123
 @login_required
