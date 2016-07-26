@@ -14,8 +14,8 @@
   "content_scripts" : [
     {
       "matches" : [
-        "http://*/*",
-        "https://*/*"
+        "http://*/video/*",
+        "https://*/video/*"
       ],
       "js" : [
         "contentscript.js"
@@ -33,9 +33,17 @@
         "linux" : "Ctrl+Shift+Q"
       },
       "description" : "Shortcut for reloading TcCube"
+    },
+    "open": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+O"
+      },
+      "description": "Shortcut for open TcCube Chrome Extension"
     }
   },
-
+  "omnibox": {
+    "keyword" : "TcCube"
+  },
   "icons": {
     "48": "Favicon.png"
   },
@@ -44,6 +52,12 @@
     "activeTab",
     "http://*/*",
     "https://*/*"
+  ],
+  "optional_permissions": [
+    "*://127.0.0.1/*",
+    "*://192.168.10.226/*",
+    "*://203.64.91.82/*",
+    "*://203.64.95.86/*"
   ],
   "browser_action": {
     "default_popup": "Tc.htm",

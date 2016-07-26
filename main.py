@@ -135,7 +135,7 @@ class User(db.Model):
 
 @app.before_request
 def check_login():
-    print([item for item in current_user])
+    # print([item for item in current_user])
     # if request.endpoint == 'static' and not current_user.is_authenticated:
     #     return render_template('error.htm', title = "Forbidden",error = "權限不足", redirect = "/", redirectTime = 100), 403
     return None
