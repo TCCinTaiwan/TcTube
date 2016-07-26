@@ -588,6 +588,7 @@ jQuery(document).ready(function init() { // 載入完成後執行
 
     document.onkeydown = function(event) { // 按鍵處理
         console.info("document.onKeydown:%c" + event.keyCode, "color: blue;");
+        console.dir(event);
         if (event.ctrlKey) {
             if (event.keyCode == 37) { // ←
                 index(-1);
@@ -598,7 +599,7 @@ jQuery(document).ready(function init() { // 載入完成後執行
             if (event.keyCode == 37) { // ←
                 Seek(-5);
             } else if (event.keyCode == 39) { // →
-                Sekk(5);
+                Seek(5);
             } else if (event.keyCode >= 96 && event.keyCode <= 105) { // 0 ~ 9
                 Seek(0, (event.keyCode - 96) / 10);
             } else if (event.keyCode == 107) { // +
