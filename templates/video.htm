@@ -31,6 +31,21 @@
         <script src="/js/player.js"></script>
         <script>
             defaultVideoNum = {{videoNum}};
+            playlist = [
+            {% for video in videos %}
+                {
+                    title: "{{video.title}}",
+                    {% if (video.artist != "undefined") %}
+                    artist: "{{video.artist}}",
+                    {% endif %}
+                    file: [
+                    {% for source in video.sources %}
+                        "{{source.source}}",
+                    {% endfor %}
+                    ]
+                },
+            {% endfor %}
+            ]
         </script>
         {% endblock %}
         {% endblock %}

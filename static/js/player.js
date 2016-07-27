@@ -280,78 +280,35 @@ function index(offset) { // 歌曲索引(通用)
     while (video.firstChild) {
         video.removeChild(video.firstChild);
     }
-    if (typeof playlist[videoNum].file === "object") { // 假如檔案為陣列，代表有多個檔案都是同一部
-        video.src = "http://" + window.location.host + ":8000/" + playlist[videoNum].file[0]; // 假設第一部影片為預設載入的影片
-        if (typeof window.player === 'undefined' || typeof window.player.loadVideoByUrl === 'undefined') {
-            frame.src = "about:blank";
-        } else {
-            player.stopVideo();
-            // player.loadVideoByUrl("about:blank");
-            // player.clearVideo(); // not work
-        }
-
-        // 移除監控任務
-        clearInterval(time_update_interval);
-        delete window.time_update_interval;
-
-        // 加入其他檔案為Source
-        for (var i = 0; i < playlist[videoNum].file.length; i++) {
-            tempSource = document.createElement("source");
-            tempSource.src = "http://" + window.location.host + ":8000/" + playlist[videoNum].file[i];
-            video.appendChild(tempSource);
-        }
-
-        // 改變顯示為一般影片
-        frame.hidden = true;
-        video.hidden = false;
-    } else { // 假如檔案為字串，代表只有一個檔案
-        if (playlist[videoNum].file.includes("blob:") || playlist[videoNum].file.includes("http:") || playlist[videoNum].file.includes("https:")) { // 絕對位址
-            if (playlist[videoNum].file.includes("www.youtube")) {  // youtube
-                // 依據Youtube API是否載入來改變Youtube影片來源
-                if (typeof window.player === 'undefined' || typeof window.player.loadVideoByUrl === 'undefined') {
-                    frame.src = playlist[videoNum].file + "?autoplay=" + ((localStorage.getItem("autoplay")) ? 1 : 0) + "&controls=0&disablekb=1&enablejsapi=1&autohide=1&modestbranding=1&playsinline=1&rel=0&showinfo=0&theme=dark&iv_load_poliucy=3&cc_load_policy=1";
-                } else {
-                    player.loadVideoByUrl(playlist[videoNum].file + "?autoplay=" + ((localStorage.getItem("autoplay")) ? 1 : 0) + "&controls=0&disablekb=1&enablejsapi=1&autohide=1&modestbranding=1&playsinline=1&rel=0&showinfo=0&theme=dark&iv_load_poliucy=3&cc_load_policy=1"); // &origin=http%3A%2F%2F" + window.location.host
-                }
-
-                if (!video.paused) {
-                    video.pause();
-                }
-
-                // 重新開始監控事件
-                window.time_update_interval = setInterval(function () {
-                    // 刷新時間 音量 速率(後兩項較不緊急)
-                    updateTimerDisplay();
-                    if (!video.hidden) { // 一般播放器
-                        // 移除監控任務
-                        clearInterval(time_update_interval);
-                        delete window.time_update_interval;
-                    }
-                }, 25);
-
-                // 改變顯示為Youtube影片
-                frame.hidden = false;
-                video.hidden = true;
-            } else { // 其他網站(http)
-                video.src = playlist[videoNum].file;
-                if (typeof window.player === 'undefined' || typeof window.player.loadVideoByUrl === 'undefined') {
-                    frame.src = "about:blank";
-                } else {
-                    player.stopVideo();
-                    // player.loadVideoByUrl("about:blank");
-                    // player.clearVideo(); // not work
-                }
-
-                // 移除監控任務
-                clearInterval(time_update_interval);
-                delete window.time_update_interval;
-
-                // 改變顯示為一般影片
-                frame.hidden = true;
-                video.hidden = false;
+    if (playlist[videoNum].file[0].includes("blob:") || playlist[videoNum].file[0].includes("http:") || playlist[videoNum].file[0].includes("https:")) { // 絕對位址
+        if (playlist[videoNum].file[0].includes("www.youtube")) {  // youtube
+            // 依據Youtube API是否載入來改變Youtube影片來源
+            if (typeof window.player === 'undefined' || typeof window.player.loadVideoByUrl === 'undefined') {
+                frame.src = playlist[videoNum].file[0] + "?autoplay=" + ((localStorage.getItem("autoplay")) ? 1 : 0) + "&controls=0&disablekb=1&enablejsapi=1&autohide=1&modestbranding=1&playsinline=1&rel=0&showinfo=0&theme=dark&iv_load_poliucy=3&cc_load_policy=1";
+            } else {
+                player.loadVideoByUrl(playlist[videoNum].file[0] + "?autoplay=" + ((localStorage.getItem("autoplay")) ? 1 : 0) + "&controls=0&disablekb=1&enablejsapi=1&autohide=1&modestbranding=1&playsinline=1&rel=0&showinfo=0&theme=dark&iv_load_poliucy=3&cc_load_policy=1"); // &origin=http%3A%2F%2F" + window.location.host
             }
-        } else { // 相對位址(本機檔案)
-            video.src = "http://" + window.location.host + ":8000/" + playlist[videoNum].file;
+
+            if (!video.paused) {
+                video.pause();
+            }
+
+            // 重新開始監控事件
+            window.time_update_interval = setInterval(function () {
+                // 刷新時間 音量 速率(後兩項較不緊急)
+                updateTimerDisplay();
+                if (!video.hidden) { // 一般播放器
+                    // 移除監控任務
+                    clearInterval(time_update_interval);
+                    delete window.time_update_interval;
+                }
+            }, 25);
+
+            // 改變顯示為Youtube影片
+            frame.hidden = false;
+            video.hidden = true;
+        } else { // 其他網站(http)
+            video.src = playlist[videoNum].file[0];
             if (typeof window.player === 'undefined' || typeof window.player.loadVideoByUrl === 'undefined') {
                 frame.src = "about:blank";
             } else {
@@ -359,6 +316,8 @@ function index(offset) { // 歌曲索引(通用)
                 // player.loadVideoByUrl("about:blank");
                 // player.clearVideo(); // not work
             }
+
+            // 移除監控任務
             clearInterval(time_update_interval);
             delete window.time_update_interval;
 
@@ -366,6 +325,30 @@ function index(offset) { // 歌曲索引(通用)
             frame.hidden = true;
             video.hidden = false;
         }
+    } else { // 相對位址(本機檔案)
+        video.src = "http://" + window.location.host + ":8000/" + playlist[videoNum].file[0];
+        if (typeof window.player === 'undefined' || typeof window.player.loadVideoByUrl === 'undefined') {
+            frame.src = "about:blank";
+        } else {
+            player.stopVideo();
+            // player.loadVideoByUrl("about:blank");
+            // player.clearVideo(); // not work
+        }
+        // 加入其他檔案為Source
+        for (var i = 0; i < playlist[videoNum].file.length; i++) {
+            tempSource = document.createElement("source");
+            tempSource.src = "http://" + window.location.host + ":8000/" + playlist[videoNum].file[i];
+            video.appendChild(tempSource);
+        }
+
+        // 移除監控任務
+        clearInterval(time_update_interval);
+        delete window.time_update_interval;
+
+        // 改變顯示為一般影片
+        frame.hidden = true;
+        video.hidden = false;
+
     }
 
     duration.textContent = "00:00";
@@ -496,11 +479,6 @@ jQuery(document).ready(function init() { // 載入完成後執行
             }
         }
     }, 1);
-    // 載入播放清單
-    loadJSON("/playlist.json", function(response) {
-        playlist = JSON.parse(response);
-        index();
-    });
 
     frame = document.getElementById("frame"); // IE Iframe
     body = document.getElementsByTagName("body")[0];
@@ -888,4 +866,5 @@ jQuery(document).ready(function init() { // 載入完成後執行
             contextMenu.hidden = true;
         }
     };
+    index();
 });

@@ -48,7 +48,9 @@ python main.py
 ```
 
 ## Todo[↶](#)
-1. 資料庫
+1. 資料庫:
+    - 部門
+        + select users.id, users.account, users.password, users.name , users.affiliation, department.name as affiliation_name, users.email, users.phone, users.birthday, users.creating_time, users.login_time, users.login_ip, users.competence from users join department on users.affiliation = department.id;
 2. 控制面板延遲
 3. APP化
 4. 頁面歷史
@@ -66,19 +68,15 @@ python main.py
     - 下載檔名格式
 10. 檔案類型分析(不是以副檔名分析)
 11. Blob
-12. 資料庫歌單
-13. 時間進度Seekable
-14. SSO
-15. localization:
+12. 時間進度Seekable
+13. SSO
+14. localization:
     - Babel
-16. 資料庫:
-    - 部門
-        + select users.id, users.account, users.password, users.name , users.affiliation, department.name as affiliation_name, users.email, users.phone, users.birthday, users.creating_time, users.login_time, users.login_ip, users.competence from users join department on users.affiliation = department.id;
-    - 歌曲
-        + SELECT videos.*,videoSources.source FROM videos left join videoSources on videoSources.video_id = videos.id
-17. 加入uwsgi
-18. 播放器重構
-19. Chrome Extensions
+15. 加入uwsgi
+16. 播放器重構
+17. Chrome Extensions
+18. Youtube跟Video整合:
+    - Youtube斷線時使用本地
 
 ## Contributing[↶](#)
 1. Create an issue and describe your idea

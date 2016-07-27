@@ -85,11 +85,23 @@ class Video(db.Model):
     id = db.Column(db.Integer, primary_key = True, autoincrement = True)
     title = db.Column(db.String(64))
     artist = db.Column(db.String(64))
+    sources = db.relationship('VideoSource', backref = 'videos', lazy = 'dynamic')
     def  __init__(self, title, artist):
         self.title = title
         self.artist = artist
     def __repr__(self):
         return '<Video %r>' % (self.title)
+class VideoSource(db.Model):
+    __tablename__ = 'videoSources'
+    id = db.Column(db.Integer, primary_key = True)
+    video_id = db.Column(db.Integer, db.ForeignKey('videos.id'), primary_key = True)
+    source = db.Column(db.String(64))
+    def  __init__(self, video_id, source):
+        self.video_id = video_id
+        self.source = source
+    def __repr__(self):
+        return '<VideoSource %r>' % (self.source)
+
 class User(db.Model):
     __tablename__ = 'users'
     COMPERENCE_ADMIN = 0
@@ -247,7 +259,9 @@ def randomVideo(): # 隨機Video
 @login_required
 @access_permission(level = 10)
 def video(videoNum):
-    return render_template('video.htm', videoNum = videoNum)
+    videos = db.session.query(Video)
+    print(videos)
+    return render_template('video.htm', videoNum = videoNum, videos = videos)
 
 @app.route('/list/')
 def listRoot():
@@ -292,7 +306,13 @@ def view(path):
 # Define login and registration forms (for flask-login)
 class LoginForm(form.Form):
     account = fields.TextField("帳號", validators = [validators.required()])
-    password = fields.PasswordField("密碼", validators = [validators.required()])
+    password = fields.PasswordField("密碼",
+        [
+            validators.Length(
+                min = User.MIN_PASSWORD_LEN,
+                max= User.MAX_PASSWORD_LEN
+            )
+        ])
     submit = fields.SubmitField("登入", render_kw = {"class": "123"})
 class LogoutForm(form.Form):
     submit = fields.SubmitField("登出")
