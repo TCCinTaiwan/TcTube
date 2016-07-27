@@ -12,6 +12,8 @@ chrome.tabs.query({}, function(tabs) {
                 console.log(response);
                 if (response.data.length > 0) {
                     video.src = response.data[0];
+                } else {
+                    window.close();
                 }
             }
         );

@@ -47,6 +47,7 @@
   "icons": {
     "48": "Favicon.png"
   },
+  "offline_enabled": true,
   "permissions": [
     "tabs",
     "activeTab",

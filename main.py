@@ -70,7 +70,8 @@ class Menu(db.Model):
     onclick = db.Column(db.String(64))
     icon = db.Column(db.String(64))
     icon_open = db.Column(db.String(64))
-    def  __init__(self, parent_id, name, url, title, onclick, icon, icon_open):
+    open = db.Column(db.Boolean)
+    def  __init__(self, parent_id, name, url, title, onclick, icon, icon_open, open):
         self.parent_id = parent_id
         self.name = name
         self.url = url
@@ -78,6 +79,7 @@ class Menu(db.Model):
         self.onclick = onclick
         self.icon = icon
         self.icon_open = icon_open
+        self.open = open
     def __repr__(self):
         return '<Menu %r>' % (self.name)
 class Video(db.Model):
@@ -302,14 +304,20 @@ def index():
     videos = db.session.query(Video)
     return render_template("index.htm", title = 'Index', announcements = announcements, menu = menu, videos = videos)
 
-@app.route("/listUser/") # http://127.0.0.1/listUser/?token=john987john987:123
+@app.route("/listUser/")
 @login_required
 @access_permission(level = 5)
-def sql():
+def listUser():
     users = User.query.filter(User.competence > current_user.competence)
     # users = User.query.all()
     return render_template('listUser.htm', title = "List Users", users = users)
 
+@app.route("/announcements/")
+@login_required
+@access_permission(level = 5)
+def announcements():
+    announcements = db.session.query(Announcement).all()
+    return render_template('announcements.htm', title = "Announcements", announcements = announcements)
 
 @app.route('/video/')
 def randomVideo(): # 隨機Video

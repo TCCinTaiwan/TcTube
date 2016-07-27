@@ -28,6 +28,12 @@
         margin-left: 30px;
         font-size: 36px;
     }
+    .message > #marquee {
+        display: block;
+    }
+    .nomessage > #marquee {
+        display: none;
+    }
     #menu {
         position: absolute;
         top: 130px;
@@ -36,6 +42,12 @@
         width: 298px;
         background: #FFFFCC;
         border-right: 2px red solid;
+    }
+    .message > #menu {
+        top: 130px;
+    }
+    .nomessage > #menu {
+        top: 80px;
     }
     #menu > div > .dTreeNode {
         font-size: 30px;
@@ -61,6 +73,12 @@
         top: 130px;
         overflow: auto;
     }
+    .message > main {
+        top: 130px;
+    }
+    .nomessage > main {
+        top: 80px;
+    }
 </style>
 {% endblock %}
 {% block javascript %}
@@ -75,8 +93,7 @@
                 dtree = new dTree('dtree');
                 dtree.add(0, -1, '選單');
                 {% for item in menu %}
-                    dtree.add({{item.id}}, {{item.parent_id}}, "{{item.name}}", "{{item.url}}", "{{item.title}}", "{{item.target}}", "{{item.icon}}", "{{item.icon_open}}", "", "{{item.onclick}}");
-                {% endfor %}
+                dtree.add({{item.id}}, {{item.parent_id}}, "{{item.name}}", "{{item.url}}", "{{item.title}}", "{{item.target}}", "{{item.icon}}", "{{item.icon_open}}", {% if item.open == 1 %}true{% else %}false{% endif %}, "{{item.onclick}}");{% endfor %}
                 menu.innerHTML  = dtree;
             }
             // jQuery('.marquee').marquee({
