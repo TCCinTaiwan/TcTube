@@ -316,8 +316,9 @@ def listUser():
 @login_required
 @access_permission(level = 5)
 def announcements():
+    menu = Menu.query.all()
     announcements = db.session.query(Announcement).all()
-    return render_template('announcements.htm', title = "Announcements", announcements = announcements)
+    return render_template('announcements.htm', title = "Announcements", announcements = announcements, menu = menu)
 
 @app.route('/video/')
 def randomVideo(): # 隨機Video

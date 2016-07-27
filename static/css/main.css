@@ -1,0 +1,76 @@
+@import url('marquee.css');
+@import url('dtree.css');
+html,
+body {
+    height: 100%;
+    width: 100%;
+}
+header {
+    background: blue;
+    color: white;
+    height: 70px;
+    line-height: 70px;
+    padding: 5px 150px;
+}
+header > * {
+    display: inline-block;
+    vertical-align: middle;
+}
+header > img {
+    height: 50px;
+}
+header > h1 {
+    margin-left: 30px;
+    font-size: 36px;
+}
+.message > #marquee {
+    display: block;
+}
+.nomessage > #marquee {
+    display: none;
+}
+#menu {
+    position: absolute;
+    top: 130px;
+    left: 0;
+    bottom: 0;
+    width: 298px;
+    background: #FFFFCC;
+    border-right: 2px red solid;
+}
+.message > #menu {
+    top: 130px;
+}
+.nomessage > #menu {
+    top: 80px;
+}
+#menu > div > .dTreeNode {
+    font-size: 30px;
+    background: red;
+    padding: 10px;
+    display: none;
+}
+#menu > div > .dTreeNode > img {
+    display: none;
+}
+.dTreeNode > img {
+    width: 18px;
+}
+.dTreeNode {
+    font-size: 20px;
+}
+main {
+    background: #6666CC;
+    position: absolute;
+    right: 0;
+    left: 300px;
+    bottom: 0;
+    top: 130px;
+    overflow: auto;
+}
+.message > main {
+    top: 130px;
+}
+.nomessage > main {
+    top: 80px;
+}

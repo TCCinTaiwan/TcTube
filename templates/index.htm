@@ -1,129 +1,25 @@
 {% extends 'base.htm' %}
 
-{% block css %}
-{{ super() }}
-<link rel="stylesheet" type="text/css" href="css/marquee.css">
-<link rel="stylesheet" type="text/css" href="css/dtree.css">
-<style>
-    html,
-    body {
-        height: 100%;
-        width: 100%;
-    }
-    header {
-        background: blue;
-        color: white;
-        height: 70px;
-        line-height: 70px;
-        padding: 5px 150px;
-    }
-    header > * {
-        display: inline-block;
-        vertical-align: middle;
-    }
-    header > img {
-        height: 50px;
-    }
-    header > h1 {
-        margin-left: 30px;
-        font-size: 36px;
-    }
-    .message > #marquee {
-        display: block;
-    }
-    .nomessage > #marquee {
-        display: none;
-    }
-    #menu {
-        position: absolute;
-        top: 130px;
-        left: 0;
-        bottom: 0;
-        width: 298px;
-        background: #FFFFCC;
-        border-right: 2px red solid;
-    }
-    .message > #menu {
-        top: 130px;
-    }
-    .nomessage > #menu {
-        top: 80px;
-    }
-    #menu > div > .dTreeNode {
-        font-size: 30px;
-        background: red;
-        padding: 10px;
-        display: none;
-    }
-    #menu > div > .dTreeNode > img {
-        display: none;
-    }
-    .dTreeNode > img {
-        width: 18px;
-    }
-    .dTreeNode {
-        font-size: 20px;
-    }
-    main {
-        background: #6666CC;
-        position: absolute;
-        right: 0;
-        left: 300px;
-        bottom: 0;
-        top: 130px;
-        overflow: auto;
-    }
-    .message > main {
-        top: 130px;
-    }
-    .nomessage > main {
-        top: 80px;
-    }
-</style>
-{% endblock %}
-{% block javascript %}
-<script src="/js/jquery-1.12.4.min.js"></script>
-<script src="/js/jquery.marquee.min.js"></script>
-<script type="text/javascript" src="js/dtree.js"></script>
-<script>
-    document.addEventListener("readystatechange", function init(event) {
-        if (document.readyState === "complete") {
-            console.log("complete");
-            if (typeof menu !== "undefined") {
-                dtree = new dTree('dtree');
-                dtree.add(0, -1, '選單');
-                {% for item in menu %}
-                dtree.add({{item.id}}, {{item.parent_id}}, "{{item.name}}", "{{item.url}}", "{{item.title}}", "{{item.target}}", "{{item.icon}}", "{{item.icon_open}}", {% if item.open == 1 %}true{% else %}false{% endif %}, "{{item.onclick}}");{% endfor %}
-                menu.innerHTML  = dtree;
-            }
-            // jQuery('.marquee').marquee({
-            //     speed: 5000,
-            //     gap: 50,
-            //     delayBeforeStart: 0,
-            //     direction: 'left',
-            //     duplicated: true,
-            //     pauseOnHover: true
-            // });
-            jQuery("#marquee").marquee({
-                speed: 10
-            });// 執行跑馬燈
-        }
-    }, false);
-</script>
-{% endblock %}
 {% block body %}
     <!-- {% include 'functions/logout.htm' %} -->
     <!-- <div id="menu"></div> -->
+    {% block header %}
     <header id="header" class="">
         <img src="Favicon.png" alt=""><h1>TcTube</h1>
     </header><!-- /header -->
-    <nav id="menu" type="context toolbar"></nav>
+    {% endblock %}
+    {% block marquee %}
     <ul id="marquee" class="marquee">
     {% for announcement in announcements %}
         <li><h3>{{announcement.message}}</h3></li>
     {% endfor %}
     </ul>
-    <main id="content">
+    {% endblock %}
+    {% block menu %}
+    <nav id="menu" type="context toolbar"></nav>
+    {% endblock %}
+    {% block main %}
+    <main>
         你好 {{current_user.name}}，你登入IP為 {{current_user.login_ip}}({{current_user.login_time}})。
         {% for video in videos %}
             <div>
@@ -139,5 +35,6 @@
             </div>
         {% endfor %}
     </main>
+    {% endblock %}
     <!-- {% include 'functions/message.htm' %} -->
 {% endblock %}

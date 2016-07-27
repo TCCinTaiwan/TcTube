@@ -21,14 +21,63 @@
 
         {% block css %}
         <link rel="stylesheet" href="/css/reset.css">
+        <link rel="stylesheet" type="text/css" href="/css/main.css">
         {% endblock %}
 
         <script src="/js/login.js"></script>
         {% block javascript %}
+        <script src="/js/jquery-1.12.4.min.js"></script>
+        <script src="/js/jquery.marquee.min.js"></script>
+        <script type="text/javascript" src="/js/dtree.js"></script>
+        <script>
+            document.addEventListener("readystatechange", function init(event) {
+                if (document.readyState === "complete") {
+                    console.log("complete");
+                    if (typeof menu !== "undefined") {
+                        dtree = new dTree('dtree');
+                        dtree.add(0, -1, '選單');
+                        {% for item in menu %}
+                        dtree.add({{item.id}}, {{item.parent_id}}, "{{item.name}}", "{{item.url}}", "{{item.title}}", "{{item.target}}", "{{item.icon}}", "{{item.icon_open}}", {% if item.open == 1 %}true{% else %}false{% endif %}, "{{item.onclick}}");{% endfor %}
+                        menu.innerHTML  = dtree;
+                    }
+                    // jQuery('.marquee').marquee({
+                    //     speed: 5000,
+                    //     gap: 50,
+                    //     delayBeforeStart: 0,
+                    //     direction: 'left',
+                    //     duplicated: true,
+                    //     pauseOnHover: true
+                    // });
+                    jQuery("#marquee").marquee({
+                        speed: 10
+                    });// 執行跑馬燈
+                }
+            }, false);
+        </script>
         {% endblock %}
         {% endblock %}
     </head>
     <body>
-        {% block body %}{% endblock %}
+    {% block body %}
+        {% block header %}
+        <header id="header" class="">
+            <img src="/Favicon.png" alt=""><h1>TcTube</h1>
+        </header>
+        {% endblock %}
+        {% block marquee %}
+        <ul id="marquee" class="marquee">
+        {% for announcement in announcements %}
+            <li><h3>{{announcement.message}}</h3></li>
+        {% endfor %}
+        </ul>
+        {% endblock %}
+        {% block menu %}
+        <nav id="menu" type="context toolbar"></nav>
+        {% endblock %}
+        {% block main %}
+        <main>
+        </main>
+        {% endblock %}
+    {% endblock %}
     </body>
 </html>

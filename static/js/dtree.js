@@ -88,33 +88,33 @@ function dTree(objName) {
 
 	this.icon = {
 
-		root				: 'img/base.gif',
+		root				: '/img/base.gif',
 
-		folder			: 'img/folder.gif',
+		folder			: '/img/folder.gif',
 
-		folderOpen	: 'img/folderopen.gif',
+		folderOpen	: '/img/folderopen.gif',
 
-		node				: 'img/page.gif',
+		node				: '/img/page.gif',
 
-		empty				: 'img/empty.gif',
+		empty				: '/img/empty.gif',
 
-		line				: 'img/line.gif',
+		line				: '/img/line.gif',
 
-		join				: 'img/join.gif',
+		join				: '/img/join.gif',
 
-		joinBottom	: 'img/joinbottom.gif',
+		joinBottom	: '/img/joinbottom.gif',
 
-		plus				: 'img/plus.gif',
+		plus				: '/img/plus.gif',
 
-		plusBottom	: 'img/plusbottom.gif',
+		plusBottom	: '/img/plusbottom.gif',
 
-		minus				: 'img/minus.gif',
+		minus				: '/img/minus.gif',
 
-		minusBottom	: 'img/minusbottom.gif',
+		minusBottom	: '/img/minusbottom.gif',
 
-		nlPlus			: 'img/nolines_plus.gif',
+		nlPlus			: '/img/nolines_plus.gif',
 
-		nlMinus			: 'img/nolines_minus.gif'
+		nlMinus			: '/img/nolines_minus.gif'
 
 	};
 
