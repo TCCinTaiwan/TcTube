@@ -173,136 +173,6 @@ class User(db.Model):
     def get(cls,id):
         return cls.query.filter_by(id = id).first()
 
-@app.before_request
-def check_login():
-    # print([item for item in current_user])
-    # if request.endpoint == 'static' and not current_user.is_authenticated:
-    #     return render_template('error.htm', title = "Forbidden",error = "權限不足", redirect = "/", redirectTime = 100), 403
-    return None
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.get(user_id)
-
-@login_manager.header_loader
-def load_user_from_header(header_val):
-    header_val = header_val.replace('Basic ', '', 1)
-    try:
-        header_val = base64.b64decode(header_val)
-    except TypeError:
-        pass
-    return User.query.filter_by(api_key = header_val).first()
-
-@login_manager.unauthorized_handler
-def unauthorized():
-    flash('請登入再繼續')
-    next = urlparse(request.url).path
-    return redirect(url_for('login', next = next))
-# @login_manager.request_loader
-# def load_user(request):
-#     token = request.headers.get('Authorization')
-#     if token is None:
-#         token = request.args.get('token')
-
-#     if token is not None:
-#         account, password = token.split(":") # naive token
-#         user = User.getByAccount(account)
-#         if (user.password == password):
-#             return user
-#     return None
-
-
-def stream_tmeplate(template_name, **context):
-    app.update_template_context(context)
-    template = app.jinja_env.get_template(template_name)
-    templateStream = template.stream(context)
-    templateStream.enable_buffering(5)
-    return templateStream
-
-# 裝飾
-def access_permission(func = None, level = None):
-    if not func:
-        return partial(access_permission, level = level)
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        print('[%s] 呼叫 %s(), user = %s, level = %d' % (datetime.utcnow(), func, current_user, level if level != None else -1))
-        if current_user.competence > level:
-            return render_template('error.htm', title = "Forbidden",error = "權限不足", redirect = "/", redirectTime = 100), 403
-        return func(*args, **kwargs)
-    return wrapper
-
-
-@app.route('/')
-@login_required
-@access_permission(level = 10)
-def index():
-    announcements = Announcement.query.all()
-    menu = Menu.query.all()
-    return render_template("index.htm", title = 'Index', announcements = announcements, menu = menu)
-
-@app.route("/listUser/") # http://127.0.0.1/listUser/?token=john987john987:123
-@login_required
-@access_permission(level = 5)
-def sql():
-    users = User.query.filter(User.competence > current_user.competence)
-    # users = User.query.all()
-    return render_template('listUser.htm', title = "List Users", users = users)
-
-
-@app.route('/video/')
-def randomVideo(): # 隨機Video
-    with open('static/playlist.json', "r", encoding = 'utf8') as jsonFile:
-        jsonData = json.load(jsonFile)
-    return video(random.randrange(len(jsonData)))
-
-@app.route('/video/<int:videoNum>')
-@login_required
-@access_permission(level = 10)
-def video(videoNum):
-    videos = db.session.query(Video)
-    print(videos)
-    return render_template('video.htm', videoNum = videoNum, videos = videos)
-
-@app.route('/list/')
-def listRoot():
-    return list("")
-@app.route('/list/<string:path>/')
-@access_permission(level = 5)
-@login_required
-def list(path):
-    def formattime(time):
-        return datetime.strftime(
-            datetime.fromtimestamp(time),
-            '%Y-%m-%d %H:%M:%S'
-        )
-    files = []
-    folderpath = os.path.join(app.config['VIDEO_FOLDER'] , path)
-    path = "/" + path
-    for index, file in enumerate(os.listdir(folderpath)):
-        filepath = os.path.join(folderpath, file)
-        relativepath = os.path.join(path, file)
-        files.append({
-            "index": index,
-            "name": file,
-            "url": ("/view" if (os.path.isfile(filepath)) else "/list") + relativepath,
-            "download_url": "/media" + relativepath,
-            "type": "file" if os.path.isfile(filepath) else "folder" if os.path.isdir(filepath) else "unknown",
-            "mtime": formattime(os.path.getmtime(filepath)),
-            "ctime": formattime(os.path.getctime(filepath)),
-            "atime": formattime(os.path.getatime(filepath)),
-            "size": os.path.getsize(filepath)
-        })
-    return render_template("list.htm", title = 'List', files = files, folderpath = path)
-# def mimetype(filepath):
-#     return magic.from_file(filepath)
-
-
-@app.route('/view/<path:path>') # 強制檢視影片，而不是看瀏覽器而下載或觀看
-@login_required
-def view(path):
-    absolutePath = re.match(r"^http(s|)://[^/:]{1,}", request.url).group(0)
-    return render_template('viewMedia.htm', mediaFile = absolutePath + ":" + str(app.config['NGINX_PORT']) + "/" + path)
-
 # Define login and registration forms (for flask-login)
 class LoginForm(form.Form):
     account = fields.TextField("帳號", validators = [validators.required()])
@@ -364,6 +234,137 @@ class SignupForm(form.Form):
         ]
     )
     submit = fields.SubmitField("Send")
+
+@app.before_request
+def check_login():
+    # print([item for item in current_user])
+    # if request.endpoint == 'static' and not current_user.is_authenticated:
+    #     return render_template('error.htm', title = "Forbidden",error = "權限不足", redirect = "/", redirectTime = 100), 403
+    return None
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.get(user_id)
+
+@login_manager.header_loader
+def load_user_from_header(header_val):
+    header_val = header_val.replace('Basic ', '', 1)
+    try:
+        header_val = base64.b64decode(header_val)
+    except TypeError:
+        pass
+    return User.query.filter_by(api_key = header_val).first()
+
+@login_manager.unauthorized_handler
+def unauthorized():
+    flash('請登入再繼續')
+    next = urlparse(request.url).path
+    return redirect(url_for('login', next = next))
+# @login_manager.request_loader
+# def load_user(request):
+#     token = request.headers.get('Authorization')
+#     if token is None:
+#         token = request.args.get('token')
+
+#     if token is not None:
+#         account, password = token.split(":") # naive token
+#         user = User.getByAccount(account)
+#         if (user.password == password):
+#             return user
+#     return None
+
+
+def stream_tmeplate(template_name, **context):
+    app.update_template_context(context)
+    template = app.jinja_env.get_template(template_name)
+    templateStream = template.stream(context)
+    templateStream.enable_buffering(5)
+    return templateStream
+
+# 裝飾
+def access_permission(func = None, level = None):
+    if not func:
+        return partial(access_permission, level = level)
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        print('[%s] 呼叫 %s(), user = %s, level = %d' % (datetime.utcnow(), func, current_user, level if level != None else -1))
+        if current_user.competence > level:
+            return render_template('error.htm', title = "Forbidden",error = "權限不足", redirect = "/", redirectTime = 100), 403
+        return func(*args, **kwargs)
+    return wrapper
+
+@app.route('/')
+@login_required
+@access_permission(level = 10)
+def index():
+    announcements = Announcement.query.all()
+    menu = Menu.query.all()
+    videos = db.session.query(Video)
+    return render_template("index.htm", title = 'Index', announcements = announcements, menu = menu, videos = videos)
+
+@app.route("/listUser/") # http://127.0.0.1/listUser/?token=john987john987:123
+@login_required
+@access_permission(level = 5)
+def sql():
+    users = User.query.filter(User.competence > current_user.competence)
+    # users = User.query.all()
+    return render_template('listUser.htm', title = "List Users", users = users)
+
+
+@app.route('/video/')
+def randomVideo(): # 隨機Video
+    # with open('static/playlist.json', "r", encoding = 'utf8') as jsonFile:
+    #     jsonData = json.load(jsonFile)
+    videos = db.session.query(Video).all()
+    return video(random.randrange(len(videos)))
+
+@app.route('/video/<int:videoNum>')
+@login_required
+@access_permission(level = 10)
+def video(videoNum):
+    videos = db.session.query(Video)
+    return render_template('video.htm', videoNum = videoNum, videos = videos)
+
+@app.route('/list/')
+def listRoot():
+    return list("")
+@app.route('/list/<string:path>/')
+@login_required
+@access_permission(level = 5)
+def list(path):
+    def formattime(time):
+        return datetime.strftime(
+            datetime.fromtimestamp(time),
+            '%Y-%m-%d %H:%M:%S'
+        )
+    files = []
+    folderpath = os.path.join(app.config['VIDEO_FOLDER'] , path)
+    path = "/" + path
+    for index, file in enumerate(os.listdir(folderpath)):
+        filepath = os.path.join(folderpath, file)
+        relativepath = os.path.join(path, file)
+        files.append({
+            "index": index,
+            "name": file,
+            "url": ("/view" if (os.path.isfile(filepath)) else "/list") + relativepath,
+            "download_url": "/media" + relativepath,
+            "type": "file" if os.path.isfile(filepath) else "folder" if os.path.isdir(filepath) else "unknown",
+            "mtime": formattime(os.path.getmtime(filepath)),
+            "ctime": formattime(os.path.getctime(filepath)),
+            "atime": formattime(os.path.getatime(filepath)),
+            "size": os.path.getsize(filepath)
+        })
+    return render_template("list.htm", title = 'List', files = files, folderpath = path)
+# def mimetype(filepath):
+#     return magic.from_file(filepath)
+
+
+@app.route('/view/<path:path>') # 強制檢視影片，而不是看瀏覽器而下載或觀看
+@login_required
+def view(path):
+    absolutePath = re.match(r"^http(s|)://[^/:]{1,}", request.url).group(0)
+    return render_template('viewMedia.htm', mediaFile = absolutePath + ":" + str(app.config['NGINX_PORT']) + "/" + path)
+
 
 @app.route('/signup/')
 def signup():
@@ -472,8 +473,8 @@ def execute(script, scriptType):
             yield "<script>parent.stream_success()</script>"
 
     env = Environment(loader = FileSystemLoader('templates'))
-    tmpl = env.get_template('stream.htm')
-    return Response(tmpl.generate(result = inner()))
+    tempTemplate = env.get_template('stream.htm')
+    return Response(tempTemplate.generate(result = inner()))
 
 @app.route('/youtube/<videoId>') # Youtube
 def youtube(videoId):
