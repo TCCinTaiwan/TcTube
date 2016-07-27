@@ -16,10 +16,11 @@
 ## Introduction[↶](#)
 這是2016年暑假，我在系上實習，老師叫我們做的系統，我用去年寫的播放器加以改進。
 ![截圖](screenshot.png)
+
 ## Browser Support[↶](#)
 | ![IE](https://raw.github.com/alrra/browser-logos/master/internet-explorer/internet-explorer_48x48.png) | ![Chrome](https://raw.github.com/alrra/browser-logos/master/chrome/chrome_48x48.png) | ![Firefox](https://raw.github.com/alrra/browser-logos/master/firefox/firefox_48x48.png) | ![Opera](https://raw.github.com/alrra/browser-logos/master/opera/opera_48x48.png) | ![Safari](https://raw.github.com/alrra/browser-logos/master/safari/safari_48x48.png) | ![VIVALDI](https://vivaldi.com/assets/vivaldi.svg)
 | --- | --- | --- | --- | --- | --- |
-| IE 9+ ✔ | Chrome 4.0+ ✔ | Firefox 16.0+ ✔ | Opera 37.0+ ✔ | Safari 4.0+ ✖ |  Vivaldi 1+ ✔ |
+| IE 9+ ✔ | Chrome ✔ | Firefox ✔ | Opera 37.0+ ✔ | Safari 4.0+ ✖ |  Vivaldi 1+ ✔ |
 
 ## Installation[↶](#)
 ```bash
@@ -27,16 +28,14 @@
 git clone https://github.com/TCCinTaiwan/TcTube
 ```
 音樂檔案要放在 media/video/
-修改 [static/playlist.json](static/playlist.json)，改成自己的歌
-```json
-[
-    {
-        "file": "filename.webm",
-        "title": "Title",
-        "artist": "Artist"
-    }
-]
+修改 [member.db](member.db)裡的videos和videoSources資料表，加入自己的歌
+```sql
+insert  into videos (title, artist) values ("<title>", "<artist>");
+insert into videoSources (id, video_id, source) values (1, <video_id>, "<filename>");
+insert into videoSources (id, video_id, source) values (2, <video_id>, "<filename2>");
+...
 ```
+
 ## Usage[↶](#)
 run Server:
 ```bash
@@ -207,4 +206,4 @@ python main.py
 For detailed changelog, check [Change Log](CHANGELOG.md).
 
 ## License[↶](#)
-check [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE).
+[![License](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE)
