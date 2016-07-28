@@ -19,17 +19,16 @@ from flask.ext.login import LoginManager, UserMixin, login_required, login_user,
 from wtforms import form, fields, validators
 from functools import wraps, partial
 
-import binascii
-import os
+import binascii, os, re, json, random, subprocess, sqlite3
 # from OpenSSL import SSL
-import cv2, re, json, random, subprocess
+# import cv2
+
 from jinja2 import Environment, FileSystemLoader
 from pygments import highlight
 from pygments.lexers import BashLexer
 from pygments.formatters import HtmlFormatter
 from functools import partial
 from datetime import datetime
-import sqlite3
 from urllib.parse import urlparse
 app = Flask(__name__, static_url_path = "", static_folder = "static/")
 app.debug = True
@@ -66,16 +65,18 @@ class Menu(db.Model):
     parent_id = db.Column(db.Integer)
     name = db.Column(db.String(64))
     url = db.Column(db.String(64))
+    target = db.Column(db.String(64))
     title = db.Column(db.String(64))
     onclick = db.Column(db.String(64))
     icon = db.Column(db.String(64))
     icon_open = db.Column(db.String(64))
     open = db.Column(db.Boolean)
-    def  __init__(self, parent_id, name, url, title, onclick, icon, icon_open, open):
+    def  __init__(self, parent_id, name, url, title,target, onclick, icon, icon_open, open):
         self.parent_id = parent_id
         self.name = name
         self.url = url
         self.title = title
+        self.target = target
         self.onclick = onclick
         self.icon = icon
         self.icon_open = icon_open
@@ -308,9 +309,10 @@ def index():
 @login_required
 @access_permission(level = 5)
 def listUser():
+    announcements = Announcement.query.all()
+    menu = Menu.query.all()
     users = User.query.filter(User.competence > current_user.competence)
-    # users = User.query.all()
-    return render_template('listUser.htm', title = "List Users", users = users)
+    return render_template('listUser.htm', title = "List Users", users = users, announcements = announcements, menu = menu)
 
 @app.route("/announcements/")
 @login_required
@@ -331,8 +333,10 @@ def randomVideo(): # 隨機Video
 @login_required
 @access_permission(level = 10)
 def video(videoNum):
+    menu = Menu.query.all()
     videos = db.session.query(Video)
-    return render_template('video.htm', videoNum = videoNum, videos = videos)
+    announcements = Announcement.query.all()
+    return render_template('video.htm', videoNum = videoNum, videos = videos, announcements = announcements, menu = menu)
 
 @app.route('/list/')
 def listRoot():
@@ -363,7 +367,9 @@ def list(path):
             "atime": formattime(os.path.getatime(filepath)),
             "size": os.path.getsize(filepath)
         })
-    return render_template("list.htm", title = 'List', files = files, folderpath = path)
+    announcements = Announcement.query.all()
+    menu = Menu.query.all()
+    return render_template("list.htm", title = 'List', files = files, folderpath = path, announcements = announcements, menu = menu)
 # def mimetype(filepath):
 #     return magic.from_file(filepath)
 
@@ -371,6 +377,8 @@ def list(path):
 @app.route('/view/<path:path>') # 強制檢視影片，而不是看瀏覽器而下載或觀看
 @login_required
 def view(path):
+    announcements = Announcement.query.all()
+    menu = Menu.query.all()
     absolutePath = re.match(r"^http(s|)://[^/:]{1,}", request.url).group(0)
     return render_template('viewMedia.htm', mediaFile = absolutePath + ":" + str(app.config['NGINX_PORT']) + "/" + path)
 
@@ -430,7 +438,9 @@ def upload_file():
                 uploadFilesStatus.append((1, "Unsupported File Type")) # 1: failed
         successFiles = [info for status, info  in uploadFilesStatus if status == 0]
         return "<h2>上傳" + str(len(files)) + "個檔案中，成功" + str(len(successFiles)) + "個檔案</h2><p>" + "</p><p>".join(successFiles) + "</p>"
-    return render_template('upload.htm', title = 'Upload')
+    announcements = Announcement.query.all()
+    menu = Menu.query.all()
+    return render_template('upload.htm', title = 'Upload', announcements = announcements, menu = menu)
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[-1] in app.config['ALLOWED_EXTENSIONS']
 def filename_filter(filename):
@@ -445,49 +455,49 @@ def media(path):
     # print("重導向: " + mediaFileUrl)
     return redirect(mediaFileUrl, code = 302)
 
-@app.route('/script/<script>') # PHP(Stream)
-def execute_python(script):
-    return execute(script, "py")
-@app.route('/script/<script>.<scriptType>') # 執行Python檔案，即時回傳結果(Stream)
-def execute(script, scriptType):
-    args = request.query_string.decode("utf-8").split("&")
-    def inner():
-        if (scriptType == "py"):
-            cmd = ["python", "-u"]  # -u: don't buffer output
-        elif (scriptType == "php"):
-            cmd = ["php"]
-        assert re.match(r'^[a-zA-Z._-]+$', script)
-        exec_path = "script/" + script + "." + scriptType
-        cmd.append(exec_path)
-        cmd = cmd + args
-        error = False
-        proc = subprocess.Popen(
-            cmd,
-            stdout = subprocess.PIPE,
-            stderr = subprocess.PIPE,
-        )
+# @app.route('/script/<script>') # PHP(Stream)
+# def execute_python(script):
+#     return execute(script, "py")
+# @app.route('/script/<script>.<scriptType>') # 執行Python檔案，即時回傳結果(Stream)
+# def execute(script, scriptType):
+#     args = request.query_string.decode("utf-8").split("&")
+#     def inner():
+#         if (scriptType == "py"):
+#             cmd = ["python", "-u"]  # -u: don't buffer output
+#         elif (scriptType == "php"):
+#             cmd = ["php"]
+#         assert re.match(r'^[a-zA-Z._-]+$', script)
+#         exec_path = "script/" + script + "." + scriptType
+#         cmd.append(exec_path)
+#         cmd = cmd + args
+#         error = False
+#         proc = subprocess.Popen(
+#             cmd,
+#             stdout = subprocess.PIPE,
+#             stderr = subprocess.PIPE,
+#         )
 
-        for line in proc.stdout:
-            yield "<pre>" + line.decode("utf-8") + "</pre>"
-            # yield highlight(line, BashLexer(), HtmlFormatter())
+#         for line in proc.stdout:
+#             yield "<pre>" + line.decode("utf-8") + "</pre>"
+#             # yield highlight(line, BashLexer(), HtmlFormatter())
 
-        # Maybe there is more stdout after an error...
-        for line in proc.stderr:
-            error = True
-            yield highlight(line, BashLexer(), HtmlFormatter())
+#         # Maybe there is more stdout after an error...
+#         for line in proc.stderr:
+#             error = True
+#             yield highlight(line, BashLexer(), HtmlFormatter())
 
-        if error:
-            yield "<script>parent.stream_error()</script>"
-        else:
-            yield "<script>parent.stream_success()</script>"
+#         if error:
+#             yield "<script>parent.stream_error()</script>"
+#         else:
+#             yield "<script>parent.stream_success()</script>"
 
-    env = Environment(loader = FileSystemLoader('templates'))
-    tempTemplate = env.get_template('stream.htm')
-    return Response(tempTemplate.generate(result = inner()))
+#     env = Environment(loader = FileSystemLoader('templates'))
+#     tempTemplate = env.get_template('stream.htm')
+#     return Response(tempTemplate.generate(result = inner()))
 
-@app.route('/youtube/<videoId>') # Youtube
-def youtube(videoId):
-    return render_template('iframe.htm', url = "https://www.youtube.com/embed/" + videoId + "?controls=1&disablekb=1&enablejsapi=1&autohide=1&modestbranding=1&playsinline=1&rel=0&showinfo=0&theme=dark&iv_load_poliucy=3&autoplay=1")
+# @app.route('/youtube/<videoId>') # Youtube
+# def youtube(videoId):
+#     return render_template('iframe.htm', url = "https://www.youtube.com/embed/" + videoId + "?controls=1&disablekb=1&enablejsapi=1&autohide=1&modestbranding=1&playsinline=1&rel=0&showinfo=0&theme=dark&iv_load_poliucy=3&autoplay=1")
 
 
 # @app.route('/camera/')

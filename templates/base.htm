@@ -40,16 +40,13 @@
                         dtree.add({{item.id}}, {{item.parent_id}}, "{{item.name}}", "{{item.url}}", "{{item.title}}", "{{item.target}}", "{{item.icon}}", "{{item.icon_open}}", {% if item.open == 1 %}true{% else %}false{% endif %}, "{{item.onclick}}");{% endfor %}
                         menu.innerHTML  = dtree;
                     }
-                    // jQuery('.marquee').marquee({
-                    //     speed: 5000,
+                    jQuery("#marquee").marquee({
+                        speed: 10
                     //     gap: 50,
                     //     delayBeforeStart: 0,
                     //     direction: 'left',
                     //     duplicated: true,
                     //     pauseOnHover: true
-                    // });
-                    jQuery("#marquee").marquee({
-                        speed: 10
                     });// 執行跑馬燈
                 }
             }, false);
@@ -74,10 +71,10 @@
         {% block menu %}
         <nav id="menu" type="context toolbar"></nav>
         {% endblock %}
-        {% block main %}
         <main>
-        </main>
+        {% block main %}
         {% endblock %}
+        </main>
     {% endblock %}
     </body>
 </html>

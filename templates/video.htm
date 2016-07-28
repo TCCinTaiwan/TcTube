@@ -1,87 +1,67 @@
 {% extends 'base.htm' %}
-<!DOCTYPE html>
-<html>
-    <head>
-        {% block head %}
-        {% block meta %}
-        {{ super() }}
-        {% endblock %}
 
-        {% block icon %}
-        {{ super() }}
-        {% endblock %}
+{% block css %}
+{{ super() }}
+<link href="/css/font-awesome.css" rel="stylesheet">
+<link rel="stylesheet" href="/css/player.css">
+{% endblock %}
 
-        {% block title %}
-        <title>TcTube</title>
-        {% endblock %}
-
-        {% block css %}
-        {{ super() }}
-        <link href="/css/font-awesome.css" rel="stylesheet">
-        <link rel="stylesheet" href="/css/player.css">
-        {% endblock %}
-
-        {% block javascript %}
-        <script src="/js/jquery-1.12.4.min.js"></script>
-        <script src="/js/prototype.js"></script><!-- 引用 prototype 函式庫 -->
-        <!-- <script src="http://www.youtube.com/iframe_api"></script> -->
-        <script src="https://www.youtube.com/iframe_api"></script>
-        <script src="/js/html5shiv.min.js"></script>
-        <script src="/js/html5shiv-printshiv.min.js"></script>
-        <script src="/js/player.js"></script>
-        <script>
-            defaultVideoNum = {{videoNum}};
-            playlist = [
-            {% for video in videos %}
-                {
-                    title: "{{video.title}}",
-                    {% if (video.artist != "undefined") %}
-                    artist: "{{video.artist}}",
-                    {% endif %}
-                    file: [
-                    {% for source in video.sources %}
-                        "{{source.source}}",
-                    {% endfor %}
-                    ]
-                },
+{% block javascript %}
+{{ super() }}
+<script src="/js/prototype.js"></script><!-- 引用 prototype 函式庫 -->
+<!-- <script src="http://www.youtube.com/iframe_api"></script> -->
+<script src="https://www.youtube.com/iframe_api"></script>
+<script src="/js/html5shiv.min.js"></script>
+<script src="/js/html5shiv-printshiv.min.js"></script>
+<script src="/js/player.js"></script>
+<script>
+    defaultVideoNum = {{videoNum}};
+    playlist = [
+    {% for video in videos %}
+        {
+            title: "{{video.title}}",
+            {% if (video.artist != "undefined") %}
+            artist: "{{video.artist}}",
+            {% endif %}
+            file: [
+            {% for source in video.sources %}
+                "{{source.source}}",
             {% endfor %}
             ]
-        </script>
-        {% endblock %}
-        {% endblock %}
-    </head>
-    <body>
-        {% block body %}
-        <div id="videoFrame">
-            <video id="video" poster="/loading.gif" preload="auto"></video>
-            <iframe id="frame" type="text/html" src="" frameborder="0" allowfullscreen hidden></iframe>
-            <div id="controlBar" class="show">
-                <button id="play" class="play"></button>
-                <button id="next" class="step-forward"></button>
-                <canvas id="progress" width="300" height="1" ></canvas>
-                <div id="time"><span id="currentTime">--:--</span>/<span id="duration">--:--</span></div>
-                <div id="volume">
-                    <button id="mute" class="volumeUp"></button>
-                    <div><canvas id="volumeSlider" width="1" height="100" ></canvas></div>
-                </div>
-                <div id="rate"></div>
+        },
+    {% endfor %}
+    ]
+</script>
+{% endblock %}
+{% block main %}
+<div id="videoFrame">
+    <video id="video" poster="/loading.gif" preload="auto"></video>
+    <iframe id="frame" type="text/html" src="" frameborder="0" allowfullscreen hidden></iframe>
+    <div id="controlBar" class="show">
+        <button id="play" class="play"></button>
+        <button id="next" class="step-forward"></button>
+        <canvas id="progress" width="300" height="1" ></canvas>
+        <div id="time"><span id="currentTime">--:--</span>/<span id="duration">--:--</span></div>
+        <div id="volume">
+            <button id="mute" class="volumeUp"></button>
+            <div><canvas id="volumeSlider" width="1" height="100" ></canvas></div>
+        </div>
+        <div id="rate"></div>
 
-                <button id="size" class="zoomOut"></button>
-                <button id="openPanel"></button>
-            </div>
-        </div>
-        <div id="list">
-            <div>123</div>
-            <div>456</div>
-            <div>789</div>
-        </div>
-        <div id="contextMenu" hidden>
-            <div id="menu_prev">上一首</div>
-            <div id="menu_next">下一首</div>
-            <div id="menu_newVideo">在新視窗開啟影片</div>
-            <div id="menu_clipVideo"><textarea hidden></textarea>複製影片網址</div>
-        </div>
-        <div id="bottomAd" style="font-size: 2px;">&nbsp;</div>
-        {% endblock %}
-    </body>
-</html>
+        <button id="size" class="zoomOut"></button>
+        <button id="openPanel"></button>
+    </div>
+</div>
+<div id="list">
+    <div>123</div>
+    <div>456</div>
+    <div>789</div>
+</div>
+<div id="contextMenu" hidden>
+    <div id="menu_prev">上一首</div>
+    <div id="menu_next">下一首</div>
+    <div id="menu_newVideo">在新視窗開啟影片</div>
+    <div id="menu_clipVideo"><textarea hidden></textarea>複製影片網址</div>
+</div>
+<div id="bottomAd" style="font-size: 2px;">&nbsp;</div>
+{% endblock %}

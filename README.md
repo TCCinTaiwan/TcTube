@@ -23,9 +23,12 @@
 | IE 9+ ✔ | Chrome ✔ | Firefox ✔ | Opera 37.0+ ✔ | Safari 4.0+ ✖ |  Vivaldi 1+ ✔ |
 
 ## Installation[↶](#)
+[ ![Git](https://git-scm.com/images/logo@2x.png)](https://git-scm.com/download/)[ ![Python](https://www.python.org/static/img/python-logo.png)](https://www.python.org/downloads/)
 ```bash
 # Clone the repository
 git clone https://github.com/TCCinTaiwan/TcTube
+cd TcTube
+pip install -r requirement.txt
 ```
 音樂檔案要放在 media/video/
 修改 [member.db](member.db)裡的videos和videoSources資料表，加入自己的歌
