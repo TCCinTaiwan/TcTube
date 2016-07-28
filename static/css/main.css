@@ -12,16 +12,17 @@ header {
     line-height: 70px;
     padding: 5px 150px;
 }
-header > * {
+header > a > * {
     display: inline-block;
     vertical-align: middle;
 }
-header > img {
-    height: 50px;
+header > a > img {
+    height: 60px;
 }
-header > h1 {
+header > a > h1 {
     margin-left: 30px;
     font-size: 36px;
+    color: black;
 }
 .message > #marquee {
     display: block;

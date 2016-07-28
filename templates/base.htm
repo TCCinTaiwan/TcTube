@@ -21,14 +21,14 @@
 
         {% block css %}
         <link rel="stylesheet" href="/css/reset.css">
-        <link rel="stylesheet" type="text/css" href="/css/main.css">
+        <link rel="stylesheet" href="/css/main.css">
         {% endblock %}
 
-        <script src="/js/login.js"></script>
         {% block javascript %}
+        <script src="/js/login.js"></script>
+        <script src="/js/dtree.js"></script>
         <script src="/js/jquery-1.12.4.min.js"></script>
         <script src="/js/jquery.marquee.min.js"></script>
-        <script type="text/javascript" src="/js/dtree.js"></script>
         <script>
             document.addEventListener("readystatechange", function init(event) {
                 if (document.readyState === "complete") {
@@ -58,7 +58,7 @@
     {% block body %}
         {% block header %}
         <header id="header" class="">
-            <img src="/Favicon.png" alt=""><h1>TcTube</h1>
+            <a href="/"><img src="/Favicon.png" alt=""><h1>TcTube</h1></a>
         </header>
         {% endblock %}
         {% block marquee %}

@@ -11,10 +11,12 @@ from flask import (
     stream_with_context,
     url_for,
     abort,
-    flash
+    flash,
+    jsonify
 )
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager, UserMixin, login_required, login_user, current_user, logout_user, confirm_login, login_fresh
+from flask.ext.compress import Compress
 # from flask.ext.admin import helpers, expose
 from wtforms import form, fields, validators
 from functools import wraps, partial
@@ -46,21 +48,72 @@ app.config['DATABASE_FILE'] = 'member.db'
 # app.config["SECRET_KEY"] = binascii.hexlify(os.urandom(24))
 app.config["SECRET_KEY"] = "0" * 24
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + app.config['DATABASE_FILE']
+Compress(app)
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 # login_manager.login_view = "login"
 login_manager.session_protection = "strong"
-class Announcement(db.Model):
+
+class classproperty(object):
+    def __init__(self, getter):
+        self.getter = getter
+    def __get__(self, instance, owner):
+        return self.getter(owner)
+
+class JsonAPI(object):
+    __public__ = None
+    def api(self, rows):
+        collection = []
+        if self.__public__ != None:
+            for row in rows:
+                collection.append(row.serialize)
+        return collection
+    @property
+    def serialize(self):
+        def value(value):
+            if (type(value) in [str, int, bool]):
+                # A number (integer or floating point)
+                # A string (in double quotes)
+                # A Boolean (true or false)
+                return value
+            elif value:
+                return self.api(value.all())
+        if (type(self.__public__) == str):
+            return value(getattr(self, self.__public__))
+        elif (self.__public__ != None):
+            dict = {}
+            for public_key in self.__public__:
+                dict[public_key] = value(getattr(self, public_key))
+            return dict
+    @classproperty
+    def collection(cls):
+        return cls.api(cls, cls.query.all())
+
+class Announcement(db.Model, JsonAPI):
     __tablename__ = 'announcements'
+    __public__ = [
+        "message"
+    ]
     id = db.Column(db.Integer, primary_key = True, autoincrement = True)
     message = db.Column(db.String(64))
     def  __init__(self, message):
         self.message = message
     def __repr__(self):
         return '<Announcement %r>' % (self.id)
-class Menu(db.Model):
+class Menu(db.Model, JsonAPI):
     __tablename__ = 'menu'
+    __public__ = [
+        "parent_id",
+        "name",
+        "url",
+        "title",
+        "target",
+        "onclick",
+        "icon",
+        "icon_open",
+        "open"
+    ]
     id = db.Column(db.Integer, primary_key = True, autoincrement = True)
     parent_id = db.Column(db.Integer)
     name = db.Column(db.String(64))
@@ -83,8 +136,13 @@ class Menu(db.Model):
         self.open = open
     def __repr__(self):
         return '<Menu %r>' % (self.name)
-class Video(db.Model):
+class Video(db.Model, JsonAPI):
     __tablename__ = 'videos'
+    __public__ = [
+        "title",
+        "artist",
+        "sources"
+    ]
     id = db.Column(db.Integer, primary_key = True, autoincrement = True)
     title = db.Column(db.String(64))
     artist = db.Column(db.String(64))
@@ -94,8 +152,9 @@ class Video(db.Model):
         self.artist = artist
     def __repr__(self):
         return '<Video %r>' % (self.title)
-class VideoSource(db.Model):
+class VideoSource(db.Model, JsonAPI):
     __tablename__ = 'videoSources'
+    __public__ = "source"
     id = db.Column(db.Integer, primary_key = True)
     video_id = db.Column(db.Integer, db.ForeignKey('videos.id'), primary_key = True)
     source = db.Column(db.String(64))
@@ -275,7 +334,10 @@ def unauthorized():
 #         if (user.password == password):
 #             return user
 #     return None
-
+@app.after_request
+def add_header(response):
+    response.cache_control.max_age = 300
+    return response
 
 def stream_tmeplate(template_name, **context):
     app.update_template_context(context)
@@ -303,7 +365,7 @@ def index():
     announcements = Announcement.query.all()
     menu = Menu.query.all()
     videos = db.session.query(Video)
-    return render_template("index.htm", title = 'Index', announcements = announcements, menu = menu, videos = videos)
+    return render_template("index.htm", title = 'Index', announcements = announcements, menu = menu, videos = videos, Video = Video)
 
 @app.route("/listUser/")
 @login_required
@@ -337,6 +399,10 @@ def video(videoNum):
     videos = db.session.query(Video)
     announcements = Announcement.query.all()
     return render_template('video.htm', videoNum = videoNum, videos = videos, announcements = announcements, menu = menu)
+
+@app.route('/api/')
+def test():
+    return jsonify(video = Video.collection, menu = Menu.collection, announcement = Announcement.collection)
 
 @app.route('/list/')
 def listRoot():

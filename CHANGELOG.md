@@ -1,4 +1,10 @@
 # TcTube
+## 0.2.8
+* 2016-07-28
+    - 加入壓縮
+    - 加入cache_control
+    - 更新requirements.txt、setup.py
+    - 加入API
 ## 0.2.7
 * 2016-07-27
     - 播放清單改用資料庫儲存
