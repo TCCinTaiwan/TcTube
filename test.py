@@ -1,7 +1,4 @@
-import os
 import unittest
-import tempfile
-import webtest
 
 import main
 class FlaskrTestCase(unittest.TestCase):
@@ -12,8 +9,6 @@ class FlaskrTestCase(unittest.TestCase):
         response = self.app.get('/')
         self.assertEquals(response.status, "302 FOUND")
     def test_login_logout(self):
-        # response = self.app.get('/login')
-        # response = self.app.post('/login/', follow_redirects = True)
         response = self.app.post('/login/', data = {
             'account': 'test',
             'password': "test",
