@@ -4,7 +4,7 @@
     你好 {{current_user.name}}，你登入IP為 {{current_user.login_ip}}({{current_user.login_time}})。
 
 
-    {{ Video.collection|tojson|safe }}
+    <!-- {{ Video.collection|tojson|safe }} -->
     {% for video in videos %}
         <div>
             id: "{{video.id}}",
