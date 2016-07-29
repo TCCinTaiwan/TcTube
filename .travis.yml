@@ -4,7 +4,7 @@ python:
 install:
   - pip install --upgrade pip #[他預先的 pip 版本不是最新的，所以先更新一下]
   - pwd
-  - pip install -r TcTube/requirements.txt
+  - pip install -r requirements.txt
 
 script:
     - python test.py
