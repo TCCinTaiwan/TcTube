@@ -29,7 +29,7 @@
 # Clone the repository
 git clone https://github.com/TCCinTaiwan/TcTube
 cd TcTube
-pip install -r requirements.txt
+pip install -r requirement.txt
 ```
 下載nginx後，把檔案放在TcTube底下，或者修改main.py中nginx路徑。
 然後把 [setup/nginx.conf](nginx.conf)複製到 nginx-*/conf/ 底下，取代原本的 nginx.conf。
