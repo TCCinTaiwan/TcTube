@@ -1,21 +1,36 @@
 {% extends 'base.htm' %}
 
+{% block css %}
+{{ super () }}
+<style type="text/css" media="screen">
+    main {
+        background: yellow;
+    }
+    .user {
+        float: left;
+    }
+    .song {
+        /*float: left;*/
+        background: green;
+        min-width: 50px;
+        min-height: 50px;
+    }
+</style>
+{% endblock %}
 {% block main %}
-    你好 {{current_user.name}}，你登入IP為 {{current_user.login_ip}}({{current_user.login_time}})。
+    <div class="user">
+        你好 {{current_user.name}}，你登入IP為 {{current_user.login_ip}}({{current_user.login_time}})。
+    </div>
 
 
     <!-- {{ Video.collection|tojson|safe }} -->
     {% for video in videos %}
-        <div>
-            id: "{{video.id}}",
-            title: "{{video.title}}",
+        <div class="song song{{video.id}}">
             {% if (video.artist != "undefined") %}
-            artist: "{{video.artist}}",
+            {{video.artist}} - {{video.title}}
+            {% else%}
+            {{video.title}}
             {% endif %}
-            file: [
-            {% for source in video.sources %}
-                "{{source.source}}",
-            {% endfor %}
         </div>
     {% endfor %}
 {% endblock %}
