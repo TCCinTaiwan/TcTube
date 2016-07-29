@@ -9,7 +9,7 @@ class FlaskrTestCase(unittest.TestCase):
         response = self.app.get('/', follow_redirects = True)
         self.assertEquals(response.status, "200 OK")
     def test_login(self):
-         response = self.app.post('/login', data = {
+        response = self.app.post('/login', data = {
             'account': 'test',
             'password': "test"
         }, follow_redirects = True)
