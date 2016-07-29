@@ -1,5 +1,6 @@
 # [:octocat:TcTube](https://github.com/TCCinTaiwan/TcTube)
-[![Version](https://img.shields.io/badge/lastest_version-0.2.6-blue.svg)](https://github.com/TCCinTaiwan/TcTube/releases) [![Gitter](https://badges.gitter.im/TCCinTaiwan/TcTube.svg)](https://gitter.im/TCCinTaiwan/TcTube?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Build Status](https://travis-ci.org/TCCinTaiwan/TcTube.svg?branch=TCC)](https://travis-ci.org/TCCinTaiwan/TcTube)
+[![Version](https://img.shields.io/badge/lastest_version-0.2.8-blue.svg)](https://github.com/TCCinTaiwan/TcTube/releases) [![Gitter](https://badges.gitter.im/TCCinTaiwan/TcTube.svg)](https://gitter.im/TCCinTaiwan/TcTube?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Build Status](https://travis-ci.org/TCCinTaiwan/TcTube.svg)](https://travis-ci.org/TCCinTaiwan/TcTube)
+[![GitHub forks](https://img.shields.io/github/forks/badges/shields.svg?style=social&label=Fork&maxAge=2592000)]()
 
 ## Contents[↶](#)
 * **[Introduction](#introduction)**
@@ -61,7 +62,7 @@
 
 ### Media Server
 * Nginx:
-    [ ![Nginx](https://nginx.org/nginx.png)](https://nginx.org/en/download.html)
+[ ![Nginx](https://nginx.org/nginx.png)](https://nginx.org/en/download.html)
 
 1. 下載nginx後，把檔案放在TcTube底下，或者修改 [main.py](main.py) 中nginx路徑。
 >最好下載最新的穩定版本(Stable version)
