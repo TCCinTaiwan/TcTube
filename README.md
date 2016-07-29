@@ -24,7 +24,7 @@
 | IE 9+ ✔ | Chrome ✔ | Firefox ✔ | Opera 37.0+ ✔ | Safari 4.0+ ✖ |  Vivaldi 1+ ✔ |
 
 ## Installation[↶](#)
-[ ![Git](https://git-scm.com/images/logo@2x.png)](https://git-scm.com/download/)[ ![Python](https://www.python.org/static/img/python-logo.png)](https://www.python.org/downloads/)[ ![Nginx](https://nginx.org/nginx.pngg)](https://nginx.org/)
+[ ![Git](https://git-scm.com/images/logo@2x.png)](https://git-scm.com/download/)[ ![Python](https://www.python.org/static/img/python-logo.png)](https://www.python.org/downloads/)[ ![Nginx](https://nginx.org/nginx.png)](https://nginx.org/)
 ```bash
 # Clone the repository
 git clone https://github.com/TCCinTaiwan/TcTube
