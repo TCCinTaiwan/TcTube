@@ -3,7 +3,8 @@ python:
   - "3.5"
 install:
   - pip install --upgrade pip #[他預先的 pip 版本不是最新的，所以先更新一下]
-  - pip install -r requirements.txt
+  - pwd
+  - pip install -r TcTube/requirements.txt
 
 script:
     - python test.py
