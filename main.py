@@ -14,13 +14,21 @@ from flask import (
     flash,
     jsonify
 )
+from flask.ext.login import (
+    LoginManager,
+    UserMixin,
+    login_required,
+    login_user,
+    current_user,
+    logout_user,
+    confirm_login,
+    login_fresh
+)
 from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.login import LoginManager, UserMixin, login_required, login_user, current_user, logout_user, confirm_login, login_fresh
 from flask.ext.compress import Compress
-# from flask.ext.admin import helpers, expose
 from wtforms import form, fields, validators
 from functools import wraps, partial
-
+from werkzeug.security import generate_password_hash, check_password_hash
 import binascii, os, re, json, random, subprocess, sqlite3
 # from OpenSSL import SSL
 # import cv2
@@ -43,16 +51,15 @@ app.config['ALLOWED_EXTENSIONS'] = set([
     "mp3",
     "mp4", "webm", "ogg"
 ])
+app.config['NGINX_FOLDER'] = 'nginx-1.10.1'
 app.config['NGINX_PORT'] = 8000
-app.config['DATABASE_FILE'] = 'member.db'
-# app.config["SECRET_KEY"] = binascii.hexlify(os.urandom(24))
-app.config["SECRET_KEY"] = "0" * 24
+app.config['DATABASE_FILE'] = 'database.db'
+app.config["SECRET_KEY"] = "0" * 24 # binascii.hexlify(os.urandom(24))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + app.config['DATABASE_FILE']
 Compress(app)
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
-# login_manager.login_view = "login"
 login_manager.session_protection = "strong"
 
 class classproperty(object):
@@ -174,7 +181,7 @@ class User(db.Model):
     MAX_PASSWORD_LEN = 40
     id = db.Column(db.Integer, primary_key = True, autoincrement = True)
     account = db.Column(db.String(64), index = True, unique = True)
-    password = db.Column(db.String(64))
+    password_hash = db.Column(db.String(64))
     name = db.Column(db.String(64))
     email = db.Column(db.String(120), index = True, unique = True)
     affiliation = db.Column(db.Integer)
@@ -184,18 +191,19 @@ class User(db.Model):
     login_time = db.Column(db.DateTime, default = datetime.utcnow(), nullable=True)
     login_ip = db.Column(db.String(32), nullable = True)
     competence = db.Column(db.Integer, default = COMPERENCE_USER)
-    # @property
-    # def password(self):
-    #     raise AttributeError('password is not a readable attribute')
-    # @password.setter
-    # def password(self, password):
-    #     self.password_hash = generate_password_hash(password)
-    # def verify_password(self, password):
-    #     return bcrypt.check_password_hash(self.password_hash, password)
+    @property
+    def password(self):
+        raise AttributeError('password is not a readable attribute')
+    @password.setter
+    def password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def verify_password(self, password):
+        return check_password_hash(self.password_hash, password)
 
     def __init__(self, account, password, name, email, affiliation = None, creating_time = None, login_time = None, competence = COMPERENCE_USER, birthday = None, phone = None):
         self.account = account
-        self.password = password
+        self.password_hash = generate_password_hash(password)
         self.name = name
         self.email = email
         self.affiliation = affiliation
@@ -322,6 +330,8 @@ def unauthorized():
     flash('請登入再繼續')
     next = urlparse(request.url).path
     return redirect(url_for('login', next = next))
+# login_manager.login_view = "login"
+
 # @login_manager.request_loader
 # def load_user(request):
 #     token = request.headers.get('Authorization')
@@ -334,6 +344,7 @@ def unauthorized():
 #         if (user.password == password):
 #             return user
 #     return None
+
 @app.after_request
 def add_header(response):
     response.cache_control.max_age = 300
@@ -439,7 +450,6 @@ def list(path):
 # def mimetype(filepath):
 #     return magic.from_file(filepath)
 
-
 @app.route('/view/<path:path>') # 強制檢視影片，而不是看瀏覽器而下載或觀看
 @login_required
 def view(path):
@@ -447,7 +457,6 @@ def view(path):
     menu = Menu.query.all()
     absolutePath = re.match(r"^http(s|)://[^/:]{1,}", request.url).group(0)
     return render_template('viewMedia.htm', mediaFile = absolutePath + ":" + str(app.config['NGINX_PORT']) + "/" + path)
-
 
 @app.route('/signup/')
 def signup():
@@ -457,12 +466,10 @@ def signup():
 @app.route('/login/', methods = ['GET','POST'])
 def login():
     form = LoginForm(request.form)
-    # if (request.method == 'POST'):
     if form.validate():
         user = User.getByAccount(form.account.data)
         if user:
-            if (user.password == form.password.data):
-            # if bcrypt.check_password_hash(user.password, form.password.data):
+            if (user.verify_password(form.password.data)):
                 user.authenticated = True
                 user.login_time = datetime.utcnow()
                 user.login_ip = request.remote_addr
@@ -471,16 +478,12 @@ def login():
                 login_user(user, remember = True)
                 next = request.args.get('next')
                 flash('Logged in successfully.')
-                # else:
-                # return "login success!!"
                 return redirect(next or url_for("index"))
     return render_template('login.htm', title = "Login", form = form)
 
 @app.route('/logout', methods = ['POST'])
 @login_required
 def logout():
-    """ logout user """
-    # session.pop('login', None)
     logout_user()
     next = request.args.get('next')
     return redirect(next or url_for("index"))
@@ -518,90 +521,18 @@ def filename_filter(filename):
 @app.route("/media/<path:path>") # 轉址到nginx伺服器
 def media(path):
     mediaFileUrl = re.sub(r"(:[0-9]{0,}|)/media/", ":" + str(app.config['NGINX_PORT']) + "/", request.url) # nginx port
-    # print("重導向: " + mediaFileUrl)
     return redirect(mediaFileUrl, code = 302)
-
-# @app.route('/script/<script>') # PHP(Stream)
-# def execute_python(script):
-#     return execute(script, "py")
-# @app.route('/script/<script>.<scriptType>') # 執行Python檔案，即時回傳結果(Stream)
-# def execute(script, scriptType):
-#     args = request.query_string.decode("utf-8").split("&")
-#     def inner():
-#         if (scriptType == "py"):
-#             cmd = ["python", "-u"]  # -u: don't buffer output
-#         elif (scriptType == "php"):
-#             cmd = ["php"]
-#         assert re.match(r'^[a-zA-Z._-]+$', script)
-#         exec_path = "script/" + script + "." + scriptType
-#         cmd.append(exec_path)
-#         cmd = cmd + args
-#         error = False
-#         proc = subprocess.Popen(
-#             cmd,
-#             stdout = subprocess.PIPE,
-#             stderr = subprocess.PIPE,
-#         )
-
-#         for line in proc.stdout:
-#             yield "<pre>" + line.decode("utf-8") + "</pre>"
-#             # yield highlight(line, BashLexer(), HtmlFormatter())
-
-#         # Maybe there is more stdout after an error...
-#         for line in proc.stderr:
-#             error = True
-#             yield highlight(line, BashLexer(), HtmlFormatter())
-
-#         if error:
-#             yield "<script>parent.stream_error()</script>"
-#         else:
-#             yield "<script>parent.stream_success()</script>"
-
-#     env = Environment(loader = FileSystemLoader('templates'))
-#     tempTemplate = env.get_template('stream.htm')
-#     return Response(tempTemplate.generate(result = inner()))
-
-# @app.route('/youtube/<videoId>') # Youtube
-# def youtube(videoId):
-#     return render_template('iframe.htm', url = "https://www.youtube.com/embed/" + videoId + "?controls=1&disablekb=1&enablejsapi=1&autohide=1&modestbranding=1&playsinline=1&rel=0&showinfo=0&theme=dark&iv_load_poliucy=3&autoplay=1")
-
-
-# @app.route('/camera/')
-# def camera():
-#     return Response(gen(Camera()), mimetype = "multipart/x-mixed-replace; boundary=frame")
-# def gen(camera):
-#     while True:
-#         frame = camera.get_frame()
-#         yield(b"--frame\r\nContent-Type: image/jpeg\r\n\r\n" + frame + b"\r\n")
-
-
-# class Camera(object):
-#     def __init__(self):
-#         # Using OpenCV to capture from device 0. If you have trouble capturing
-#         # from a webcam, comment the line below out and use a video file
-#         # instead.
-#         self.video = cv2.VideoCapture(0)
-#         # If you decide to use video.mp4, you must have this file in the folder
-#         # as the main.py.
-#         # self.video = cv2.VideoCapture('video.mp4')
-
-#     def __del__(self):
-#         self.video.release()
-
-#     def get_frame(self):
-#         success, image = self.video.read()
-#         # We are using Motion JPEG, but OpenCV defaults to capture raw images,
-#         # so we must encode it into JPEG in order to correctly display the
-#         # video stream.
-#         ret, jpeg = cv2.imencode('.jpg', image)
-#         return jpeg.tobytes()
 
 def main():
     print("----------- Main -----------")
-    if os.environ.get('WERKZEUG_RUN_MAIN') != 'true':
-        if b'nginx.exe' not in subprocess.Popen('tasklist', stdout=subprocess.PIPE).communicate()[0]:
+    if not os.environ.get('WERKZEUG_RUN_MAIN'):
+        nginxRunning = b'nginx' in subprocess.Popen(
+            'tasklist',
+            stdout = subprocess.PIPE
+        ).communicate()[0]
+        if (not nginxRunning):
             print("Start nginx service!!")
-            os.chdir('nginx-1.10.1')
+            os.chdir(app.config['NGINX_FOLDER'])
             subprocess.Popen(
                 ['nginx.exe'],
                 shell = True,
@@ -614,9 +545,9 @@ def main():
         else:
             print("Nginx already running!!")
     app.run(host = os.getenv('IP', "0.0.0.0"), port = int(os.getenv('PORT', 80)), threaded = True) #processes=1~9999
-    if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+    if os.environ.get('WERKZEUG_RUN_MAIN'):
         os.system("taskkill /f /im nginx.exe");
-        print("End")
+    print("----------- End Main -----------")
 
 if __name__ == '__main__':
     main()

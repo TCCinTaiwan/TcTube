@@ -29,12 +29,14 @@
 # Clone the repository
 git clone https://github.com/TCCinTaiwan/TcTube
 cd TcTube
-pip install -r requirement.txt
+pip install -r requirements.txt
 ```
-下載nginx後，把檔案放在TcTube底下，或者修改main.py中nginx路徑。
-然後把 [setup/nginx.conf](nginx.conf)複製到 nginx-*/conf/ 底下，取代原本的 nginx.conf。
-音樂檔案要放在 media/video/
-修改 [member.db](member.db)裡的videos和videoSources資料表，加入自己的歌
+
+* 下載nginx後，把檔案放在TcTube底下，或者修改 [main.py](main.py) 中nginx路徑。
+* 把 [setup/nginx.conf](nginx.conf)複製到 nginx-*/conf/ 底下，取代原本的 nginx.conf。
+* 音樂檔案要放在 [media/video/](media/video/)
+* 修改 [member.db](member.db)裡的videos和videoSources資料表，加入自己的歌
+
 ```sql
 insert  into videos (title, artist) values ("<title>", "<artist>");
 insert into videoSources (id, video_id, source) values (1, <video_id>, "<filename>");
