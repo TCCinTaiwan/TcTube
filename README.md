@@ -56,8 +56,11 @@
 
 ### Media Server
 * Nginx:
-[ ![Nginx](https://nginx.org/nginx.png)](https://nginx.org/)
+    [ ![Nginx](https://nginx.org/nginx.png)](https://nginx.org/en/download.html)
+
 1. 下載nginx後，把檔案放在TcTube底下，或者修改 [main.py](main.py) 中nginx路徑。
+>最好下載最新的穩定版本(Stable version)
+
 2. 把 [setup/nginx.conf](nginx.conf)複製到 nginx-*/conf/ 底下，取代原本的 nginx.conf。
 3. 音樂檔案要放在 [media/video/](media/video/)
 4. 修改 [database.db](database.db)裡的videos和videoSources資料表，加入自己的歌
