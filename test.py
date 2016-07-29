@@ -13,7 +13,7 @@ class FlaskrTestCase(unittest.TestCase):
             'account': 'test',
             'password': "test"
         }, follow_redirects = True)
-        # Assert response is 200 OK.
         self.assertEquals(response.status, "200 OK")
+
 if __name__ == '__main__':
     unittest.main()
