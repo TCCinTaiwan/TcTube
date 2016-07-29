@@ -1,6 +1,5 @@
 # [:octocat:TcTube](https://github.com/TCCinTaiwan/TcTube)
 [![Version](https://img.shields.io/badge/lastest_version-0.2.8-blue.svg)](https://github.com/TCCinTaiwan/TcTube/releases) [![Gitter](https://badges.gitter.im/TCCinTaiwan/TcTube.svg)](https://gitter.im/TCCinTaiwan/TcTube?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Build Status](https://travis-ci.org/TCCinTaiwan/TcTube.svg)](https://travis-ci.org/TCCinTaiwan/TcTube)
-[![GitHub forks](https://img.shields.io/github/forks/badges/shields.svg?style=social&label=Fork&maxAge=2592000)]()
 
 ## Contents[↶](#)
 * **[Introduction](#introduction)**
@@ -121,7 +120,7 @@ python main.py
 
 ## Contributing[↶](#)
 1. Create an issue and describe your idea
-2. Fork it!
+2. [![GitHub forks](https://img.shields.io/github/forks/TCCinTaiwan/TcTube.svg?style=social&label=Fork&maxAge=2592000)](https://github.com/TCCinTaiwan/TcTube/network) it!
 3. Create your feature branch: `git checkout -b my-new-feature`
 4. Commit your changes: `git commit -m 'Add some feature'`
 5. Push to the branch: `git push origin my-new-feature`
