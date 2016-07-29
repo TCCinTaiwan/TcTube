@@ -27,27 +27,32 @@
 ### Base Server
 * Git:
 [ ![Git](https://git-scm.com/images/logo@2x.png)](https://git-scm.com/download/)
+
 * Python:
 [ ![Python](https://www.python.org/static/img/python-logo.png)](https://www.python.org/downloads/)
 ![Python Install](setup/python-install.png)
 >要勾"Add Python to PATH"，把Python加到環境變數中。
 
 1. Clone the repository
+
     Use command:
 
     ```bash
     git clone https://github.com/TCCinTaiwan/TcTube
     ```
+
     Or:
 
     [ ![Download from Github](setup/download-from-github.png)](https://github.com/TCCinTaiwan/TcTube/archive/master.zip)
 
 2. Install requirement python module
+
     You can use pip:
 
     ```bash
     pip install -r TcTube/requirements.txt
     ```
+
     Or you can run [setup.py](setup.py) :
 
     ```bash
