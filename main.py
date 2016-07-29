@@ -62,6 +62,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.session_protection = "strong"
 
+
 class classproperty(object):
     def __init__(self, getter):
         self.getter = getter
@@ -467,6 +468,7 @@ def signup():
 def login():
     form = LoginForm(request.form)
     if form.validate():
+    # if request.method == 'POST':
         user = User.getByAccount(form.account.data)
         if user:
             if (user.verify_password(form.password.data)):
@@ -481,7 +483,7 @@ def login():
                 return redirect(next or url_for("index"))
     return render_template('login.htm', title = "Login", form = form)
 
-@app.route('/logout', methods = ['POST'])
+@app.route('/logout/', methods = ['POST'])
 @login_required
 def logout():
     logout_user()
