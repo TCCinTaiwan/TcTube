@@ -24,13 +24,15 @@
 | IE 9+ ✔ | Chrome ✔ | Firefox ✔ | Opera 37.0+ ✔ | Safari 4.0+ ✖ |  Vivaldi 1+ ✔ |
 
 ## Installation[↶](#)
-[ ![Git](https://git-scm.com/images/logo@2x.png)](https://git-scm.com/download/)[ ![Python](https://www.python.org/static/img/python-logo.png)](https://www.python.org/downloads/)
+[ ![Git](https://git-scm.com/images/logo@2x.png)](https://git-scm.com/download/)[ ![Python](https://www.python.org/static/img/python-logo.png)](https://www.python.org/downloads/)[ ![Nginx](https://nginx.org/nginx.pngg)](https://nginx.org/)
 ```bash
 # Clone the repository
 git clone https://github.com/TCCinTaiwan/TcTube
 cd TcTube
 pip install -r requirement.txt
 ```
+下載nginx後，把檔案放在TcTube底下，或者修改main.py中nginx路徑。
+然後把 [setup/nginx.conf](nginx.conf)複製到 nginx-*/conf/ 底下，取代原本的 nginx.conf。
 音樂檔案要放在 media/video/
 修改 [member.db](member.db)裡的videos和videoSources資料表，加入自己的歌
 ```sql
