@@ -24,18 +24,43 @@
 | IE 9+ ✔ | Chrome ✔ | Firefox ✔ | Opera 37.0+ ✔ | Safari 4.0+ ✖ |  Vivaldi 1+ ✔ |
 
 ## Installation[↶](#)
-[ ![Git](https://git-scm.com/images/logo@2x.png)](https://git-scm.com/download/)[ ![Python](https://www.python.org/static/img/python-logo.png)](https://www.python.org/downloads/)[ ![Nginx](https://nginx.org/nginx.png)](https://nginx.org/)
-```bash
-# Clone the repository
-git clone https://github.com/TCCinTaiwan/TcTube
-cd TcTube
-pip install -r requirements.txt
-```
+### Base Server
+* Git:
+[ ![Git](https://git-scm.com/images/logo@2x.png)](https://git-scm.com/download/)
+* Python:
+[ ![Python](https://www.python.org/static/img/python-logo.png)](https://www.python.org/downloads/)
+![Python Install](setup/python-install.png)
+>要勾"Add Python to PATH"，把Python加到環境變數中。
 
-* 下載nginx後，把檔案放在TcTube底下，或者修改 [main.py](main.py) 中nginx路徑。
-* 把 [setup/nginx.conf](nginx.conf)複製到 nginx-*/conf/ 底下，取代原本的 nginx.conf。
-* 音樂檔案要放在 [media/video/](media/video/)
-* 修改 [member.db](member.db)裡的videos和videoSources資料表，加入自己的歌
+1. Clone the repository
+    Use command:
+
+    ```bash
+    git clone https://github.com/TCCinTaiwan/TcTube
+    ```
+    Or:
+
+    [ ![Download from Github](setup/download-from-github.png)](https://github.com/TCCinTaiwan/TcTube/archive/master.zip)
+
+2. Install requirement python module
+    You can use pip:
+
+    ```bash
+    pip install -r TcTube/requirements.txt
+    ```
+    Or you can run [setup.py](setup.py) :
+
+    ```bash
+    python setup.py install
+    ```
+
+### Media Server
+* Nginx:
+[ ![Nginx](https://nginx.org/nginx.png)](https://nginx.org/)
+1. 下載nginx後，把檔案放在TcTube底下，或者修改 [main.py](main.py) 中nginx路徑。
+2. 把 [setup/nginx.conf](nginx.conf)複製到 nginx-*/conf/ 底下，取代原本的 nginx.conf。
+3. 音樂檔案要放在 [media/video/](media/video/)
+4. 修改 [database.db](database.db)裡的videos和videoSources資料表，加入自己的歌
 
 ```sql
 insert  into videos (title, artist) values ("<title>", "<artist>");
@@ -45,7 +70,7 @@ insert into videoSources (id, video_id, source) values (2, <video_id>, "<filenam
 ```
 
 ## Usage[↶](#)
-run Server:
+* run Server:
 ```bash
 # Go into the directory
 cd TcTube
