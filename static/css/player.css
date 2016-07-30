@@ -6,7 +6,6 @@ body,
 main {
     overflow: hidden;
     margin: 0;
-    height: 100%;
 }
 #videoFrame {
     height: 100%;

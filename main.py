@@ -26,13 +26,11 @@ from flask.ext.login import (
 )
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.compress import Compress
+from flask_socketio import SocketIO, send, emit
 from wtforms import form, fields, validators
 from functools import wraps, partial
 from werkzeug.security import generate_password_hash, check_password_hash
 import binascii, os, re, json, random, subprocess, sqlite3
-# from OpenSSL import SSL
-# import cv2
-
 from jinja2 import Environment, FileSystemLoader
 from pygments import highlight
 from pygments.lexers import BashLexer
@@ -56,6 +54,7 @@ app.config['NGINX_PORT'] = 8000
 app.config['DATABASE_FILE'] = 'database.db'
 app.config["SECRET_KEY"] = "0" * 24 # binascii.hexlify(os.urandom(24))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + app.config['DATABASE_FILE']
+socketio = SocketIO(app)
 Compress(app)
 db = SQLAlchemy(app)
 login_manager = LoginManager()
@@ -154,6 +153,7 @@ class Video(db.Model, JsonAPI):
     id = db.Column(db.Integer, primary_key = True, autoincrement = True)
     title = db.Column(db.String(64))
     artist = db.Column(db.String(64))
+    thumbnail = db.Column(db.String(64))
     sources = db.relationship('VideoSource', backref = 'videos', lazy = 'dynamic')
     def  __init__(self, title, artist):
         self.title = title
@@ -358,6 +358,12 @@ def stream_tmeplate(template_name, **context):
     templateStream.enable_buffering(5)
     return templateStream
 
+@app.context_processor
+def utility_processor():
+    def splitFilename(filename):
+        return os.path.splitext(filename)
+    return dict(splitFilename = splitFilename)
+
 # 裝飾
 def access_permission(func = None, level = None):
     if not func:
@@ -525,6 +531,15 @@ def media(path):
     mediaFileUrl = re.sub(r"(:[0-9]{0,}|)/media/", ":" + str(app.config['NGINX_PORT']) + "/", request.url) # nginx port
     return redirect(mediaFileUrl, code = 302)
 
+@socketio.on('connect', namespace = '/test')
+def test_connect():
+    emit('my response', {'data': 'Connected', 'count': 0})
+
+@socketio.on('watchTV', namespace = '/test')
+def test_message(message):
+    print(message['data'])
+    emit('redirect', {'data': message['data'], 'count': 2, "url": "/video/32"})
+
 def main():
     print("----------- Main -----------")
     if not os.environ.get('WERKZEUG_RUN_MAIN'):
@@ -546,7 +561,8 @@ def main():
             os.chdir('..')
         else:
             print("Nginx already running!!")
-    app.run(host = os.getenv('IP', "0.0.0.0"), port = int(os.getenv('PORT', 80)), threaded = True) #processes=1~9999
+    socketio.run(app, host = os.getenv('IP', "0.0.0.0"), port = int(os.getenv('PORT', 80)))
+    # app.run(host = os.getenv('IP', "0.0.0.0"), port = int(os.getenv('PORT', 80)), threaded = True) #processes=1~9999
     if os.environ.get('WERKZEUG_RUN_MAIN'):
         os.system("taskkill /f /im nginx.exe");
     print("----------- End Main -----------")

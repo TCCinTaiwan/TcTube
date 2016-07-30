@@ -18,13 +18,13 @@
     playlist = [
     {% for video in videos %}
         {
-            title: "{{video.title}}",
+            title: "{{video.title|safe}}",
             {% if (video.artist != "undefined") %}
-            artist: "{{video.artist}}",
+            artist: "{{video.artist|safe}}",
             {% endif %}
             file: [
             {% for source in video.sources %}
-                "{{source.source}}",
+                "{{source.source|safe}}",
             {% endfor %}
             ]
         },

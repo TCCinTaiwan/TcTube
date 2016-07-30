@@ -13,6 +13,7 @@ setup(
         "Flask-Login==0.3.2",
         "Flask-SQLAlchemy==2.1",
         "Flask-Compress==1.3.0",
+        "Flask-SocketIO==2.6",
         "WTForms==2.1",
         "Pygments==2.0.2",
     ],

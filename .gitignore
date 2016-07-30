@@ -8,6 +8,7 @@ media/video/*/*.webm
 media/video/*/*.mp4
 media/video/*/*.mp3
 media/video/*/*.3gp
+media/video/streamshot/*
 media/audio/*
 hidden/
 nginx*/*

@@ -17,6 +17,7 @@
 這是2016年暑假，我在系上實習，老師叫我們做的系統，我用去年寫的播放器加以改進。
 最新版本為0.2.8。
 ![截圖](screenshot.png)
+![截圖2](screenshot-2.png)
 
 ## Browser Support[↶](#)
 | ![IE](https://raw.github.com/alrra/browser-logos/master/internet-explorer/internet-explorer_48x48.png) | ![Chrome](https://raw.github.com/alrra/browser-logos/master/chrome/chrome_48x48.png) | ![Firefox](https://raw.github.com/alrra/browser-logos/master/firefox/firefox_48x48.png) | ![Opera](https://raw.github.com/alrra/browser-logos/master/opera/opera_48x48.png) | ![Safari](https://raw.github.com/alrra/browser-logos/master/safari/safari_48x48.png) | ![VIVALDI](https://vivaldi.com/assets/vivaldi.svg)

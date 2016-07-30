@@ -4,6 +4,7 @@ html,
 body {
     height: 100%;
     width: 100%;
+    overflow: hidden;
 }
 header {
     background: blue;
@@ -46,10 +47,10 @@ header > a > h1 {
     top: 80px;
 }
 #menu > div > .dTreeNode {
-    font-size: 30px;
+    font-size: 14px;
     background: red;
     padding: 10px;
-    display: none;
+    /*display: none;*/
 }
 #menu > div > .dTreeNode > img {
     display: none;
@@ -67,7 +68,9 @@ main {
     left: 300px;
     bottom: 0;
     top: 130px;
-    overflow: auto;
+    width: calc(100% - 300px);
+    min-height: calc(100% - 130px);
+    overflow-y: auto;
 }
 .message > main {
     top: 130px;
