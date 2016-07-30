@@ -148,6 +148,7 @@ class Video(db.Model, JsonAPI):
     __public__ = [
         "title",
         "artist",
+        "thumbnail",
         "sources"
     ]
     id = db.Column(db.Integer, primary_key = True, autoincrement = True)
@@ -419,7 +420,7 @@ def video(videoNum):
     return render_template('video.htm', videoNum = videoNum, videos = videos, announcements = announcements, menu = menu)
 
 @app.route('/api/')
-def test():
+def api():
     return jsonify(video = Video.collection, menu = Menu.collection, announcement = Announcement.collection)
 
 @app.route('/list/')

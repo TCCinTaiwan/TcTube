@@ -35,7 +35,7 @@
                     console.log("complete");
                     if (typeof menu !== "undefined") {
                         dtree = new dTree('dtree');
-                        dtree.add(0, -1, '{{current_user.name}}<br>{{current_user.login_ip}}<br>{{current_user.login_time}}。');
+                        dtree.add(0, -1, '{{current_user.name}}<br>{{current_user.login_ip}}<br>{{current_user.login_time}}');
                         {% for item in menu %}
                         dtree.add({{item.id}}, {{item.parent_id}}, "{{item.name}}", "{{item.url}}", "{{item.title}}", "{{item.target}}", "{{item.icon}}", "{{item.icon_open}}", {% if item.open == 1 %}true{% else %}false{% endif %}, "{{item.onclick}}");{% endfor %}
                         menu.innerHTML  = dtree;
