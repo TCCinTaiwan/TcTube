@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="TcTube",
-    version="0.2.8",
+    version="0.3.0",
     description="網頁版 線上會員訓練系統",
     author="TCC",
     author_email="john987john987@gmail.com",
@@ -16,5 +16,6 @@ setup(
         "Flask-SocketIO==2.6",
         "WTForms==2.1",
         "Pygments==2.0.2",
+        "colorama==0.3.7",
     ],
 )

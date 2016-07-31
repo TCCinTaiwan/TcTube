@@ -36,19 +36,4 @@
             {% endif %}
         </a>
     {% endfor %}
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
-    <script type="text/javascript" charset="utf-8">
-        var socket = io.connect('http://' + document.domain + ':' + location.port + "/test");
-        socket.on('connect', function() {
-            console.log('connect');
-        });
-        socket.on('redirect', function(data) {
-            console.log('redirect');
-            window.location = data['url'];
-        });
-        function a() {
-            // socket.emit('watchTV', {data: 'I\'m connectedGG!'});
-        }
-        setInterval(a, 3000);
-    </script>
 {% endblock %}

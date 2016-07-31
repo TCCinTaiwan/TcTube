@@ -30,7 +30,7 @@ from flask_socketio import SocketIO, send, emit
 from wtforms import form, fields, validators
 from functools import wraps, partial
 from werkzeug.security import generate_password_hash, check_password_hash
-import binascii, os, re, json, random, subprocess, sqlite3
+import binascii, os, re, json, random, subprocess, sqlite3, time, numpy, sys
 from jinja2 import Environment, FileSystemLoader
 from pygments import highlight
 from pygments.lexers import BashLexer
@@ -38,10 +38,27 @@ from pygments.formatters import HtmlFormatter
 from functools import partial
 from datetime import datetime
 from urllib.parse import urlparse
-app = Flask(__name__, static_url_path = "", static_folder = "static/")
-app.debug = True
-app.config['VIDEO_FOLDER'] = "media/video/"
-app.config['ALLOWED_EXTENSIONS'] = set([
+import colorama
+from PyQt5.QtWidgets import (
+    QApplication,
+    QWidget,
+    QToolTip,
+    QPushButton,
+    QMessageBox,
+    QDesktopWidget,
+    QSystemTrayIcon,
+    QMenu,
+    QListWidget,
+    QListWidgetItem
+)
+from PyQt5.QtGui import QIcon, QFont
+from PyQt5.QtCore import QCoreApplication, QThread, QUrl,Qt
+
+flaskApplication = Flask(__name__, static_url_path = "", static_folder = "static/")
+flaskApplication.debug = True
+flaskApplication.config['FOLDER'] = os.getcwd()
+flaskApplication.config['VIDEO_FOLDER'] = "media/video/"
+flaskApplication.config['ALLOWED_EXTENSIONS'] = set([
     # "txt",
     # "pdf",
     # "png", "jpg", "jpeg", "gif",
@@ -49,18 +66,20 @@ app.config['ALLOWED_EXTENSIONS'] = set([
     "mp3",
     "mp4", "webm", "ogg"
 ])
-app.config['NGINX_FOLDER'] = 'nginx-1.10.1'
-app.config['NGINX_PORT'] = 8000
-app.config['DATABASE_FILE'] = 'database.db'
-app.config["SECRET_KEY"] = "0" * 24 # binascii.hexlify(os.urandom(24))
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + app.config['DATABASE_FILE']
-socketio = SocketIO(app)
-Compress(app)
-db = SQLAlchemy(app)
+flaskApplication.config['NGINX_FOLDER'] = 'nginx-1.10.1'
+flaskApplication.config['NGINX_PORT'] = 8000
+flaskApplication.config['DATABASE_FILE'] = 'database.db'
+flaskApplication.config["SECRET_KEY"] = "0" * 24 # binascii.hexlify(os.urandom(24))
+flaskApplication.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + flaskApplication.config['DATABASE_FILE']
+flaskApplication.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+socketio = SocketIO(flaskApplication)
+Compress(flaskApplication)
+sqlAlchemy = SQLAlchemy(flaskApplication)
 login_manager = LoginManager()
-login_manager.init_app(app)
+login_manager.init_app(flaskApplication)
 login_manager.session_protection = "strong"
-
+colorama.init()
+connection = {}
 
 class classproperty(object):
     def __init__(self, getter):
@@ -97,18 +116,18 @@ class JsonAPI(object):
     def collection(cls):
         return cls.api(cls, cls.query.all())
 
-class Announcement(db.Model, JsonAPI):
+class Announcement(sqlAlchemy.Model, JsonAPI):
     __tablename__ = 'announcements'
     __public__ = [
         "message"
     ]
-    id = db.Column(db.Integer, primary_key = True, autoincrement = True)
-    message = db.Column(db.String(64))
+    id = sqlAlchemy.Column(sqlAlchemy.Integer, primary_key = True, autoincrement = True)
+    message = sqlAlchemy.Column(sqlAlchemy.String(64))
     def  __init__(self, message):
         self.message = message
     def __repr__(self):
         return '<Announcement %r>' % (self.id)
-class Menu(db.Model, JsonAPI):
+class Menu(sqlAlchemy.Model, JsonAPI):
     __tablename__ = 'menu'
     __public__ = [
         "parent_id",
@@ -121,16 +140,16 @@ class Menu(db.Model, JsonAPI):
         "icon_open",
         "open"
     ]
-    id = db.Column(db.Integer, primary_key = True, autoincrement = True)
-    parent_id = db.Column(db.Integer)
-    name = db.Column(db.String(64))
-    url = db.Column(db.String(64))
-    target = db.Column(db.String(64))
-    title = db.Column(db.String(64))
-    onclick = db.Column(db.String(64))
-    icon = db.Column(db.String(64))
-    icon_open = db.Column(db.String(64))
-    open = db.Column(db.Boolean)
+    id = sqlAlchemy.Column(sqlAlchemy.Integer, primary_key = True, autoincrement = True)
+    parent_id = sqlAlchemy.Column(sqlAlchemy.Integer)
+    name = sqlAlchemy.Column(sqlAlchemy.String(64))
+    url = sqlAlchemy.Column(sqlAlchemy.String(64))
+    target = sqlAlchemy.Column(sqlAlchemy.String(64))
+    title = sqlAlchemy.Column(sqlAlchemy.String(64))
+    onclick = sqlAlchemy.Column(sqlAlchemy.String(64))
+    icon = sqlAlchemy.Column(sqlAlchemy.String(64))
+    icon_open = sqlAlchemy.Column(sqlAlchemy.String(64))
+    open = sqlAlchemy.Column(sqlAlchemy.Boolean)
     def  __init__(self, parent_id, name, url, title,target, onclick, icon, icon_open, open):
         self.parent_id = parent_id
         self.name = name
@@ -143,7 +162,7 @@ class Menu(db.Model, JsonAPI):
         self.open = open
     def __repr__(self):
         return '<Menu %r>' % (self.name)
-class Video(db.Model, JsonAPI):
+class Video(sqlAlchemy.Model, JsonAPI):
     __tablename__ = 'videos'
     __public__ = [
         "title",
@@ -151,29 +170,29 @@ class Video(db.Model, JsonAPI):
         "thumbnail",
         "sources"
     ]
-    id = db.Column(db.Integer, primary_key = True, autoincrement = True)
-    title = db.Column(db.String(64))
-    artist = db.Column(db.String(64))
-    thumbnail = db.Column(db.String(64))
-    sources = db.relationship('VideoSource', backref = 'videos', lazy = 'dynamic')
+    id = sqlAlchemy.Column(sqlAlchemy.Integer, primary_key = True, autoincrement = True)
+    title = sqlAlchemy.Column(sqlAlchemy.String(64))
+    artist = sqlAlchemy.Column(sqlAlchemy.String(64))
+    thumbnail = sqlAlchemy.Column(sqlAlchemy.String(64))
+    sources = sqlAlchemy.relationship('VideoSource', backref = 'videos', lazy = 'dynamic')
     def  __init__(self, title, artist):
         self.title = title
         self.artist = artist
     def __repr__(self):
         return '<Video %r>' % (self.title)
-class VideoSource(db.Model, JsonAPI):
+class VideoSource(sqlAlchemy.Model, JsonAPI):
     __tablename__ = 'videoSources'
     __public__ = "source"
-    id = db.Column(db.Integer, primary_key = True)
-    video_id = db.Column(db.Integer, db.ForeignKey('videos.id'), primary_key = True)
-    source = db.Column(db.String(64))
+    id = sqlAlchemy.Column(sqlAlchemy.Integer, primary_key = True)
+    video_id = sqlAlchemy.Column(sqlAlchemy.Integer, sqlAlchemy.ForeignKey('videos.id'), primary_key = True)
+    source = sqlAlchemy.Column(sqlAlchemy.String(64))
     def  __init__(self, video_id, source):
         self.video_id = video_id
         self.source = source
     def __repr__(self):
         return '<VideoSource %r>' % (self.source)
 
-class User(db.Model):
+class User(sqlAlchemy.Model):
     __tablename__ = 'users'
     COMPERENCE_ADMIN = 0
     COMPERENCE_USER = 10
@@ -181,18 +200,18 @@ class User(db.Model):
     MAX_USERNAME_LEN = 20
     MIN_PASSWORD_LEN = 4
     MAX_PASSWORD_LEN = 40
-    id = db.Column(db.Integer, primary_key = True, autoincrement = True)
-    account = db.Column(db.String(64), index = True, unique = True)
-    password_hash = db.Column(db.String(64))
-    name = db.Column(db.String(64))
-    email = db.Column(db.String(120), index = True, unique = True)
-    affiliation = db.Column(db.Integer)
-    phone = db.Column(db.String(64), nullable = True)
-    birthday = db.Column(db.Date, nullable = True)
-    creating_time = db.Column(db.DateTime, default = datetime.utcnow(), nullable=True)
-    login_time = db.Column(db.DateTime, default = datetime.utcnow(), nullable=True)
-    login_ip = db.Column(db.String(32), nullable = True)
-    competence = db.Column(db.Integer, default = COMPERENCE_USER)
+    id = sqlAlchemy.Column(sqlAlchemy.Integer, primary_key = True, autoincrement = True)
+    account = sqlAlchemy.Column(sqlAlchemy.String(64), index = True, unique = True)
+    password_hash = sqlAlchemy.Column(sqlAlchemy.String(64))
+    name = sqlAlchemy.Column(sqlAlchemy.String(64))
+    email = sqlAlchemy.Column(sqlAlchemy.String(120), index = True, unique = True)
+    affiliation = sqlAlchemy.Column(sqlAlchemy.Integer)
+    phone = sqlAlchemy.Column(sqlAlchemy.String(64), nullable = True)
+    birthday = sqlAlchemy.Column(sqlAlchemy.Date, nullable = True)
+    creating_time = sqlAlchemy.Column(sqlAlchemy.DateTime, default = datetime.utcnow(), nullable=True)
+    login_time = sqlAlchemy.Column(sqlAlchemy.DateTime, default = datetime.utcnow(), nullable=True)
+    login_ip = sqlAlchemy.Column(sqlAlchemy.String(32), nullable = True)
+    competence = sqlAlchemy.Column(sqlAlchemy.Integer, default = COMPERENCE_USER)
     @property
     def password(self):
         raise AttributeError('password is not a readable attribute')
@@ -307,9 +326,8 @@ class SignupForm(form.Form):
     )
     submit = fields.SubmitField("Send")
 
-@app.before_request
+@flaskApplication.before_request
 def check_login():
-    # print([item for item in current_user])
     # if request.endpoint == 'static' and not current_user.is_authenticated:
     #     return render_template('error.htm', title = "Forbidden",error = "權限不足", redirect = "/", redirectTime = 100), 403
     return None
@@ -347,19 +365,20 @@ def unauthorized():
 #             return user
 #     return None
 
-@app.after_request
+@flaskApplication.after_request
 def add_header(response):
+    # print(colorama.Fore.GREEN + current_user.name + colorama.Fore.RESET)
     response.cache_control.max_age = 300
     return response
 
 def stream_tmeplate(template_name, **context):
-    app.update_template_context(context)
-    template = app.jinja_env.get_template(template_name)
+    flaskApplication.update_template_context(context)
+    template = flaskApplication.jinja_env.get_template(template_name)
     templateStream = template.stream(context)
     templateStream.enable_buffering(5)
     return templateStream
 
-@app.context_processor
+@flaskApplication.context_processor
 def utility_processor():
     def splitFilename(filename):
         return os.path.splitext(filename)
@@ -371,22 +390,22 @@ def access_permission(func = None, level = None):
         return partial(access_permission, level = level)
     @wraps(func)
     def wrapper(*args, **kwargs):
-        print('[%s] 呼叫 %s(), user = %s, level = %d' % (datetime.utcnow(), func, current_user, level if level != None else -1))
+        print('[%s]%s%s%s, user = %s, Requirelevel = %d' % (datetime.utcnow(), colorama.Fore.GREEN, func.__name__, colorama.Style.RESET_ALL, current_user, level if level != None else -1))
         if current_user.competence > level:
             return render_template('error.htm', title = "Forbidden",error = "權限不足", redirect = "/", redirectTime = 100), 403
         return func(*args, **kwargs)
     return wrapper
 
-@app.route('/')
+@flaskApplication.route('/')
 @login_required
 @access_permission(level = 10)
 def index():
     announcements = Announcement.query.all()
     menu = Menu.query.all()
-    videos = db.session.query(Video)
+    videos = sqlAlchemy.session.query(Video)
     return render_template("index.htm", title = 'Index', announcements = announcements, menu = menu, videos = videos, Video = Video)
 
-@app.route("/listUser/")
+@flaskApplication.route("/listUser/")
 @login_required
 @access_permission(level = 5)
 def listUser():
@@ -395,38 +414,38 @@ def listUser():
     users = User.query.filter(User.competence > current_user.competence)
     return render_template('listUser.htm', title = "List Users", users = users, announcements = announcements, menu = menu)
 
-@app.route("/announcements/")
+@flaskApplication.route("/announcements/")
 @login_required
 @access_permission(level = 5)
 def announcements():
     menu = Menu.query.all()
-    announcements = db.session.query(Announcement).all()
+    announcements = sqlAlchemy.session.query(Announcement).all()
     return render_template('announcements.htm', title = "Announcements", announcements = announcements, menu = menu)
 
-@app.route('/video/')
+@flaskApplication.route('/video/')
 def randomVideo(): # 隨機Video
     # with open('static/playlist.json', "r", encoding = 'utf8') as jsonFile:
     #     jsonData = json.load(jsonFile)
-    videos = db.session.query(Video).all()
-    return video(random.randrange(len(videos)))
+    videos = random.randrange(len(sqlAlchemy.session.query(Video).all()))
+    return redirect("/video/" + str(videos), code = 301)
 
-@app.route('/video/<int:videoNum>')
+@flaskApplication.route('/video/<int:videoNum>')
 @login_required
 @access_permission(level = 10)
 def video(videoNum):
     menu = Menu.query.all()
-    videos = db.session.query(Video)
+    videos = sqlAlchemy.session.query(Video)
     announcements = Announcement.query.all()
     return render_template('video.htm', videoNum = videoNum, videos = videos, announcements = announcements, menu = menu)
 
-@app.route('/api/')
+@flaskApplication.route('/api/')
 def api():
     return jsonify(video = Video.collection, menu = Menu.collection, announcement = Announcement.collection)
 
-@app.route('/list/')
+@flaskApplication.route('/list/')
 def listRoot():
     return list("")
-@app.route('/list/<string:path>/')
+@flaskApplication.route('/list/<string:path>/')
 @login_required
 @access_permission(level = 5)
 def list(path):
@@ -436,7 +455,7 @@ def list(path):
             '%Y-%m-%d %H:%M:%S'
         )
     files = []
-    folderpath = os.path.join(app.config['VIDEO_FOLDER'] , path)
+    folderpath = os.path.join(flaskApplication.config['VIDEO_FOLDER'] , path)
     path = "/" + path
     for index, file in enumerate(os.listdir(folderpath)):
         filepath = os.path.join(folderpath, file)
@@ -458,20 +477,20 @@ def list(path):
 # def mimetype(filepath):
 #     return magic.from_file(filepath)
 
-@app.route('/view/<path:path>') # 強制檢視影片，而不是看瀏覽器而下載或觀看
+@flaskApplication.route('/view/<path:path>') # 強制檢視影片，而不是看瀏覽器而下載或觀看
 @login_required
 def view(path):
     announcements = Announcement.query.all()
     menu = Menu.query.all()
     absolutePath = re.match(r"^http(s|)://[^/:]{1,}", request.url).group(0)
-    return render_template('viewMedia.htm', mediaFile = absolutePath + ":" + str(app.config['NGINX_PORT']) + "/" + path)
+    return render_template('viewMedia.htm', mediaFile = absolutePath + ":" + str(flaskApplication.config['NGINX_PORT']) + "/" + path)
 
-@app.route('/signup/')
+@flaskApplication.route('/signup/')
 def signup():
     form = SignupForm(request.form)
     return render_template('signup.htm', title = "Sign Up", form = form)
 
-@app.route('/login/', methods = ['GET','POST'])
+@flaskApplication.route('/login/', methods = ['GET','POST'])
 def login():
     form = LoginForm(request.form)
     if form.validate():
@@ -482,22 +501,22 @@ def login():
                 user.authenticated = True
                 user.login_time = datetime.utcnow()
                 user.login_ip = request.remote_addr
-                db.session.add(user)
-                db.session.commit()
+                sqlAlchemy.session.add(user)
+                sqlAlchemy.session.commit()
                 login_user(user, remember = True)
                 next = request.args.get('next')
                 flash('Logged in successfully.')
                 return redirect(next or url_for("index"))
     return render_template('login.htm', title = "Login", form = form)
 
-@app.route('/logout/', methods = ['POST'])
+@flaskApplication.route('/logout/', methods = ['POST'])
 @login_required
 def logout():
     logout_user()
     next = request.args.get('next')
     return redirect(next or url_for("index"))
 
-@app.route('/upload/', methods = ['GET','POST']) # 上傳檔案
+@flaskApplication.route('/upload/', methods = ['GET','POST']) # 上傳檔案
 @login_required
 @access_permission(level = 5)
 def upload_file():
@@ -509,7 +528,7 @@ def upload_file():
             if allowed_file(filename):
                 print("Uploaded a File!!")
                 filename = filename_filter(filename)
-                file.save(os.path.join(app.config['VIDEO_FOLDER'], filename))
+                file.save(os.path.join(flaskApplication.config['VIDEO_FOLDER'], filename))
                 uploadFilesStatus.append((0, filename)) # 0: success
             else:
                 print("Unsupported File Type!!")
@@ -520,37 +539,150 @@ def upload_file():
     menu = Menu.query.all()
     return render_template('upload.htm', title = 'Upload', announcements = announcements, menu = menu)
 def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[-1] in app.config['ALLOWED_EXTENSIONS']
+    return '.' in filename and filename.rsplit('.', 1)[-1] in flaskApplication.config['ALLOWED_EXTENSIONS']
 def filename_filter(filename):
     # filename = re.sub('[" "\/\--]+', '-', filename)
     # filename = re.sub(r':-', ':', filename)
     # filename = re.sub(r'^-|-$', '', filename)
     return filename
 
-@app.route("/media/<path:path>") # 轉址到nginx伺服器
+@flaskApplication.route("/media/<path:path>") # 轉址到nginx伺服器
 def media(path):
-    mediaFileUrl = re.sub(r"(:[0-9]{0,}|)/media/", ":" + str(app.config['NGINX_PORT']) + "/", request.url) # nginx port
+    mediaFileUrl = re.sub(r"(:[0-9]{0,}|)/media/", ":" + str(flaskApplication.config['NGINX_PORT']) + "/", request.url) # nginx port
     return redirect(mediaFileUrl, code = 302)
 
 @socketio.on('connect', namespace = '/test')
-def test_connect():
-    emit('my response', {'data': 'Connected', 'count': 0})
+def socketio_connect():
+    qtWindow.tray_icon.showMessage("Connect", request.remote_addr + " connected\n" + request.sid, icon = QSystemTrayIcon.Information, msecs = 800)
+    tempListWidgetItem = QListWidgetItem(request.remote_addr + "(" + current_user.name + ")")
+    tempListWidgetItem.sid = request.sid
+    tempListWidgetItem.setToolTip(request.sid)
 
-@socketio.on('watchTV', namespace = '/test')
+    qtWindow.listWidget.addItem(tempListWidgetItem)
+    emit('my response', {'data': 'Connected', 'name': 0})
+
+@socketio.on('disconnect')
+def socketio_disconnect():
+    qtWindow.tray_icon.showMessage("Disconnect", request.remote_addr + " disconnected\n" + request.sid, icon = QSystemTrayIcon.Information, msecs = 800)
+    for index in range(qtWindow.listWidget.count()):
+        if qtWindow.listWidget.item(index).sid == request.sid:
+            qtWindow.listWidget.takeItem(index)
+
+@socketio.on('PauseVideo', namespace = '/test')
+@login_required
+@access_permission(level = 5)
+def pasue_video(message):
+    emit('pause', {
+        "time": int(time.mktime(datetime.utcnow().timetuple())) * 1000 + message['delay']
+    }, broadcast = True)
+
+@socketio.on('PushVideo', namespace = '/test')
+@login_required
+@access_permission(level = 5)
 def test_message(message):
-    print(message['data'])
-    emit('redirect', {'data': message['data'], 'count': 2, "url": "/video/32"})
+    emit('redirect', {
+        "url": "/video/" + str(numpy.clip(int(message['id']), 0, len(sqlAlchemy.session.query(Video).all()) - 1)),
+        "time": int(time.mktime(datetime.utcnow().timetuple())) * 1000 + message['delay']
+    }, broadcast = True)
 
-def main():
-    print("----------- Main -----------")
+@socketio.on('HideAnnouncements', namespace = '/test')
+@login_required
+@access_permission(level = 5)
+def hide_announcements(message):
+    emit('hideAnnouncements', {}, broadcast = True)
+
+class ListWidget(QListWidget):
+   def Clicked(self, item):
+    qtWindow.tray_icon.showMessage("ListWidget", "You clicked: " + item.text(), icon = QSystemTrayIcon.Information, msecs = 800)
+
+class SystemTrayIcon(QSystemTrayIcon):
+    def __init__(self, icon, parent = None):
+        super(SystemTrayIcon, self).__init__(icon, parent)
+        menu = QMenu(parent)
+        exitAction = menu.addAction("Exit")
+        exitAction.triggered.connect(parent.close)
+        self.setContextMenu(menu)
+
+class FlaskSocketIOThread(QThread):
+    def __init__(self, application, socketio):
+        QThread.__init__(self)
+        self.application = application
+        self.socketio = socketio
+    def __del__(self):
+        self.wait()
+
+    def run(self):
+        print(colorama.Fore.GREEN + "----------- Start Flask -----------" + colorama.Style.RESET_ALL)
+        self.socketio.run(self.application, host = os.getenv('IP', "0.0.0.0"), port = int(os.getenv('PORT', 80)), use_reloader=False)
+
+    def stop(self):
+        print(colorama.Fore.RED + "----------- Stop Flask -----------" + colorama.Style.RESET_ALL)
+        self.terminate()
+
+class MainWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.flaskApplication = FlaskSocketIOThread(flaskApplication, socketio)
+        self.flaskApplication.start()
+        self.initUI()
+
+    def initUI(self):
+        qtApp.aboutToQuit.connect(self.flaskApplication.terminate)
+        QToolTip.setFont(QFont('SansSerif', 10))
+        self.setToolTip('This is a <b>QWidget</b> widget')
+
+        btn = QPushButton('Center', self)
+        btn.clicked.connect(self.center)
+        btn.setToolTip('This is a <b>QPushButton</b> widget')
+        btn.resize(btn.sizeHint())
+        btn.move(330, 10)
+
+        self.listWidget = ListWidget(self)
+        self.listWidget.setToolTip('This is a <b>QListWidget</b> widget')
+        self.listWidget.resize(300,120)
+        self.listWidget.move(10, 10)
+        # for i in range(100):
+        #     self.listWidget.addItem(QListWidgetItem("Item " + str(i)));
+        self.listWidget.itemClicked.connect(self.listWidget.Clicked)
+        self.listWidget.show()
+
+        self.resize(430, 400)
+        self.setWindowTitle('Icon')
+        # self.setWindowFlags(Qt.Tool)
+        self.setWindowIcon(QIcon("static/Favicon.png"))
+        self.tray_icon = SystemTrayIcon(QIcon('static/Favicon.png'), self)
+        self.tray_icon.show()
+        self.tray_icon.showMessage("Welcome", "Start Server", icon = QSystemTrayIcon.Information, msecs = 2000)
+        self.center()
+        self.show()
+        self.center()
+    def center(self):
+        QtRectangle = self.frameGeometry()
+        centerPoint = QDesktopWidget().availableGeometry().center()
+        QtRectangle.moveCenter(centerPoint)
+        self.move(QtRectangle.topLeft())
+    def closeEvent(self, event):
+        reply = QMessageBox.question(self, 'Message',  'Are you sure to quit？',QMessageBox.Yes | QMessageBox.No,QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            self.tray_icon.showMessage("Good Bye", "Close Server", icon = QSystemTrayIcon.Information, msecs = 2000)
+            self.tray_icon.hide()
+            del self.tray_icon
+            self.flaskApplication.stop()
+            os.system("taskkill /f /im nginx.exe");
+            self.flaskApplication.socketio.stop()
+            event.accept()
+        else:
+            event.ignore()
+
+if __name__ == '__main__':
     if not os.environ.get('WERKZEUG_RUN_MAIN'):
         nginxRunning = b'nginx' in subprocess.Popen(
             'tasklist',
             stdout = subprocess.PIPE
         ).communicate()[0]
         if (not nginxRunning):
-            print("Start nginx service!!")
-            os.chdir(app.config['NGINX_FOLDER'])
+            print(colorama.Fore.YELLOW + "Start nginx service!!" + colorama.Style.RESET_ALL)
+            os.chdir(flaskApplication.config['NGINX_FOLDER'])
             subprocess.Popen(
                 ['nginx.exe'],
                 shell = True,
@@ -559,14 +691,11 @@ def main():
                 stderr = None,
                 close_fds = True
             )
-            os.chdir('..')
+            os.chdir(flaskApplication.config['FOLDER'])
         else:
-            print("Nginx already running!!")
-    socketio.run(app, host = os.getenv('IP', "0.0.0.0"), port = int(os.getenv('PORT', 80)))
-    # app.run(host = os.getenv('IP', "0.0.0.0"), port = int(os.getenv('PORT', 80)), threaded = True) #processes=1~9999
-    if os.environ.get('WERKZEUG_RUN_MAIN'):
-        os.system("taskkill /f /im nginx.exe");
-    print("----------- End Main -----------")
-
-if __name__ == '__main__':
-    main()
+            print(colorama.Fore.GREEN + "Nginx is already running!!" + colorama.Style.RESET_ALL)
+    qtApp = QApplication(sys.argv)
+    qtWindow = MainWindow()
+    sys.exit(qtApp.exec_())
+    # socketio.run(flaskApplication, host = os.getenv('IP', "0.0.0.0"), port = int(os.getenv('PORT', 80)))
+    # flaskApplication.run(host = os.getenv('IP', "0.0.0.0"), port = int(os.getenv('PORT', 80)), threaded = True) #processes=1~9999

@@ -1,8 +1,23 @@
 # TcTube
-## 0.2.8
+## 0.3.0
+* 2016-07-31
+    - 套用GUI
+
+## 0.2.9
+* 2016-07-31
+    - 加入colorama
+    ```
+    Fore: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.
+    Back: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.
+    Style: DIM, NORMAL, BRIGHT, RESET_ALL
+    ```
+    - 測試Server GUI
 * 2016-07-30
     - 修正播放清單到網頁JavaScript中，'會變成&#39;問題
     - 加入截圖
+    - 推播
+
+## 0.2.8
 * 2016-07-29
     - 密碼開始加密
     - 寫測試檔
@@ -11,6 +26,7 @@
     - 加入cache_control
     - 更新requirements.txt、setup.py
     - 加入API
+
 ## 0.2.7
 * 2016-07-27
     - 播放清單改用資料庫儲存
@@ -19,6 +35,7 @@
     - 加入選單部分圖示
     - 更新Installation指示
     - 管理公告草稿
+
 ## 0.2.6
 * 2016-07-26
     - TcCube 擴充套件抓影片
@@ -28,6 +45,7 @@
     - ReadMe加入Coding Style
 * 2016-07-23
     - 初步Chrome Extensions
+
 ## 0.2.5
 * 2016-07-22
     - 簡單加入跑馬燈
@@ -38,12 +56,14 @@
     - 首頁基本版型
     - dTree onclick()
     - 修正未登入重導向錯誤Bug
+
 ## 0.2.4
 * 2016-07-21
     - 修正全螢幕不同步問題(F11)
     - 面板功能部分修補:
         + 影像同步
         + 一起換首
+
 ## 0.2.3
 * 2016-07-20
     - 整理Login logout功能
@@ -56,6 +76,7 @@
     - 開始使用isUndefined
     - ChangLog使用倒敘法
     - SQL草稿
+
 ## 0.2.2
 * 2016-07-17
     - IE9 部分JavaScript支援
@@ -70,12 +91,14 @@
         * https://tools.google.com/dlpage/webmmf/
     - onWheel IE支援
     - Youtube影片IE跳過
+
 ## 0.2.1
 * 2016-07-14
     - 簡單多檔案上傳
 * 2016-07-13
     - 加入Nginx，來當Http File Server
     - 更新檔案清單顯示
+
 ## 0.2.0
 * 2016-07-12
     - Loading影片時顯示控制欄
@@ -99,6 +122,7 @@
         * (speace): 播放/暫停
 * 2016-07-09
     - Youtube(部分支援)
+
 ## 0.1.0
 * 2016-07-09
     - 播放清單JSON檔
@@ -111,6 +135,7 @@
     - 前端Debug訊息群組化
 * 2016-07-06
     - 系上實習說要用到網頁撥放器，就把原本php版改成Pyhton版
+
 ## 0.0.0
 * 2015-08-04
     - 看到Youtube改版

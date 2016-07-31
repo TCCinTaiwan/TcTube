@@ -23,7 +23,29 @@
         <link rel="stylesheet" href="/css/reset.css">
         <link rel="stylesheet" href="/css/main.css">
         {% endblock %}
-
+        {% endblock %}
+    </head>
+    <body>
+    {% block body %}
+        {% block header %}
+        <header id="header" class="">
+            <a href="/"><img src="/Favicon.png" alt=""><h1>TcTube</h1></a>
+        </header>
+        {% endblock %}
+        {% block marquee %}
+        <ul id="marquee" class="marquee">
+        {% for announcement in announcements %}
+            <li><h3>{{announcement.message}}</h3></li>
+        {% endfor %}
+        </ul>
+        {% endblock %}
+        {% block menu %}
+        <nav id="menu" type="context toolbar"></nav>
+        {% endblock %}
+        <main>
+        {% block main %}
+        {% endblock %}
+        </main>
         {% block javascript %}
         <script src="/js/login.js"></script>
         <script src="/js/dtree.js"></script>
@@ -51,30 +73,43 @@
                 }
             }, false);
         </script>
+        <script src="/js/socket.io-1.4.8.min.js"></script>
+        <script>
+            var socket = io.connect('http://' + document.domain + ':' + location.port + "/test");
+            socket.on('connect', function() {
+                console.log('connect');
+            });
+            socket.onclose = function() {
+                console.log('connect');
+            };
+            socket.on('redirect', function(data) {
+                console.log('redirect');
+                setTimeout(function() {
+                    window.location = data['url'];
+                }, data['time'] - new Date().getTime() - new Date().getTimezoneOffset() * 60000)
+            });
+            socket.on('pause', function(data) {
+                console.log('pause');
+                setTimeout(function() {
+                    if (typeof video !== "undefined") {
+                        video.pause();
+                        video.currentTime = 0;
+                        video.play();
+                    }
+                }, data['time'] - new Date().getTime() - new Date().getTimezoneOffset() * 60000)
+            });
+            socket.on('hideAnnouncements', function(data) {
+                console.log('hideAnnouncements');
+                document.body.className = "nomessage";
+            });
+            function PushVideo() {
+                socket.emit('PushVideo', {
+                    id: parseInt(prompt("請輸入推播影片編號:", 0)),
+                    delay: 5000
+                });
+            }
+        </script>
         {% endblock %}
-        {% endblock %}
-    </head>
-    <body>
-    {% block body %}
-        {% block header %}
-        <header id="header" class="">
-            <a href="/"><img src="/Favicon.png" alt=""><h1>TcTube</h1></a>
-        </header>
-        {% endblock %}
-        {% block marquee %}
-        <ul id="marquee" class="marquee">
-        {% for announcement in announcements %}
-            <li><h3>{{announcement.message}}</h3></li>
-        {% endfor %}
-        </ul>
-        {% endblock %}
-        {% block menu %}
-        <nav id="menu" type="context toolbar"></nav>
-        {% endblock %}
-        <main>
-        {% block main %}
-        {% endblock %}
-        </main>
     {% endblock %}
     </body>
 </html>
