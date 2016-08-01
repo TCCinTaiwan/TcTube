@@ -57,7 +57,7 @@ from PyQt5.QtCore import QCoreApplication, QThread, QUrl,Qt
 flaskApplication = Flask(__name__, static_url_path = "", static_folder = "static/")
 flaskApplication.debug = True
 flaskApplication.config['FOLDER'] = os.getcwd()
-flaskApplication.config['VIDEO_FOLDER'] = "media/video/"
+flaskApplication.config['VIDEO_FOLDER'] = "file/video/"
 flaskApplication.config['ALLOWED_EXTENSIONS'] = set([
     # "txt",
     # "pdf",
@@ -66,8 +66,9 @@ flaskApplication.config['ALLOWED_EXTENSIONS'] = set([
     "mp3",
     "mp4", "webm", "ogg"
 ])
+flaskApplication.config['PORT'] = 8000
 flaskApplication.config['NGINX_FOLDER'] = 'nginx-1.10.1'
-flaskApplication.config['NGINX_PORT'] = 8000
+flaskApplication.config['NGINX_PORT'] = 80
 flaskApplication.config['DATABASE_FILE'] = 'database.db'
 flaskApplication.config["SECRET_KEY"] = "0" * 24 # binascii.hexlify(os.urandom(24))
 flaskApplication.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + flaskApplication.config['DATABASE_FILE']
@@ -553,20 +554,16 @@ def media(path):
 
 @socketio.on('connect', namespace = '/test')
 def socketio_connect():
-    qtWindow.tray_icon.showMessage("Connect", request.remote_addr + " connected\n" + request.sid, icon = QSystemTrayIcon.Information, msecs = 800)
-    tempListWidgetItem = QListWidgetItem(request.remote_addr + "(" + current_user.name + ")")
-    tempListWidgetItem.sid = request.sid
-    tempListWidgetItem.setToolTip(request.sid)
-
-    qtWindow.listWidget.addItem(tempListWidgetItem)
+    print(request.remote_addr + " connected\n" + request.sid)
     emit('my response', {'data': 'Connected', 'name': 0})
 
 @socketio.on('disconnect')
 def socketio_disconnect():
-    qtWindow.tray_icon.showMessage("Disconnect", request.remote_addr + " disconnected\n" + request.sid, icon = QSystemTrayIcon.Information, msecs = 800)
-    for index in range(qtWindow.listWidget.count()):
-        if qtWindow.listWidget.item(index).sid == request.sid:
-            qtWindow.listWidget.takeItem(index)
+    print(request.remote_addr + " disconnected\n" + request.sid)
+
+@socketio.on('bye')
+def socketio_disconnect():
+    print(request.remote_addr + " disconnected\n" + request.sid)
 
 @socketio.on('PauseVideo', namespace = '/test')
 @login_required
@@ -591,89 +588,6 @@ def test_message(message):
 def hide_announcements(message):
     emit('hideAnnouncements', {}, broadcast = True)
 
-class ListWidget(QListWidget):
-   def Clicked(self, item):
-    qtWindow.tray_icon.showMessage("ListWidget", "You clicked: " + item.text(), icon = QSystemTrayIcon.Information, msecs = 800)
-
-class SystemTrayIcon(QSystemTrayIcon):
-    def __init__(self, icon, parent = None):
-        super(SystemTrayIcon, self).__init__(icon, parent)
-        menu = QMenu(parent)
-        exitAction = menu.addAction("Exit")
-        exitAction.triggered.connect(parent.close)
-        self.setContextMenu(menu)
-
-class FlaskSocketIOThread(QThread):
-    def __init__(self, application, socketio):
-        QThread.__init__(self)
-        self.application = application
-        self.socketio = socketio
-    def __del__(self):
-        self.wait()
-
-    def run(self):
-        print(colorama.Fore.GREEN + "----------- Start Flask -----------" + colorama.Style.RESET_ALL)
-        self.socketio.run(self.application, host = os.getenv('IP', "0.0.0.0"), port = int(os.getenv('PORT', 80)), use_reloader=False)
-
-    def stop(self):
-        print(colorama.Fore.RED + "----------- Stop Flask -----------" + colorama.Style.RESET_ALL)
-        self.terminate()
-
-class MainWindow(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.flaskApplication = FlaskSocketIOThread(flaskApplication, socketio)
-        self.flaskApplication.start()
-        self.initUI()
-
-    def initUI(self):
-        qtApp.aboutToQuit.connect(self.flaskApplication.terminate)
-        QToolTip.setFont(QFont('SansSerif', 10))
-        self.setToolTip('This is a <b>QWidget</b> widget')
-
-        btn = QPushButton('Center', self)
-        btn.clicked.connect(self.center)
-        btn.setToolTip('This is a <b>QPushButton</b> widget')
-        btn.resize(btn.sizeHint())
-        btn.move(330, 10)
-
-        self.listWidget = ListWidget(self)
-        self.listWidget.setToolTip('This is a <b>QListWidget</b> widget')
-        self.listWidget.resize(300,120)
-        self.listWidget.move(10, 10)
-        # for i in range(100):
-        #     self.listWidget.addItem(QListWidgetItem("Item " + str(i)));
-        self.listWidget.itemClicked.connect(self.listWidget.Clicked)
-        self.listWidget.show()
-
-        self.resize(430, 400)
-        self.setWindowTitle('Icon')
-        # self.setWindowFlags(Qt.Tool)
-        self.setWindowIcon(QIcon("static/Favicon.png"))
-        self.tray_icon = SystemTrayIcon(QIcon('static/Favicon.png'), self)
-        self.tray_icon.show()
-        self.tray_icon.showMessage("Welcome", "Start Server", icon = QSystemTrayIcon.Information, msecs = 2000)
-        self.center()
-        self.show()
-        self.center()
-    def center(self):
-        QtRectangle = self.frameGeometry()
-        centerPoint = QDesktopWidget().availableGeometry().center()
-        QtRectangle.moveCenter(centerPoint)
-        self.move(QtRectangle.topLeft())
-    def closeEvent(self, event):
-        reply = QMessageBox.question(self, 'Message',  'Are you sure to quit？',QMessageBox.Yes | QMessageBox.No,QMessageBox.No)
-        if reply == QMessageBox.Yes:
-            self.tray_icon.showMessage("Good Bye", "Close Server", icon = QSystemTrayIcon.Information, msecs = 2000)
-            self.tray_icon.hide()
-            del self.tray_icon
-            self.flaskApplication.stop()
-            os.system("taskkill /f /im nginx.exe");
-            self.flaskApplication.socketio.stop()
-            event.accept()
-        else:
-            event.ignore()
-
 if __name__ == '__main__':
     if not os.environ.get('WERKZEUG_RUN_MAIN'):
         nginxRunning = b'nginx' in subprocess.Popen(
@@ -694,8 +608,18 @@ if __name__ == '__main__':
             os.chdir(flaskApplication.config['FOLDER'])
         else:
             print(colorama.Fore.GREEN + "Nginx is already running!!" + colorama.Style.RESET_ALL)
-    qtApp = QApplication(sys.argv)
-    qtWindow = MainWindow()
-    sys.exit(qtApp.exec_())
-    # socketio.run(flaskApplication, host = os.getenv('IP', "0.0.0.0"), port = int(os.getenv('PORT', 80)))
-    # flaskApplication.run(host = os.getenv('IP', "0.0.0.0"), port = int(os.getenv('PORT', 80)), threaded = True) #processes=1~9999
+    print(colorama.Fore.GREEN + "----------- Start Flask -----------" + colorama.Style.RESET_ALL)
+    socketio.run(flaskApplication, host = os.getenv('IP', "0.0.0.0"), port = int(os.getenv('PORT', flaskApplication.config['PORT'])))
+    # flaskApplication.run(host = os.getenv('IP', "0.0.0.0"), port = int(os.getenv('PORT', flaskApplication.config['PORT'])), threaded = True) #processes=1~9999
+    input("輸入任何鍵繼續...")
+    print(colorama.Fore.RED + "----------- Stop Flask -----------" + colorama.Style.RESET_ALL)
+    if not os.environ.get('WERKZEUG_RUN_MAIN'):
+        os.system("taskkill /f /im nginx.exe")
+        nginxRunning = b'nginx' in subprocess.Popen(
+            'tasklist',
+            stdout = subprocess.PIPE
+        ).communicate()[0]
+        if (not nginxRunning):
+            print(colorama.Fore.RED + "Stop nginx service!!" + colorama.Style.RESET_ALL)
+        else:
+            print(colorama.Fore.YELLOW + "Nginx is still running!!" + colorama.Style.RESET_ALL)

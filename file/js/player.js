@@ -326,7 +326,7 @@ function index(offset) { // 歌曲索引(通用)
             video.hidden = false;
         }
     } else { // 相對位址(本機檔案)
-        video.src = "http://" + window.location.host + ":8000/" + playlist[videoNum].file[0];
+        video.src = "http://" + window.location.host + "/file/video/" + playlist[videoNum].file[0];
         if (typeof window.player === 'undefined' || typeof window.player.loadVideoByUrl === 'undefined') {
             frame.src = "about:blank";
         } else {
@@ -337,7 +337,7 @@ function index(offset) { // 歌曲索引(通用)
         // 加入其他檔案為Source
         for (var i = 0; i < playlist[videoNum].file.length; i++) {
             tempSource = document.createElement("source");
-            tempSource.src = "http://" + window.location.host + ":8000/" + playlist[videoNum].file[i];
+            tempSource.src = "http://" + window.location.host + "/file/video/" + playlist[videoNum].file[i];
             video.appendChild(tempSource);
         }
 

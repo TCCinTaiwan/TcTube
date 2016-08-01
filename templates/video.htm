@@ -2,17 +2,17 @@
 
 {% block css %}
 {{ super() }}
-<link href="/css/font-awesome.css" rel="stylesheet">
-<link rel="stylesheet" href="/css/player.css">
+<link href="/file/css/font-awesome.css" rel="stylesheet">
+<link rel="stylesheet" href="/file/css/player.css">
 {% endblock %}
 
 {% block javascript %}
 {{ super() }}
-<script src="/js/prototype.js"></script><!-- 引用 prototype 函式庫 -->
+<script src="/file/js/prototype.js"></script><!-- 引用 prototype 函式庫 -->
 <script src="https://www.youtube.com/iframe_api"></script>
-<script src="/js/html5shiv.min.js"></script>
-<script src="/js/html5shiv-printshiv.min.js"></script>
-<script src="/js/player.js"></script>
+<script src="/file/js/html5shiv.min.js"></script>
+<script src="/file/js/html5shiv-printshiv.min.js"></script>
+<script src="/file/js/player.js"></script>
 <script>
     defaultVideoNum = {{videoNum}};
     playlist = [
@@ -34,7 +34,7 @@
 {% endblock %}
 {% block main %}
 <div id="videoFrame">
-    <video id="video" poster="/loading.gif" preload="auto"></video>
+    <video id="video" poster="/file/loading.gif" preload="auto"></video>
     <iframe id="frame" type="text/html" src="" frameborder="0" allowfullscreen hidden></iframe>
     <div id="controlBar" class="show">
         <button id="play" class="play"></button>

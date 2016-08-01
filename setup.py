@@ -1,8 +1,9 @@
+# coding=utf-8
 from setuptools import setup
 
 setup(
     name="TcTube",
-    version="0.3.0",
+    version="0.3.1",
     description="網頁版 線上會員訓練系統",
     author="TCC",
     author_email="john987john987@gmail.com",
@@ -18,5 +19,6 @@ setup(
         "Pygments==2.0.2",
         "colorama==0.3.7",
         "PyQt5==5.7",
+        "numpy==1.11.1",
     ],
 )

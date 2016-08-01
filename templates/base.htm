@@ -12,7 +12,7 @@
         {% endblock %}
 
         {% block icon %}
-        <link rel="icon" href="/favicon.png">
+        <link rel="icon" href="/file/favicon.png">
         {% endblock %}
 
         {% block title %}
@@ -20,8 +20,8 @@
         {% endblock %}
 
         {% block css %}
-        <link rel="stylesheet" href="/css/reset.css">
-        <link rel="stylesheet" href="/css/main.css">
+        <link rel="stylesheet" href="/file/css/reset.css">
+        <link rel="stylesheet" href="/file/css/main.css">
         {% endblock %}
         {% endblock %}
     </head>
@@ -29,7 +29,7 @@
     {% block body %}
         {% block header %}
         <header id="header" class="">
-            <a href="/"><img src="/Favicon.png" alt=""><h1>TcTube</h1></a>
+            <a href="/"><img src="/file/Favicon.png" alt=""><h1>TcTube</h1></a>
         </header>
         {% endblock %}
         {% block marquee %}
@@ -47,10 +47,10 @@
         {% endblock %}
         </main>
         {% block javascript %}
-        <script src="/js/login.js"></script>
-        <script src="/js/dtree.js"></script>
-        <script src="/js/jquery-1.12.4.min.js"></script>
-        <script src="/js/jquery.marquee.min.js"></script>
+        <script src="/file/js/login.js"></script>
+        <script src="/file/js/dtree.js"></script>
+        <script src="/file/js/jquery-1.12.4.min.js"></script>
+        <script src="/file/js/jquery.marquee.min.js"></script>
         <script>
             document.addEventListener("readystatechange", function init(event) {
                 if (document.readyState === "complete") {
@@ -73,18 +73,19 @@
                 }
             }, false);
         </script>
-        <script src="/js/socket.io-1.4.8.min.js"></script>
+        <script src="/file/js/socket.io-1.4.8.min.js"></script>
         <script>
             var socket = io.connect('http://' + document.domain + ':' + location.port + "/test");
             socket.on('connect', function() {
                 console.log('connect');
             });
             socket.onclose = function() {
-                console.log('connect');
+                console.log('close');
             };
             socket.on('redirect', function(data) {
                 console.log('redirect');
                 setTimeout(function() {
+                    socket.emit("bye", {});
                     window.location = data['url'];
                 }, data['time'] - new Date().getTime() - new Date().getTimezoneOffset() * 60000)
             });

@@ -1,5 +1,5 @@
 # [:octocat:TcTube](https://github.com/TCCinTaiwan/TcTube)
-[![Version](https://img.shields.io/badge/lastest_version-0.3.0-blue.svg)](https://github.com/TCCinTaiwan/TcTube/releases) [![Gitter](https://badges.gitter.im/TCCinTaiwan/TcTube.svg)](https://gitter.im/TCCinTaiwan/TcTube?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Build Status](https://travis-ci.org/TCCinTaiwan/TcTube.svg)](https://travis-ci.org/TCCinTaiwan/TcTube)
+[![Version](https://img.shields.io/badge/lastest_version-0.3.1-blue.svg)](https://github.com/TCCinTaiwan/TcTube/releases) [![Gitter](https://badges.gitter.im/TCCinTaiwan/TcTube.svg)](https://gitter.im/TCCinTaiwan/TcTube?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Build Status](https://travis-ci.org/TCCinTaiwan/TcTube.svg)](https://travis-ci.org/TCCinTaiwan/TcTube)
 
 ## Contents[↶](#)
 * **[Introduction](#introduction)**
@@ -15,7 +15,7 @@
 
 ## Introduction[↶](#)
 這是2016年暑假，我在系上實習，老師叫我們做的系統，我用去年寫的播放器加以改進。
-最新版本為0.3.0。
+最新版本為0.3.1。
 ![截圖](screenshot.png)
 ![截圖2](screenshot-2.png)
 
