@@ -39,22 +39,9 @@ from functools import partial
 from datetime import datetime
 from urllib.parse import urlparse
 import colorama
-from PyQt5.QtWidgets import (
-    QApplication,
-    QWidget,
-    QToolTip,
-    QPushButton,
-    QMessageBox,
-    QDesktopWidget,
-    QSystemTrayIcon,
-    QMenu,
-    QListWidget,
-    QListWidgetItem
-)
-from PyQt5.QtGui import QIcon, QFont
-from PyQt5.QtCore import QCoreApplication, QThread, QUrl,Qt
+import requests
 
-flaskApplication = Flask(__name__, static_url_path = "", static_folder = "static/")
+flaskApplication = Flask(__name__, static_url_path = "", static_folder = "static/", template_folder = 'templates/')
 flaskApplication.debug = True
 flaskApplication.config['FOLDER'] = os.getcwd()
 flaskApplication.config['VIDEO_FOLDER'] = "file/video/"
@@ -73,7 +60,7 @@ flaskApplication.config['DATABASE_FILE'] = 'database.db'
 flaskApplication.config["SECRET_KEY"] = "0" * 24 # binascii.hexlify(os.urandom(24))
 flaskApplication.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + flaskApplication.config['DATABASE_FILE']
 flaskApplication.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-socketio = SocketIO(flaskApplication)
+socketio = SocketIO(flaskApplication, ping_timeout = 30, binary=True)
 Compress(flaskApplication)
 sqlAlchemy = SQLAlchemy(flaskApplication)
 login_manager = LoginManager()
@@ -329,6 +316,8 @@ class SignupForm(form.Form):
 
 @flaskApplication.before_request
 def check_login():
+    if request.remote_addr != "127.0.0.1":
+        return redirect("/", code = 302)
     # if request.endpoint == 'static' and not current_user.is_authenticated:
     #     return render_template('error.htm', title = "Forbidden",error = "權限不足", redirect = "/", redirectTime = 100), 403
     return None
@@ -385,13 +374,25 @@ def utility_processor():
         return os.path.splitext(filename)
     return dict(splitFilename = splitFilename)
 
+'''
+Get current time as milliseconds since 1970-01-01
+'''
+def dates():
+    return int(time.mktime(datetime.utcnow().timetuple())) * 1000
+
+def getRealIP(request):
+    if request.headers.getlist("X-Forwarded-For"):
+        return request.headers.getlist("X-Forwarded-For")[0]
+    else:
+        return request.remote_addr
+
 # 裝飾
 def access_permission(func = None, level = None):
     if not func:
         return partial(access_permission, level = level)
     @wraps(func)
     def wrapper(*args, **kwargs):
-        print('[%s]%s%s%s, user = %s, Requirelevel = %d' % (datetime.utcnow(), colorama.Fore.GREEN, func.__name__, colorama.Style.RESET_ALL, current_user, level if level != None else -1))
+        print('%s[%s]%s%s%s, user = %s, Requirelevel = %d' % (colorama.Fore.MAGENTA, datetime.utcnow(), colorama.Fore.GREEN, func.__name__, colorama.Style.RESET_ALL, current_user.name, level if level != None else -1))
         if current_user.competence > level:
             return render_template('error.htm', title = "Forbidden",error = "權限不足", redirect = "/", redirectTime = 100), 403
         return func(*args, **kwargs)
@@ -465,7 +466,7 @@ def list(path):
             "index": index,
             "name": file,
             "url": ("/view" if (os.path.isfile(filepath)) else "/list") + relativepath,
-            "download_url": "/media" + relativepath,
+            "download_url": "/" + flaskApplication.config['VIDEO_FOLDER'][:-1] + relativepath,
             "type": "file" if os.path.isfile(filepath) else "folder" if os.path.isdir(filepath) else "unknown",
             "mtime": formattime(os.path.getmtime(filepath)),
             "ctime": formattime(os.path.getctime(filepath)),
@@ -484,7 +485,7 @@ def view(path):
     announcements = Announcement.query.all()
     menu = Menu.query.all()
     absolutePath = re.match(r"^http(s|)://[^/:]{1,}", request.url).group(0)
-    return render_template('viewMedia.htm', mediaFile = absolutePath + ":" + str(flaskApplication.config['NGINX_PORT']) + "/" + path)
+    return render_template('viewMedia.htm', mediaFile = absolutePath + ":" + str(flaskApplication.config['NGINX_PORT']) + "/" + flaskApplication.config['VIDEO_FOLDER'] + path)
 
 @flaskApplication.route('/signup/')
 def signup():
@@ -501,7 +502,7 @@ def login():
             if (user.verify_password(form.password.data)):
                 user.authenticated = True
                 user.login_time = datetime.utcnow()
-                user.login_ip = request.remote_addr
+                user.login_ip = getRealIP(request)
                 sqlAlchemy.session.add(user)
                 sqlAlchemy.session.commit()
                 login_user(user, remember = True)
@@ -510,12 +511,22 @@ def login():
                 return redirect(next or url_for("index"))
     return render_template('login.htm', title = "Login", form = form)
 
+# @flaskApplication.route('/proxy/<path:url>')
+# def proxy(url):
+#     url = 'http://%s' % url
+#     req = requests.get(url, stream = True, params = request.args)
+#     return Response(stream_with_context(req.iter_content(1024)), content_type = req.headers['content-type'])
+
 @flaskApplication.route('/logout/', methods = ['POST'])
 @login_required
 def logout():
     logout_user()
     next = request.args.get('next')
     return redirect(next or url_for("index"))
+
+@flaskApplication.route("/online/")
+def online():
+    return "<br>".join([connection[index]["name"] + "(" + connection[index]["ip"] for index in connection])
 
 @flaskApplication.route('/upload/', methods = ['GET','POST']) # 上傳檔案
 @login_required
@@ -547,30 +558,29 @@ def filename_filter(filename):
     # filename = re.sub(r'^-|-$', '', filename)
     return filename
 
-@flaskApplication.route("/media/<path:path>") # 轉址到nginx伺服器
+@flaskApplication.route("/file/<path:path>") # 轉址到nginx伺服器
 def media(path):
-    mediaFileUrl = re.sub(r"(:[0-9]{0,}|)/media/", ":" + str(flaskApplication.config['NGINX_PORT']) + "/", request.url) # nginx port
+    mediaFileUrl = re.sub(r"(:[0-9]{0,}|)/file/", ":" + str(flaskApplication.config['NGINX_PORT']) + "/file/", request.url) # nginx port
     return redirect(mediaFileUrl, code = 302)
 
 @socketio.on('connect', namespace = '/test')
 def socketio_connect():
-    print(request.remote_addr + " connected\n" + request.sid)
-    emit('my response', {'data': 'Connected', 'name': 0})
+    connection[request.sid] = {
+        "ip": getRealIP(request),
+        "name": current_user.name
+    }
+    emit('hello', connection[request.sid], broadcast = True)
 
 @socketio.on('disconnect')
 def socketio_disconnect():
-    print(request.remote_addr + " disconnected\n" + request.sid)
-
-@socketio.on('bye')
-def socketio_disconnect():
-    print(request.remote_addr + " disconnected\n" + request.sid)
+    del connection[request.sid]
 
 @socketio.on('PauseVideo', namespace = '/test')
 @login_required
 @access_permission(level = 5)
 def pasue_video(message):
     emit('pause', {
-        "time": int(time.mktime(datetime.utcnow().timetuple())) * 1000 + message['delay']
+        "time": dates() + message['delay']
     }, broadcast = True)
 
 @socketio.on('PushVideo', namespace = '/test')
@@ -579,7 +589,7 @@ def pasue_video(message):
 def test_message(message):
     emit('redirect', {
         "url": "/video/" + str(numpy.clip(int(message['id']), 0, len(sqlAlchemy.session.query(Video).all()) - 1)),
-        "time": int(time.mktime(datetime.utcnow().timetuple())) * 1000 + message['delay']
+        "time": dates() + message['delay']
     }, broadcast = True)
 
 @socketio.on('HideAnnouncements', namespace = '/test')
@@ -611,7 +621,7 @@ if __name__ == '__main__':
     print(colorama.Fore.GREEN + "----------- Start Flask -----------" + colorama.Style.RESET_ALL)
     socketio.run(flaskApplication, host = os.getenv('IP', "0.0.0.0"), port = int(os.getenv('PORT', flaskApplication.config['PORT'])))
     # flaskApplication.run(host = os.getenv('IP', "0.0.0.0"), port = int(os.getenv('PORT', flaskApplication.config['PORT'])), threaded = True) #processes=1~9999
-    input("輸入任何鍵繼續...")
+    socketio.emit("bye", broadcast = True)
     print(colorama.Fore.RED + "----------- Stop Flask -----------" + colorama.Style.RESET_ALL)
     if not os.environ.get('WERKZEUG_RUN_MAIN'):
         os.system("taskkill /f /im nginx.exe")

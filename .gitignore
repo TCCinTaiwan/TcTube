@@ -1,4 +1,5 @@
 file/video/*.*
+file/video/*/*.*
 file/audio/*.*
 file/image/streamshot/*
 hidden/

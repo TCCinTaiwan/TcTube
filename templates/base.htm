@@ -82,12 +82,19 @@
             socket.onclose = function() {
                 console.log('close');
             };
+            socket.on('bye', function(data) {
+                console.log('bye');
+                socket.close();
+            });
+            socket.on('hello', function(data) {
+                console.log('Hello ' + data["name"] + "(" + data["ip"] + ")!!");
+            });
             socket.on('redirect', function(data) {
                 console.log('redirect');
                 setTimeout(function() {
                     socket.emit("bye", {});
                     window.location = data['url'];
-                }, data['time'] - new Date().getTime() - new Date().getTimezoneOffset() * 60000)
+                }, data['time'] - new Date().getTime() - new Date().getTimezoneOffset() * 60000);
             });
             socket.on('pause', function(data) {
                 console.log('pause');

@@ -18,7 +18,6 @@ setup(
         "WTForms==2.1",
         "Pygments==2.0.2",
         "colorama==0.3.7",
-        "PyQt5==5.7",
         "numpy==1.11.1",
     ],
 )
