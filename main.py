@@ -444,6 +444,21 @@ def video(videoNum):
 def api():
     return jsonify(video = Video.collection, menu = Menu.collection, announcement = Announcement.collection)
 
+@flaskApplication.route("/api/debug/")
+@login_required
+@access_permission(level = 1)
+def debug():
+    tempdict = {}
+    for key in request.environ:
+         if type(request.environ[key]) in [int, str, bool]:
+            tempdict[key] = request.environ[key]
+    return jsonify(tempdict)
+
+
+@flaskApplication.route("/api/online/")
+def online():
+    return jsonify(connection)
+
 @flaskApplication.route('/list/')
 def listRoot():
     return list("")
@@ -523,10 +538,6 @@ def logout():
     logout_user()
     next = request.args.get('next')
     return redirect(next or url_for("index"))
-
-@flaskApplication.route("/online/")
-def online():
-    return "<br>".join([connection[index]["name"] + "(" + connection[index]["ip"] for index in connection])
 
 @flaskApplication.route('/upload/', methods = ['GET','POST']) # 上傳檔案
 @login_required

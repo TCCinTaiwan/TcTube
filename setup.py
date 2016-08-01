@@ -19,5 +19,6 @@ setup(
         "Pygments==2.0.2",
         "colorama==0.3.7",
         "numpy==1.11.1",
+        "requests==2.8.1",
     ],
 )
