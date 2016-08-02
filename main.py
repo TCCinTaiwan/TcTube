@@ -67,7 +67,6 @@ sqlAlchemy = SQLAlchemy(flaskApplication)
 login_manager = LoginManager()
 colorama.init()
 connection = {}
-superUserPassword = None
 
 class classproperty(object):
     def __init__(self, getter):
@@ -675,7 +674,6 @@ if __name__ == '__main__':
             else:
                 print(colorama.Fore.GREEN + "Nginx is already running!!" + colorama.Style.RESET_ALL)
         elif (os.name == "posix"):
-            superUserPassword = input("Input su password:")
             nginxRunning = b'active' in subprocess.Popen(
                 [
                     '/etc/init.d/nginx',
@@ -685,7 +683,7 @@ if __name__ == '__main__':
             ).communicate()[0]
             if (not nginxRunning):
                 print(colorama.Fore.YELLOW + "Start nginx service!!" + colorama.Style.RESET_ALL)
-                os.system(("echo %s |" % superUserPassword if (superUserPassword) else "") + "sudo /etc/init.d/nginx start")
+                os.system(("sudo /etc/init.d/nginx start")
             else:
                 print(colorama.Fore.GREEN + "Nginx is already running!!" + colorama.Style.RESET_ALL)
     Compress(flaskApplication)
@@ -709,7 +707,7 @@ if __name__ == '__main__':
             else:
                 print(colorama.Fore.YELLOW + "Nginx is still running!!" + colorama.Style.RESET_ALL)
         elif (os.name == "posix"):
-            os.system(("echo %s |" % superUserPassword if (superUserPassword) else "") + "sudo /etc/init.d/nginx stop")
+            os.system("sudo /etc/init.d/nginx stop")
             nginxRunning = b'active' in subprocess.Popen(
                 [
                     '/etc/init.d/nginx',
