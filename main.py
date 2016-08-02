@@ -683,7 +683,7 @@ if __name__ == '__main__':
             ).communicate()[0]
             if (not nginxRunning):
                 print(colorama.Fore.YELLOW + "Start nginx service!!" + colorama.Style.RESET_ALL)
-                os.system(("sudo /etc/init.d/nginx start")
+                os.system("sudo /etc/init.d/nginx start")
             else:
                 print(colorama.Fore.GREEN + "Nginx is already running!!" + colorama.Style.RESET_ALL)
     Compress(flaskApplication)
