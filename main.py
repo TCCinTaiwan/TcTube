@@ -1,47 +1,50 @@
 # coding=utf-8
-from flask import (
-    Flask,
-    render_template,
-    request,
-    send_file,
-    redirect,
-    Response,
-    send_from_directory,
-    make_response,
-    stream_with_context,
-    url_for,
-    abort,
-    flash,
-    jsonify
-)
-from flask.ext.login import (
-    LoginManager,
-    UserMixin,
-    login_required,
-    login_user,
-    current_user,
-    logout_user,
-    confirm_login,
-    login_fresh,
-    AnonymousUserMixin
-)
-from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.compress import Compress
-from flask_socketio import SocketIO, send, emit
-from wtforms import form, fields, validators
-from functools import wraps, partial
-from werkzeug.security import generate_password_hash, check_password_hash
-import binascii, os, re, json, random, subprocess, sqlite3, time, numpy, sys
-from jinja2 import Environment, FileSystemLoader
-from pygments import highlight
-from pygments.lexers import BashLexer
-from pygments.formatters import HtmlFormatter
-from functools import partial
-from datetime import datetime
-from urllib.parse import urlparse
-import colorama
-import requests
-import platform
+try:
+    from flask import (
+        Flask,
+        render_template,
+        request,
+        send_file,
+        redirect,
+        Response,
+        send_from_directory,
+        make_response,
+        stream_with_context,
+        url_for,
+        abort,
+        flash,
+        jsonify
+    )
+    from flask.ext.login import (
+        LoginManager,
+        UserMixin,
+        login_required,
+        login_user,
+        current_user,
+        logout_user,
+        confirm_login,
+        login_fresh,
+        AnonymousUserMixin
+    )
+    from flask.ext.sqlalchemy import SQLAlchemy
+    from flask.ext.compress import Compress
+    from flask_socketio import SocketIO, send, emit
+    from wtforms import form, fields, validators
+    from functools import wraps, partial
+    from werkzeug.security import generate_password_hash, check_password_hash
+    import binascii, os, re, json, random, subprocess, sqlite3, time, numpy, sys
+    from jinja2 import Environment, FileSystemLoader
+    from pygments import highlight
+    from pygments.lexers import BashLexer
+    from pygments.formatters import HtmlFormatter
+    from functools import partial
+    from datetime import datetime
+    from urllib.parse import urlparse
+    import colorama
+    import requests
+    import platform
+except ImportError:
+    raise ImportError('Try "python setup.py install"')
 
 flaskApplication = Flask(__name__, static_url_path = "", static_folder = "static/", template_folder = 'templates/')
 flaskApplication.debug = True

@@ -31,6 +31,8 @@
 
 * Python:
 [ ![Python](https://www.python.org/static/img/python-logo.png)](https://www.python.org/downloads/)
+>注意: 本專案使用的是Python3
+
 ![Python Install](setup/python-install.png)
 >要勾"Add Python to PATH"，把Python加到環境變數中。
 
