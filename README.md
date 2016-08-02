@@ -31,9 +31,11 @@
 
 * Python:
 [ ![Python](https://www.python.org/static/img/python-logo.png)](https://www.python.org/downloads/)
+
 >注意: 本專案使用的是Python3
 
 ![Python Install](setup/python-install.png)
+
 >要勾"Add Python to PATH"，把Python加到環境變數中。
 
 1. Clone the repository
@@ -56,6 +58,8 @@
     pip install -r TcTube/requirements.txt
     ```
 
+    >Make sure your pip is lastest varsion.
+
     Or you can run [setup.py](setup.py) :
 
     ```bash
@@ -70,6 +74,9 @@
 >最好下載最新的穩定版本(Stable version)
 
 2. 把 [setup/nginx.conf](setup/nginx.conf)複製到 nginx-*/conf/ 底下，取代原本的 nginx.conf。
+
+>假如是Linux要執行則是取代/etc/nginx/nginx.conf，還要修改路徑。
+
 3. 音樂檔案要放在 [file/video/](file/video/)
 4. 修改 [database.db](database.db)裡的videos和videoSources資料表，加入自己的歌
 5. 略縮圖要放在 [file/image/streamshot](file/image/streamshot)

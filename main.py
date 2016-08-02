@@ -635,15 +635,53 @@ def media(path):
     mediaFileUrl = re.sub(r"(:[0-9]{0,}|)/file/", ":" + str(flaskApplication.config['NGINX_PORT']) + "/file/", request.url) # nginx port
     return redirect(mediaFileUrl, code = 302)
 
-@socketio.on('connect', namespace = '/test')
-def socketio_connect():
-    connection[request.sid] = {
-        "ip": getRealIP(request),
-        "name": current_user.name
-    }
-    emit('hello', connection[request.sid], broadcast = True)
+# @socketio.on('connect', namespace = '/chat')
+# def socketio_hello_connect():
+#     self.username = "GG"
+#     emit('new message', {
+#         'username': self.username,
+#         'message': "message"
+#     })
 
-@socketio.on('disconnect')
+# @socketio.on('connect', namespace = '/chat')
+# def socketio_chat_connect():
+#     emit('hello', {})
+
+# @socketio.on('new message', namespace = '/chat')
+# def socketio_chat_new_message(message):
+#     emit('new message', {
+#         'username': self.username,
+#         'message': message
+#     }, broadcast = True)
+
+# @socketio.on('typing', namespace = '/chat')
+# def socketio_chat_typing(message):
+#     emit('typing', {
+#         'username': self.username,
+#     }, broadcast = True)
+
+# @socketio.on('stop typing', namespace = '/chat')
+# def socketio_chat_stop_typing(message):
+#     emit('stop_typing', {
+#         'username': self.username,
+#     }, broadcast = True)
+
+# @socketio.on('add user', namespace = '/chat')
+# def socketio_chat_add_user(message):
+#     emit('login', {})
+#     emit('user join', {
+#         'username': self.username,
+#         'numUsers': len(connection)
+#     }, broadcast = True)
+
+# @socketio.on('disconnect', namespace = '/chat')
+# def socketio_chat_disconnect():
+#     emit('user left', {
+#         'username': self.username,
+#         'numUsers': len(connection)
+#     }, broadcast = True)
+
+@socketio.on('disconnect', namespace = '/test')
 def socketio_disconnect():
     del connection[request.sid]
 
@@ -671,8 +709,8 @@ def hide_announcements(message):
     emit('hideAnnouncements', {}, broadcast = True)
 
 if __name__ == '__main__':
-    TestPlatform()
     if not os.environ.get('WERKZEUG_RUN_MAIN'):
+        # TestPlatform()
         if (os.name == "nt"):
             nginxRunning = b'nginx' in subprocess.Popen(
                 'tasklist',
