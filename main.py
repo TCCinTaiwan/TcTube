@@ -41,6 +41,7 @@ from datetime import datetime
 from urllib.parse import urlparse
 import colorama
 import requests
+import platform
 
 flaskApplication = Flask(__name__, static_url_path = "", static_folder = "static/", template_folder = 'templates/')
 flaskApplication.debug = True
@@ -378,6 +379,41 @@ def utility_processor():
         return os.path.splitext(filename)
     return dict(splitFilename = splitFilename)
 
+def TestPlatform():
+    print ("---------- Operation System ----------")
+    #  获取Python版本
+    print(platform.python_version())
+
+    #   获取操作系统可执行程序的结构，，(’32bit’, ‘WindowsPE’)
+    print(platform.architecture())
+
+    #   计算机的网络名称，’acer-PC’
+    print(platform.node())
+
+    #获取操作系统名称及版本号，’Windows-7-6.1.7601-SP1′
+    print(platform.platform())
+
+    #计算机处理器信息，’Intel64 Family 6 Model 42 Stepping 7, GenuineIntel’
+    print(platform.processor())
+
+    # 获取操作系统中Python的构建日期
+    print(platform.python_build())
+
+    #  获取系统中python解释器的信息
+    print(platform.python_compiler())
+
+    if platform.python_branch() == "":
+        print(platform.python_implementation())
+        print(platform.python_revision())
+    print(platform.release())
+    print(platform.system())
+
+    #  获取操作系统的版本
+    print(platform.version())
+
+    #  包含上面所有的信息汇总
+    print(platform.uname())
+
 '''
 Get current time as milliseconds since 1970-01-01
 '''
@@ -527,7 +563,8 @@ def login():
                 next = request.args.get('next')
                 flash('Logged in successfully.')
                 return redirect(next or url_for("index"))
-    print(current_user)
+    if current_user != Anonymous:
+        return redirect("/")
 
     return render_template('login.htm', title = "Login", form = form)
 
@@ -615,41 +652,64 @@ def hide_announcements(message):
     emit('hideAnnouncements', {}, broadcast = True)
 
 if __name__ == '__main__':
+    TestPlatform()
     if not os.environ.get('WERKZEUG_RUN_MAIN'):
-        nginxRunning = b'nginx' in subprocess.Popen(
-            'tasklist',
-            stdout = subprocess.PIPE
-        ).communicate()[0]
-        if (not nginxRunning):
-            print(colorama.Fore.YELLOW + "Start nginx service!!" + colorama.Style.RESET_ALL)
-            os.chdir(flaskApplication.config['NGINX_FOLDER'])
-            subprocess.Popen(
-                ['nginx.exe'],
-                shell = True,
-                stdin = None,
-                stdout = None,
-                stderr = None,
-                close_fds = True
-            )
-            os.chdir(flaskApplication.config['FOLDER'])
-        else:
-            print(colorama.Fore.GREEN + "Nginx is already running!!" + colorama.Style.RESET_ALL)
-    print(colorama.Fore.GREEN + "----------- Start Flask -----------" + colorama.Style.RESET_ALL)
+        if (os.name == "nt"):
+            nginxRunning = b'nginx' in subprocess.Popen(
+                'tasklist',
+                stdout = subprocess.PIPE
+            ).communicate()[0]
+            if (not nginxRunning):
+                print(colorama.Fore.YELLOW + "Start nginx service!!" + colorama.Style.RESET_ALL)
+                os.chdir(flaskApplication.config['NGINX_FOLDER'])
+                subprocess.Popen(
+                    ['nginx.exe'],
+                    shell = True,
+                    stdin = None,
+                    stdout = None,
+                    stderr = None,
+                    close_fds = True
+                )
+                os.chdir(flaskApplication.config['FOLDER'])
+            else:
+                print(colorama.Fore.GREEN + "Nginx is already running!!" + colorama.Style.RESET_ALL)
+        elif (os.name == "posix"):
+            nginxRunning = b'active' in subprocess.Popen(
+                '/etc/init.d/nginx status',
+                stdout = subprocess.PIPE
+            ).communicate()[0]
+            if (not nginxRunning):
+                print(colorama.Fore.YELLOW + "Start nginx service!!" + colorama.Style.RESET_ALL)
+                os.system("/etc/init.d/nginx start")
+            else:
+                print(colorama.Fore.GREEN + "Nginx is already running!!" + colorama.Style.RESET_ALL)
     Compress(flaskApplication)
     login_manager.init_app(flaskApplication)
     login_manager.session_protection = "strong"
     login_manager.anonymous_user = Anonymous
+    print(colorama.Fore.GREEN + "----------- Start Flask -----------" + colorama.Style.RESET_ALL)
     socketio.run(flaskApplication, host = os.getenv('IP', "0.0.0.0"), port = int(os.getenv('PORT', flaskApplication.config['PORT'])))
     # flaskApplication.run(host = os.getenv('IP', "0.0.0.0"), port = int(os.getenv('PORT', flaskApplication.config['PORT'])), threaded = True) #processes=1~9999
     socketio.emit("bye", broadcast = True)
     print(colorama.Fore.RED + "----------- Stop Flask -----------" + colorama.Style.RESET_ALL)
     if not os.environ.get('WERKZEUG_RUN_MAIN'):
-        os.system("taskkill /f /im nginx.exe")
-        nginxRunning = b'nginx' in subprocess.Popen(
-            'tasklist',
-            stdout = subprocess.PIPE
-        ).communicate()[0]
-        if (not nginxRunning):
-            print(colorama.Fore.RED + "Stop nginx service!!" + colorama.Style.RESET_ALL)
-        else:
-            print(colorama.Fore.YELLOW + "Nginx is still running!!" + colorama.Style.RESET_ALL)
+        if (os.name == "nt"):
+            os.system("taskkill /f /im nginx.exe")
+            nginxRunning = b'nginx' in subprocess.Popen(
+                'tasklist',
+                stdout = subprocess.PIPE
+            ).communicate()[0]
+            if (not nginxRunning):
+                print(colorama.Fore.RED + "Stop nginx service!!" + colorama.Style.RESET_ALL)
+            else:
+                print(colorama.Fore.YELLOW + "Nginx is still running!!" + colorama.Style.RESET_ALL)
+        elif (os.name == "posix"):
+            os.system("/etc/init.d/nginx stop")
+            nginxRunning = b'active' in subprocess.Popen(
+                '/etc/init.d/nginx status',
+                stdout = subprocess.PIPE
+            ).communicate()[0]
+            if (not nginxRunning):
+                print(colorama.Fore.RED + "Stop nginx service!!" + colorama.Style.RESET_ALL)
+            else:
+                print(colorama.Fore.YELLOW + "Nginx is still running!!" + colorama.Style.RESET_ALL)
