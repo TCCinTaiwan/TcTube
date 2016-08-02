@@ -674,7 +674,7 @@ if __name__ == '__main__':
             else:
                 print(colorama.Fore.GREEN + "Nginx is already running!!" + colorama.Style.RESET_ALL)
         elif (os.name == "posix"):
-            nginxRunning = b'active' in subprocess.Popen(
+            nginxRunning = b'Active: active' in subprocess.Popen(
                 [
                     '/etc/init.d/nginx',
                     'status'
@@ -708,7 +708,7 @@ if __name__ == '__main__':
                 print(colorama.Fore.YELLOW + "Nginx is still running!!" + colorama.Style.RESET_ALL)
         elif (os.name == "posix"):
             os.system("sudo /etc/init.d/nginx stop")
-            nginxRunning = b'active' in subprocess.Popen(
+            nginxRunning = b'Active: active' in subprocess.Popen(
                 [
                     '/etc/init.d/nginx',
                     'status'
