@@ -44,7 +44,8 @@ try:
     import requests
     import platform
 except ImportError:
-    raise ImportError('Try "python setup.py install"')
+    import setup
+    raise ImportError('Try "python setup.py install" or "pip install -r requirements.txt"')
 
 flaskApplication = Flask(__name__, static_url_path = "", static_folder = "static/", template_folder = 'templates/')
 flaskApplication.debug = True
@@ -467,6 +468,22 @@ def announcements():
     announcements = sqlAlchemy.session.query(Announcement).all()
     return render_template('announcements.htm', title = "Announcements", announcements = announcements, menu = menu)
 
+@flaskApplication.route("/menu/")
+@login_required
+@access_permission(level = 5)
+def menu():
+    menu = Menu.query.all()
+    announcements = sqlAlchemy.session.query(Announcement).all()
+    return render_template('menu.htm', title = "Menu", announcements = announcements, menu = menu)
+
+@flaskApplication.route("/socketIO/")
+@login_required
+@access_permission(level = 5)
+def socketIO():
+    menu = Menu.query.all()
+    announcements = sqlAlchemy.session.query(Announcement).all()
+    return render_template('socketIO.htm', title = "socketIO", announcements = announcements, menu = menu)
+
 @flaskApplication.route('/video/')
 def randomVideo(): # 隨機Video
     # with open('static/playlist.json', "r", encoding = 'utf8') as jsonFile:
@@ -553,6 +570,8 @@ def signup():
 @flaskApplication.route('/login/', methods = ['GET','POST'])
 def login():
     form = LoginForm(request.form)
+    if current_user.is_authenticated:
+        return redirect("/")
     if form.validate(): # request.method == 'POST':
         user = User.getByAccount(form.account.data)
         if user:
@@ -566,9 +585,6 @@ def login():
                 next = request.args.get('next')
                 flash('Logged in successfully.')
                 return redirect(next or url_for("index"))
-    if current_user != Anonymous:
-        return redirect("/")
-
     return render_template('login.htm', title = "Login", form = form)
 
 # @flaskApplication.route('/proxy/<path:url>')
