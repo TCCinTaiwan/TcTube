@@ -1,11 +1,12 @@
 import unittest
 
 import main
+
 class FlaskrTestCase(unittest.TestCase):
     def setUp(self):
         main.flaskApplication.config['TESTING'] = True
         self.flaskApplication = main.flaskApplication.test_client()
-    def test_redirect(self):
+    def test_login_redirect(self):
         response = self.flaskApplication.get('/')
         self.assertEquals(response.status, "302 FOUND")
     def test_login_logout(self):

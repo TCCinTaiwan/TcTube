@@ -22,7 +22,8 @@ from flask.ext.login import (
     current_user,
     logout_user,
     confirm_login,
-    login_fresh
+    login_fresh,
+    AnonymousUserMixin
 )
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.compress import Compress
@@ -60,12 +61,9 @@ flaskApplication.config['DATABASE_FILE'] = 'database.db'
 flaskApplication.config["SECRET_KEY"] = "0" * 24 # binascii.hexlify(os.urandom(24))
 flaskApplication.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + flaskApplication.config['DATABASE_FILE']
 flaskApplication.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-socketio = SocketIO(flaskApplication, ping_timeout = 30, binary=True)
-Compress(flaskApplication)
+socketio = SocketIO(flaskApplication, ping_timeout = 30, ping_interval = 30, binary=True)
 sqlAlchemy = SQLAlchemy(flaskApplication)
 login_manager = LoginManager()
-login_manager.init_app(flaskApplication)
-login_manager.session_protection = "strong"
 colorama.init()
 connection = {}
 
@@ -115,6 +113,7 @@ class Announcement(sqlAlchemy.Model, JsonAPI):
         self.message = message
     def __repr__(self):
         return '<Announcement %r>' % (self.id)
+
 class Menu(sqlAlchemy.Model, JsonAPI):
     __tablename__ = 'menu'
     __public__ = [
@@ -150,6 +149,7 @@ class Menu(sqlAlchemy.Model, JsonAPI):
         self.open = open
     def __repr__(self):
         return '<Menu %r>' % (self.name)
+
 class Video(sqlAlchemy.Model, JsonAPI):
     __tablename__ = 'videos'
     __public__ = [
@@ -179,6 +179,10 @@ class VideoSource(sqlAlchemy.Model, JsonAPI):
         self.source = source
     def __repr__(self):
         return '<VideoSource %r>' % (self.source)
+
+class Anonymous(AnonymousUserMixin):
+  def __init__(self):
+    self.name = 'Guest'
 
 class User(sqlAlchemy.Model):
     __tablename__ = 'users'
@@ -510,8 +514,7 @@ def signup():
 @flaskApplication.route('/login/', methods = ['GET','POST'])
 def login():
     form = LoginForm(request.form)
-    if form.validate():
-    # if request.method == 'POST':
+    if form.validate(): # request.method == 'POST':
         user = User.getByAccount(form.account.data)
         if user:
             if (user.verify_password(form.password.data)):
@@ -524,6 +527,8 @@ def login():
                 next = request.args.get('next')
                 flash('Logged in successfully.')
                 return redirect(next or url_for("index"))
+    print(current_user)
+
     return render_template('login.htm', title = "Login", form = form)
 
 # @flaskApplication.route('/proxy/<path:url>')
@@ -630,6 +635,10 @@ if __name__ == '__main__':
         else:
             print(colorama.Fore.GREEN + "Nginx is already running!!" + colorama.Style.RESET_ALL)
     print(colorama.Fore.GREEN + "----------- Start Flask -----------" + colorama.Style.RESET_ALL)
+    Compress(flaskApplication)
+    login_manager.init_app(flaskApplication)
+    login_manager.session_protection = "strong"
+    login_manager.anonymous_user = Anonymous
     socketio.run(flaskApplication, host = os.getenv('IP', "0.0.0.0"), port = int(os.getenv('PORT', flaskApplication.config['PORT'])))
     # flaskApplication.run(host = os.getenv('IP', "0.0.0.0"), port = int(os.getenv('PORT', flaskApplication.config['PORT'])), threaded = True) #processes=1~9999
     socketio.emit("bye", broadcast = True)
