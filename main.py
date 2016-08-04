@@ -28,7 +28,7 @@ try:
     )
     from flask.ext.sqlalchemy import SQLAlchemy
     from flask.ext.compress import Compress
-    from flask_socketio import SocketIO, send, emit
+    from flask_socketio import SocketIO, send, emit, disconnect
     from wtforms import form, fields, validators
     from functools import wraps, partial
     from werkzeug.security import generate_password_hash, check_password_hash
@@ -66,7 +66,7 @@ flaskApplication.config['DATABASE_FILE'] = 'database.db'
 flaskApplication.config["SECRET_KEY"] = "0" * 24 # binascii.hexlify(os.urandom(24))
 flaskApplication.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + flaskApplication.config['DATABASE_FILE']
 flaskApplication.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-socketio = SocketIO(flaskApplication, ping_timeout = 30, ping_interval = 30, binary=True)
+socketio = SocketIO(flaskApplication, ping_timeout = 20, ping_interval = 0, binary = True) # , ping_timeout = 30, ping_interval = 30, binary = True
 sqlAlchemy = SQLAlchemy(flaskApplication)
 login_manager = LoginManager()
 colorama.init()
@@ -185,9 +185,9 @@ class VideoSource(sqlAlchemy.Model, JsonAPI):
     def __repr__(self):
         return '<VideoSource %r>' % (self.source)
 
-class Anonymous(AnonymousUserMixin):
-  def __init__(self):
-    self.name = 'Guest'
+# class Anonymous(AnonymousUserMixin):
+#   def __init__(self):
+#     self.name = 'Guest'
 
 class User(sqlAlchemy.Model):
     __tablename__ = 'users'
@@ -263,14 +263,21 @@ class User(sqlAlchemy.Model):
 
 # Define login and registration forms (for flask-login)
 class LoginForm(form.Form):
-    account = fields.TextField("帳號", validators = [validators.required()])
-    password = fields.PasswordField("密碼",
+    account = fields.TextField(
+        "帳號",
+        validators = [
+            validators.required()
+        ]
+    )
+    password = fields.PasswordField(
+        "密碼",
         [
             validators.Length(
                 min = User.MIN_PASSWORD_LEN,
                 max= User.MAX_PASSWORD_LEN
             )
-        ])
+        ]
+    )
     submit = fields.SubmitField("登入", render_kw = {"class": "123"})
 class LogoutForm(form.Form):
     submit = fields.SubmitField("登出")
@@ -325,7 +332,7 @@ class SignupForm(form.Form):
 
 @flaskApplication.before_request
 def check_login():
-    if request.remote_addr != "127.0.0.1":
+    if request.remote_addr != "127.0.0.1": # 規定必須用Nginx的Proxy
         return redirect("/", code = 302)
     # if request.endpoint == 'static' and not current_user.is_authenticated:
     #     return render_template('error.htm', title = "Forbidden",error = "權限不足", redirect = "/", redirectTime = 100), 403
@@ -422,7 +429,7 @@ def TestPlatform():
 Get current time as milliseconds since 1970-01-01
 '''
 def dates():
-    return int(time.mktime(datetime.utcnow().timetuple())) * 1000
+    return int((time.time() + time.timezone) * 1000) # time.mktime(time.gmtime())
 
 def getRealIP(request):
     if request.headers.getlist("X-Forwarded-For"):
@@ -635,36 +642,15 @@ def media(path):
     mediaFileUrl = re.sub(r"(:[0-9]{0,}|)/file/", ":" + str(flaskApplication.config['NGINX_PORT']) + "/file/", request.url) # nginx port
     return redirect(mediaFileUrl, code = 302)
 
-# @socketio.on('connect', namespace = '/chat')
-# def socketio_hello_connect():
-#     self.username = "GG"
-#     emit('new message', {
-#         'username': self.username,
-#         'message': "message"
-#     })
 
 # @socketio.on('connect', namespace = '/chat')
 # def socketio_chat_connect():
 #     emit('hello', {})
+    # emit('new message', {
+    #     'username': self.username,
+    #     'message': "message"
+    # })
 
-# @socketio.on('new message', namespace = '/chat')
-# def socketio_chat_new_message(message):
-#     emit('new message', {
-#         'username': self.username,
-#         'message': message
-#     }, broadcast = True)
-
-# @socketio.on('typing', namespace = '/chat')
-# def socketio_chat_typing(message):
-#     emit('typing', {
-#         'username': self.username,
-#     }, broadcast = True)
-
-# @socketio.on('stop typing', namespace = '/chat')
-# def socketio_chat_stop_typing(message):
-#     emit('stop_typing', {
-#         'username': self.username,
-#     }, broadcast = True)
 
 # @socketio.on('add user', namespace = '/chat')
 # def socketio_chat_add_user(message):
@@ -674,39 +660,94 @@ def media(path):
 #         'numUsers': len(connection)
 #     }, broadcast = True)
 
-# @socketio.on('disconnect', namespace = '/chat')
-# def socketio_chat_disconnect():
-#     emit('user left', {
+# @socketio.on('typing', namespace = '/test')
+# def socketio_chat_typing(message):
+#     emit('typing', {
 #         'username': self.username,
-#         'numUsers': len(connection)
 #     }, broadcast = True)
+
+# @socketio.on('stop typing', namespace = '/test')
+# def socketio_chat_stop_typing(message):
+#     emit('stop_typing', {
+#         'username': self.username,
+#     }, broadcast = True)
+
+
+
+@socketio.on('test ping', namespace = '/test')
+def socketio_test_ping():
+    emit('test pong')
+
+@socketio.on('get path', namespace = '/test')
+def socketio_get_path(data):
+    connection[request.sid]["path"] = data["path"]
+
+@socketio.on('report ping', namespace = '/test')
+def socketio_test_pong(data):
+    connection[request.sid]["ping2"] = data["ping"]
+
+@socketio.on('test pong', namespace = '/test')
+def socketio_test_pong():
+    connection[request.sid]["ping"] = dates() - connection[request.sid]["ping_time"]
+    del connection[request.sid]["ping_time"]
+def socketio_server_ping_client():
+    connection[request.sid]["ping_time"] = dates()
+    emit('test ping')
+
+@socketio.on('connect', namespace = '/test')
+def socketio_connect():
+    connection[request.sid] = {
+        "ip": getRealIP(request),
+        "name": current_user.name,
+        "account": current_user.account,
+        "connect_time": dates()
+    }
+    emit('connect success', connection[request.sid])
+    emit('user online', connection[request.sid], broadcast = True)
+    socketio_server_ping_client()
 
 @socketio.on('disconnect', namespace = '/test')
 def socketio_disconnect():
+    emit('user left', connection[request.sid], broadcast = True)
     del connection[request.sid]
+
+@socketio.on('new message', namespace = '/test')
+def socketio_new_message(message):
+    emit('new message', {
+        'name': connection[request.sid]["name"],
+        'message': message
+    }, broadcast = True)
+
+@socketio.on('disconnect request', namespace = '/test')
+def disconnect_request():
+    # emit('user left', connection[request.sid], broadcast = True)
+    # del connection[request.sid]
+    disconnect()
 
 @socketio.on('PauseVideo', namespace = '/test')
 @login_required
 @access_permission(level = 5)
 def pasue_video(message):
-    emit('pause', {
-        "time": dates() + message['delay']
-    }, broadcast = True)
+    emit(
+        'pause',
+        {
+            "time": dates() + message['delay']
+        },
+        broadcast = True
+    )
 
 @socketio.on('PushVideo', namespace = '/test')
 @login_required
 @access_permission(level = 5)
 def test_message(message):
-    emit('redirect', {
-        "url": "/video/" + str(numpy.clip(int(message['id']), 0, len(sqlAlchemy.session.query(Video).all()) - 1)),
-        "time": dates() + message['delay']
-    }, broadcast = True)
-
-@socketio.on('HideAnnouncements', namespace = '/test')
-@login_required
-@access_permission(level = 5)
-def hide_announcements(message):
-    emit('hideAnnouncements', {}, broadcast = True)
+    emit(
+        'url redirect',
+        {
+            "url": "/video/" + str(numpy.clip(int(message['id']), 0, len(sqlAlchemy.session.query(Video).all()) - 1)),
+            "time": dates() + message['delay']
+        },
+        broadcast = True
+    )
 
 if __name__ == '__main__':
     if not os.environ.get('WERKZEUG_RUN_MAIN'):
@@ -746,7 +787,7 @@ if __name__ == '__main__':
     Compress(flaskApplication)
     login_manager.init_app(flaskApplication)
     login_manager.session_protection = "strong"
-    login_manager.anonymous_user = Anonymous
+    # login_manager.anonymous_user = Anonymous
     print(colorama.Fore.GREEN + "----------- Start Flask -----------" + colorama.Style.RESET_ALL)
     socketio.run(flaskApplication, host = os.getenv('IP', "0.0.0.0"), port = int(os.getenv('PORT', flaskApplication.config['PORT'])))
     # flaskApplication.run(host = os.getenv('IP', "0.0.0.0"), port = int(os.getenv('PORT', flaskApplication.config['PORT'])), threaded = True) #processes=1~9999

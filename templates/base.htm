@@ -63,41 +63,167 @@
                         menu.innerHTML  = dtree;
                     }
                     jQuery("#marquee").marquee({
-                        speed: 10
-                    //     gap: 50,
-                    //     delayBeforeStart: 0,
-                    //     direction: 'left',
+                        speed: 100,
+                        delayBeforeStart: 0,
+                        direction: 'left',
                     //     duplicated: true,
-                    //     pauseOnHover: true
+                    //     pauseOnHover: true,
                     }); // 執行跑馬燈
+                    function insertKeyframes(element) {
+                        var styleElement = document.createElement('style');
+                        styleElement.textContent = disapear.textContent.replace(/\{~height~\}/g, element.height + 'px');
+                        element.appendChild(styleElement);
+                        element.classList.add('removed');
+                    }
+                    function removeElement(event) {
+                        if (event.animationName === 'disapear') {
+                            if (event.target === marquee) {
+                                document.body.classList.remove("message");
+                                document.body.classList.add("nomessage");
+                            }
+                            event.target.parentNode.removeChild(event.target);
+                        }
+                    }
+                    document.body.addEventListener('animationend', removeElement);
+                    document.body.addEventListener('webkitAnimationEnd', removeElement);
+                    setTimeout(function(data) {
+                        insertKeyframes(marquee);
+                        // document.body.className = "nomessage";
+                    }, 3000);
                 }
             }, false);
         </script>
+        <script id="disapear" type="application/x-template">
+            @-webkit-keyframes disapear {
+                0% {
+                    /* Sets the initial height to the measured height of the element */
+                    height: {~height~};
+                }
+                30% {
+                    -webkit-transform: translateX(-5%);
+                    transform: translateX(-5%);
+                }
+                60% {
+                    -webkit-transform: translateX(200%);
+                    transform: translateX(200%);
+                    /* Makes sur the height and bottom margin stay constant
+                       till this point in the animation */
+                    height: {~height~};
+                    margin-bottom: 1em;
+                }
+                100% {
+                    /* Keeps the element out of the screen. If it's not there,
+                     * the element comes back to its original position
+                     */
+                    -webkit-transform: translateX(200%);
+                    transform: translateX(200%);
+                    /* Makes the blank space collapse */
+                    height: 0;
+                    margin-bottom: 0;
+                }
+            }
+
+
+            @keyframes disapear {
+                0% {
+                    /* Sets the initial height to the measured height of the element */
+                    height: {~height~};
+                }
+                30% {
+                    -webkit-transform: translateX(-5%);
+                    transform: translateX(-5%);
+                }
+                60% {
+                    -webkit-transform: translateX(200%);
+                    transform: translateX(200%);
+                    /* Makes sur the height and bottom margin stay constant
+                       till this point in the animation */
+                    height: {~height~};
+                    margin-bottom: 1em;
+                }
+                100% {
+                    /* Keeps the element out of the screen. If it's not there,
+                    * the element comes back to its original position
+                    */
+                    -webkit-transform: translateX(200%);
+                    transform: translateX(200%);
+                    /* Makes the blank space collapse */
+                    height: 0;
+                    margin-bottom: 0;
+                }
+            }
+        </script>
         <script src="/file/js/socket.io-1.4.8.min.js"></script>
         <script>
-            var socket = io.connect('http://' + document.domain + ':' + location.port + "/test");
-
+            namespace = '/test';
+            var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+            var ping_pong_times = [];
+            var start_time;
+            function clientPingServer() {
+                start_time = (new Date).getTime();
+                socket.emit('test ping');
+            }
+            socket.on('test pong', function() {
+                var latency = (new Date).getTime() - start_time;
+                ping_pong_times.push(latency);
+                ping_pong_times = ping_pong_times.slice(-30); // keep last 30 samples
+                var sum = ping_pong_times.reduce((a, b) => a + b, 0); // sum(ping_pong_times)
+                console.log("ping: " + Math.round(10 * sum / ping_pong_times.length) / 10 + " ms");
+                socket.emit("report ping", {ping:  Math.round(10 * sum / ping_pong_times.length) / 10});
+            });
+            socket.on('test ping', function() {
+                socket.emit("test pong");
+            });
             socket.on('connect', function() {
-                console.log('connect');
+                console.log('連線到Server...');
+                clientPingServer();
+            });
+            socket.on('connect success', function(data) {
+                socket.emit("get path", {path: location.pathname});
+                console.log(data["name"] + "(" + data["account"] + "@" + data["ip"] + ')確認連線到Server');
             });
             socket.on('disconnect',  function() {
-                console.log('close');
+                console.log('從Server斷線');
             });
             socket.on('bye', function(data) {
-                console.log('bye');
+                console.log('被伺服器剔除');
                 socket.close();
             });
-            socket.on('hello', function(data) {
-                console.log('Hello ' + data["name"] + "(" + data["ip"] + ")!!");
+            socket.on('reload', function(data) {
+                location.reload();
             });
-            socket.on('redirect', function(data) {
-                console.log('redirect');
+            socket.on('login success', function(data) {
+                console.log('登入成功');
+            });
+            socket.on('user online', function(data) {
+                console.log(data["name"] + "(" + data["account"] + "@" + data["ip"] + ")上線");
+            });
+            socket.on('user join', function(data) {
+                console.log(data["name"] + "(" + data["account"] + "@" + data["ip"] + ")加入");
+            });
+            socket.on('user left', function(data) {
+                console.log(data["name"] + "(" + data["account"] + "@" + data["ip"] + ")離開");
+            });
+            socket.on('new message', function(data) {
+                console.log(data["name"] + ":" + data["message"]);
+                console.dir(data["message"]);
+            });
+            socket.on('eval', function(data) {
+                eval(data);
+            });
+            socket.on('url redirect', function(data) {
+                console.log('redirect' + (data['time'] - new Date().getTime() - new Date().getTimezoneOffset() * 60000));
                 setTimeout(function() {
                     socket.emit("bye", {});
                     window.location = data['url'];
                 }, data['time'] - new Date().getTime() - new Date().getTimezoneOffset() * 60000);
             });
-            socket.on('pause', function(data) {
+            if (typeof(Worker) !== "undefined") {
+                console.log("Yes! Web worker support!");
+            } else {
+                console.log("Sorry! No Web Worker support..");
+            }
+            socket.on('video restart', function(data) {
                 console.log('pause');
                 setTimeout(function() {
                     if (typeof video !== "undefined") {
@@ -106,10 +232,6 @@
                         video.play();
                     }
                 }, data['time'] - new Date().getTime() - new Date().getTimezoneOffset() * 60000)
-            });
-            socket.on('hideAnnouncements', function(data) {
-                console.log('hideAnnouncements');
-                document.body.className = "nomessage";
             });
             function PushVideo() {
                 socket.emit('PushVideo', {

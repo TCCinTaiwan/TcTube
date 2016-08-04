@@ -1,0 +1,27 @@
+<table>
+    <caption>{{ folderpath }}</caption>
+    <thead>
+        <tr>
+            <th>id</th>
+            <th>屬於</th>
+            <th>名稱</th>
+            <th>網址</th>
+            <th>目標</th>
+            <th>顯示標題</th>
+            <th>圖示</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for item in menu %}
+        <tr>
+            <td>{{item.id}}</td>
+            <td>{{item.parent_id}}</td>
+            <td>{{item.name}}</td>
+            <td>{{item.url}}</td>
+            <td>{{item.target}}</td>
+            <td>{{item.title}}</td>
+            <td>{% if item.icon %}<img src="{{item.icon}}" alt="" width="32px">{% endif %}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

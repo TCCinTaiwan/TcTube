@@ -5,11 +5,12 @@ body {
     height: 100%;
     width: 100%;
     overflow: hidden;
+    background: black;
 }
 header {
     background: blue;
     color: white;
-    height: 70px;
+    height: 80px;
     line-height: 70px;
     padding: 5px 150px;
 }
@@ -54,7 +55,8 @@ header > a > h1 {
 #menu > div > .dTreeNode > img {
     display: none;
 }
-.dTreeNode > img {
+.dTreeNode > img,
+.dTreeNode > a > img {
     width: 18px;
 }
 .dTreeNode {
@@ -76,6 +78,10 @@ main {
 }
 .nomessage > main {
     top: 80px;
+}
+.removed {
+    -webkit-animation: disapear 1s;
+    animation: disapear 1s;
 }
 table {
     margin: 0 0 10px 0;
@@ -100,12 +106,12 @@ table {
 table a {
     color: #565656;
 }
-table table {
+table {
     border-collapse: collapse;
     border-spacing: 0;
-    width: 100%;
-    height: 100%;
-    margin: 0px;
+    /*width: 100%;*/
+    /*height: 100%;*/
+    margin: 20px;
     padding: 0px;
 }
 /*table tr:first-child td:first-child {
@@ -134,14 +140,14 @@ table tr:last-child td:last-child {
 
 table tr:nth-child(odd) {
     background-color: #ffffff;
-    /*background-color: #aad4ff;*/
+    background-color: #aad4ff;
 }
 table tr:nth-child(even) {
     background-color: #ffffff;
 }
 table tr:nth-child(odd):hover {
     background-color: #cccccc;
-    /*background-color: #88AACC;*/
+    background-color: #88AACC;
 }
 table tr:nth-child(even):hover {
     background-color: #cccccc;
@@ -168,6 +174,12 @@ table td {
     font-family: Arial;
     font-weight: normal;
     color: #000000;
+}
+table td:first-child {
+    padding-left: 20px;
+}
+table td:last-child {
+    padding-right: 20px;
 }
 table tr:last-child td {
     border-width: 0px 1px 0px 0px;
