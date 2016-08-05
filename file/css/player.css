@@ -208,7 +208,7 @@ body.wait #controlBar > * {
 #volume div {
     margin-left: -5px;
     position: relative;
-    top: -150px;
+    top: -140px;
     text-align: center;
 }
 #volume div:hover #volumeSlider  {

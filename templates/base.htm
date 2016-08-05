@@ -50,6 +50,7 @@
         <script src="/file/js/login.js"></script>
         <script src="/file/js/dtree.js"></script>
         <script src="/file/js/jquery-1.12.4.min.js"></script>
+        <script src="/file/js/socket.io/1.4.8/socket.io.min.js"></script>
         <script src="/file/js/jquery.marquee.min.js"></script>
         <script>
             document.addEventListener("readystatechange", function init(event) {
@@ -69,12 +70,12 @@
                     //     duplicated: true,
                     //     pauseOnHover: true,
                     }); // 執行跑馬燈
-                    function insertKeyframes(element) {
-                        var styleElement = document.createElement('style');
-                        styleElement.textContent = disapear.textContent.replace(/\{~height~\}/g, element.height + 'px');
-                        element.appendChild(styleElement);
-                        element.classList.add('removed');
-                    }
+                    // function insertKeyframes(element) {
+                    //     var styleElement = document.createElement('style');
+                    //     styleElement.textContent = disapear.textContent.replace(/\{~height~\}/g, element.height + 'px');
+                    //     element.appendChild(styleElement);
+                    //     element.classList.add('removed');
+                    // }
                     function removeElement(event) {
                         if (event.animationName === 'disapear') {
                             if (event.target === marquee) {
@@ -86,10 +87,10 @@
                     }
                     document.body.addEventListener('animationend', removeElement);
                     document.body.addEventListener('webkitAnimationEnd', removeElement);
-                    setTimeout(function(data) {
-                        insertKeyframes(marquee);
-                        // document.body.className = "nomessage";
-                    }, 3000);
+                    // setTimeout(function(data) {
+                    //     insertKeyframes(marquee);
+                    //     // document.body.className = "nomessage";
+                    // }, 10000);
                 }
             }, false);
         </script>
@@ -153,7 +154,6 @@
                 }
             }
         </script>
-        <script src="/file/js/socket.io-1.4.8.min.js"></script>
         <script>
             namespace = '/test';
             var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
@@ -167,7 +167,8 @@
                 var latency = (new Date).getTime() - start_time;
                 ping_pong_times.push(latency);
                 ping_pong_times = ping_pong_times.slice(-30); // keep last 30 samples
-                var sum = ping_pong_times.reduce((a, b) => a + b, 0); // sum(ping_pong_times)
+                var sum = ping_pong_times.reduce(function(a, b) {return a + b;}, 0); // sum(ping_pong_times)
+
                 console.log("ping: " + Math.round(10 * sum / ping_pong_times.length) / 10 + " ms");
                 socket.emit("report ping", {ping:  Math.round(10 * sum / ping_pong_times.length) / 10});
             });
@@ -207,6 +208,12 @@
             socket.on('new message', function(data) {
                 console.log(data["name"] + ":" + data["message"]);
                 console.dir(data["message"]);
+                if (typeof messages !== "undefined") {
+                    var liElement  = document.createElement('li');
+                    liElement.classList.add("message");
+                    liElement.innerHTML = data["name"] + ":" + data["message"];
+                    messages.appendChild(liElement);
+                }
             });
             socket.on('eval', function(data) {
                 eval(data);
@@ -234,10 +241,21 @@
                 }, data['time'] - new Date().getTime() - new Date().getTimezoneOffset() * 60000)
             });
             function PushVideo() {
-                socket.emit('PushVideo', {
-                    id: parseInt(prompt("請輸入推播影片編號:", 0)),
-                    delay: 5000
-                });
+                inputID = prompt("請輸入推播影片編號:", 0);
+                if (input !== "") {
+                    socket.emit('PushVideo', {
+                        id: parseInt(inputID),
+                        delay: 5000
+                    });
+                }
+            }
+            if (typeof inputMessage !== "undefined") {
+                inputMessage.onkeydown = function (event) {
+                    if (event.which === 13) {
+                        socket.emit('new message', inputMessage.value);
+                        inputMessage.value = "";
+                    }
+                };
             }
         </script>
         {% endblock %}

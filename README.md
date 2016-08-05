@@ -38,6 +38,9 @@
 
 >要勾"Add Python to PATH"，把Python加到環境變數中。
 
+* Nginx:
+[ ![Nginx](https://nginx.org/nginx.png)](https://nginx.org/en/download.html)
+
 1. Clone the repository
 
     Use command:
@@ -66,20 +69,19 @@
     python setup.py install
     ```
 
-### Media Server
-* Nginx:
-[ ![Nginx](https://nginx.org/nginx.png)](https://nginx.org/en/download.html)
 
-1. 下載nginx後，把檔案放在TcTube底下，或者修改 [main.py](main.py) 中nginx路徑。
+3. 下載nginx後，把檔案放在TcTube底下，或者修改 [main.py](main.py) 中nginx路徑。
 >最好下載最新的穩定版本(Stable version)
 
-2. 把 [setup/nginx.conf](setup/nginx.conf)複製到 nginx-*/conf/ 底下，取代原本的 nginx.conf。
+4. 把 [setup/nginx.conf](setup/nginx.conf)複製到 nginx-*/conf/ 底下，取代原本的 nginx.conf。
 
 >假如是Linux要執行則是取代/etc/nginx/nginx.conf，還要修改路徑。
 
-3. 音樂檔案要放在 [file/video/](file/video/)
-4. 修改 [database.db](database.db)裡的videos和videoSources資料表，加入自己的歌
-5. 略縮圖要放在 [file/image/streamshot](file/image/streamshot)
+### Media Server
+
+1. 音樂檔案要放在 [file/video/](file/video/)
+2. 修改 [database.db](database.db)裡的videos和videoSources資料表，加入自己的歌
+3. 略縮圖要放在 [file/image/streamshot](file/image/streamshot)
 
 ```sql
 insert  into videos (title, artist) values ("<title>", "<artist>");
@@ -98,6 +100,8 @@ cd TcTube
 python main.py
 ```
 
+>Make sure port 80, 8000 (TCP) is open.
+
 ## Todo[↶](#)
 1. 資料庫:
     - 部門
@@ -113,7 +117,7 @@ python main.py
     - 愛奇藝
     - FaceBook https://developers.facebook.com/docs/plugins/embedded-video-player
     - flv
-7. 影片預覽
+7. Seek影片預覽
 8. SSL
 9. 選項:
     - 下載檔名格式
@@ -127,6 +131,7 @@ python main.py
 16. 播放器重構
 17. Chrome Extensions
 18. Youtube跟Video整合:
+    - 斷線時跳過
     - Youtube斷線時使用本地
 
 ## Contributing[↶](#)

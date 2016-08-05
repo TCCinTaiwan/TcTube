@@ -1,4 +1,4 @@
-var player, time_update_interval, defaultVideoNum;
+var player, defaultVideoNum, videoNum = totalTime = startTime = 0;
 function isIE(version){
     ie9 = /MSIE 9/i.test(navigator.userAgent);
     ie10 = /MSIE 10/i.test(navigator.userAgent);
@@ -92,6 +92,24 @@ function onYouTubeIframeAPIReady() {
 function debug() {
     console.groupEnd(); // 關閉收合
     groupCollapsed = false;
+}
+function startPlayTime() {
+    console.log("time:" + window.totalTime);
+    window.startTime = video.currentTime;
+}
+function stopPlayTime() {
+    if (window.startTime < video.currentTime) {
+        window.totalTime += video.currentTime - window.startTime;
+        window.startTime = 0;
+    }
+    console.log("time:" + window.totalTime);
+}
+function reportPlayHistory() {
+    stopPlayTime();
+    if (window.totalTime > 0) {
+        socket.emit("report play history", {time: totalTime, video: videoNum});
+    }
+    window.totalTime = 0;
 }
 function updateTimerDisplay() { // 刷新時間(待整合video.timeupdate())
     if (!frame.hidden && typeof window.player !== 'undefined') {
@@ -270,6 +288,8 @@ function indexRate(offset, newRate) {
 function index(offset) { // 歌曲索引(通用)
     // 假如沒傳入參數，直接採用預設值，即Python自動產生的數字或使用者輸入的數字
     // 缺少Youtube判斷
+    reportPlayHistory();
+    var preVideoNum = videoNum;
     if (typeof offset === 'undefined') {
         videoNum = defaultVideoNum;
     } else {
@@ -299,7 +319,7 @@ function index(offset) { // 歌曲索引(通用)
                 updateTimerDisplay();
                 if (!video.hidden) { // 一般播放器
                     // 移除監控任務
-                    clearInterval(time_update_interval);
+                    clearInterval(window.time_update_interval);
                     delete window.time_update_interval;
                 }
             }, 25);
@@ -318,7 +338,7 @@ function index(offset) { // 歌曲索引(通用)
             }
 
             // 移除監控任務
-            clearInterval(time_update_interval);
+            clearInterval(window.time_update_interval);
             delete window.time_update_interval;
 
             // 改變顯示為一般影片
@@ -342,7 +362,7 @@ function index(offset) { // 歌曲索引(通用)
         }
 
         // 移除監控任務
-        clearInterval(time_update_interval);
+        clearInterval(window.time_update_interval);
         delete window.time_update_interval;
 
         // 改變顯示為一般影片
@@ -371,14 +391,18 @@ function index(offset) { // 歌曲索引(通用)
     }
 
     // 頁面歷史(尚缺上一頁功能)，需與Python Flask伺服器網頁路徑規則一致
-    if (window.history.pushState) {
-        if (window.location.pathname.includes("/video/")) {
-            window.history.pushState({}, 1, "http://" + window.location.host + "/video/" + videoNum);
-        } else if (window.location.search.includes("?video=")) {
-            window.history.pushState({}, 1, "http://" + window.location.host + "/?video=" + videoNum);
-        } else {
-            window.history.pushState({}, 1, window.location.href);
+    if (typeof offset !== 'undefined' && offset !== 0) {
+        if (window.history.pushState) {
+            if (window.location.pathname.includes("/video/")) {
+                window.history.pushState({videoNum: videoNum}, 1, "http://" + window.location.host + "/video/" + videoNum);
+            } else if (window.location.search.includes("?video=")) {
+                window.history.pushState({videoNum: videoNum}, 1, "http://" + window.location.host + "/?video=" + videoNum);
+            } else {
+                window.history.pushState({videoNum: videoNum}, 1, window.location.href);
+            }
         }
+    } else {
+        window.history.replaceState({videoNum: videoNum}, 0, window.location.href);
     }
 }
 // 播放/暫停(通用)
@@ -467,7 +491,7 @@ function isMobile() {
     return/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i.test(a)||/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s)|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg(g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0,4));
 }
 jQuery(document).ready(function init() { // 載入完成後執行
-    console.log("init()");
+    // console.log("init()");
     console.log("isIE: " + isIE());
     window.setTimeout(function detectAdBlock() { // Adblock 偵測
         var bottomad = document.getElementById("bottomAd");
@@ -514,9 +538,15 @@ jQuery(document).ready(function init() { // 載入完成後執行
     } else {
         console.log("%cnot Mobile", "color: green; background: black;");
     }
+    setInterval(function() {
+        if (video.currentTime > window.startTime) {
+            document.title = totalTime + video.currentTime - window.startTime;
+        }
+    }, 200);
     video.seekTo = function (newTime) {
         if (video.seekable.end(0) != 0) {
             console.info("調整時間:%c" + newTime, "color: red;");
+            stopPlayTime();
             video.currentTime = newTime;
         }
         if (video.seekable.end.length > 1) {
@@ -524,8 +554,16 @@ jQuery(document).ready(function init() { // 載入完成後執行
         }
     }
 
+    window.onpopstate = function(event) {
+        console.dir(event);
+        console.log(event.currentTarget.location.pathname);
+        if (event.state.videoNum !== videoNum) {
+            videoNum = event.state.videoNum;
+            index(0);
+        }
+    }
     window.onfocus = function(event) { // 切換回來時
-        console.log("window.onFocus()");
+        // console.log("window.onFocus()");
         if (typeof panel !== 'undefined' && !panel.closed) {
             panel.video.pause();
             if (video.src != panel.video.src) {
@@ -542,11 +580,11 @@ jQuery(document).ready(function init() { // 載入完成後執行
         }
     };
     window.onblur = function(event) { // 失去目標
-        console.log("window.onBlur()");
+        // console.log("window.onBlur()");
     };
-
+    window.onbeforeunload = reportPlayHistory;
     function onFullscreenChange(event) { // 全螢幕切換時
-        console.log("document.onFullscreenChange()");
+        // console.log("document.onFullscreenChange()");
         isFullScreen = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
         if (isFullScreen) {
             size.className = "zoomIn";
@@ -566,7 +604,7 @@ jQuery(document).ready(function init() { // 載入完成後執行
 
     document.onkeydown = function(event) { // 按鍵處理
         console.info("document.onKeydown:%c" + event.keyCode, "color: blue;");
-        console.dir(event);
+        // console.dir(event);
         if (event.ctrlKey) {
             if (event.keyCode == 37) { // ←
                 index(-1);
@@ -574,6 +612,7 @@ jQuery(document).ready(function init() { // 載入完成後執行
                 index(1);
             }
         } else {
+            if (event.altKey) return;
             if (event.keyCode == 37) { // ←
                 Seek(-5);
             } else if (event.keyCode == 39) { // →
@@ -600,7 +639,7 @@ jQuery(document).ready(function init() { // 載入完成後執行
     };
 
     video.onloadedmetadata = function(event) {
-        console.log("video.loadedmetadata()");
+        // console.log("video.loadedmetadata()");
         // if (typeof playbackRate !== 'undefined') {
         //     video.playbackRate = playbackRate;
         // }
@@ -626,15 +665,17 @@ jQuery(document).ready(function init() { // 載入完成後執行
         }
     };
     video.onloadstart = function(event) {
-        console.log("video.loadstart()");
+        // console.log("video.loadstart()");
         body.className = "wait";
     };
     video.oncanplaythrough = function(event) {
-        console.log("video.canplaythrough()");
+        // console.log("video.canplaythrough()");
+        startPlayTime();
         body.className = "ok";
     };
     video.onplay = function(event) { // 影片撥放
-        console.log("video.onPlay()");
+        startPlayTime();
+        // console.log("video.onPlay()");
         play.className = "pause";
         body.className = "ok";
         // drawVideo = window.setInterval(function() {
@@ -643,12 +684,13 @@ jQuery(document).ready(function init() { // 載入完成後執行
     };
     video.onpause = function(event) { // 影片暫停
         // window.clearInterval(drawVideo);
-        console.log("video.onPause()");
+        stopPlayTime();
+        // console.log("video.onPause()");
         play.className = "play";
         body.className = "wait";
     };
     video.onseeking = function(event) {
-        console.log("video.seeking()");
+        // console.log("video.seeking()");
         body.className = "wait";
     };
     video.ontimeupdate = function(event) { // 時間有改變時
@@ -663,7 +705,7 @@ jQuery(document).ready(function init() { // 載入完成後執行
         }
     };
     video.ondurationchange = function(event) { // 影片長度改變
-        console.log("video.onDurationchange()");
+        // console.log("video.onDurationchange()");
         if (!isNaN(video.duration)) {
             if (video.duration == Infinity) { // 無限大(保安 可以告訴我檔案多大嗎!!)
                 duration.textContent = "??:??";
@@ -673,11 +715,11 @@ jQuery(document).ready(function init() { // 載入完成後執行
         }
     };
     video.onvolumechange = function(event) { // 音量有改變時
-        console.log("video.onVolumechange()");
+        // console.log("video.onVolumechange()");
         refreshVolume();
     };
     video.onended = function(event) {
-        console.log("video.ended()");
+        // console.log("video.ended()");
         body.className = "wait";
         if (localStorage.getItem("autonext")) {
             index(1);
@@ -687,7 +729,7 @@ jQuery(document).ready(function init() { // 載入完成後執行
         console.log("video.emptied()");
     };
     function onVideoWheel(event) { // 滾輪調整速率
-        console.log("video.mousewheel()");
+        // console.log("video.mousewheel()");
         if (event.shiftKey) {
             indexRate((event.wheelDelta <= 0 || event.detail > 0) ? -1 : 1);
         }
@@ -699,7 +741,7 @@ jQuery(document).ready(function init() { // 載入完成後執行
     }
 
     function onFrameWheel(event) { // 滾輪調整速率
-        console.log("video.mousewheel()");
+        // console.log("frame.mousewheel()");
         if (event.shiftKey) {
             indexRate((event.wheelDelta <= 0 || event.detail > 0) ? -1 : 1);
         }
@@ -710,18 +752,18 @@ jQuery(document).ready(function init() { // 載入完成後執行
         frame.onmousewheel = onFrameWheel;
     }
     video.oncontextmenu = function(event) { // 右鍵
-        console.log("video.onContextmenu()");
+        // console.log("video.onContextmenu()");
         contextMenu.style.left = event.clientX + "px";
         contextMenu.style.top = event.clientY + "px";
         contextMenu.hidden = false;
         return false; // 這層已處理完，所以取消事件
     };
     video.ondblclick = function(event) {
-        console.log("video.onDblclick()");
+        // console.log("video.onDblclick()");
         fullScreen();
     };
     video.onclick = function(event) { // 點螢幕播放暫停
-        console.log("video.onClick()");
+        // console.log("video.onClick()");
         if (!contextMenu.hidden) {
             contextMenu.hidden = true;
         } else {
@@ -730,7 +772,7 @@ jQuery(document).ready(function init() { // 載入完成後執行
     };
 
     frame.onload = function(event) { // Youtube Iframe載入
-        console.log("frame.onLoad()");
+        // console.log("frame.onLoad()");
     };
 
     controlBar.onselectstart = function(event) { // 取消反白

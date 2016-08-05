@@ -71,7 +71,7 @@ ul {
   padding-bottom: 60px;
 }
 
-.messages {
+#messages {
   height: 100%;
   margin: 0;
   overflow-y: scroll;
@@ -92,7 +92,7 @@ ul {
 
 /* Input */
 
-.inputMessage {
+#inputMessage {
   border: 10px solid #000;
   bottom: 0;
   height: 60px;

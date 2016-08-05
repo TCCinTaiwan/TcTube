@@ -51,6 +51,7 @@ flaskApplication = Flask(__name__, static_url_path = "", static_folder = "static
 flaskApplication.debug = True
 flaskApplication.config['FOLDER'] = os.getcwd()
 flaskApplication.config['VIDEO_FOLDER'] = "file/video/"
+flaskApplication.config['VIDEO_THUMBNAIL_FOLDER'] = "/file/image/streamshot/"
 flaskApplication.config['ALLOWED_EXTENSIONS'] = set([
     # "txt",
     # "pdf",
@@ -207,6 +208,7 @@ class User(sqlAlchemy.Model):
     birthday = sqlAlchemy.Column(sqlAlchemy.Date, nullable = True)
     creating_time = sqlAlchemy.Column(sqlAlchemy.DateTime, default = datetime.utcnow(), nullable=True)
     login_time = sqlAlchemy.Column(sqlAlchemy.DateTime, default = datetime.utcnow(), nullable=True)
+    connect_time = sqlAlchemy.Column(sqlAlchemy.DateTime, default = datetime.utcnow(), nullable=True)
     login_ip = sqlAlchemy.Column(sqlAlchemy.String(32), nullable = True)
     competence = sqlAlchemy.Column(sqlAlchemy.Integer, default = COMPERENCE_USER)
     @property
@@ -219,7 +221,7 @@ class User(sqlAlchemy.Model):
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
 
-    def __init__(self, account, password, name, email, affiliation = None, creating_time = None, login_time = None, competence = COMPERENCE_USER, birthday = None, phone = None):
+    def __init__(self, account, password, name, email, affiliation = None, creating_time = None, login_time = None, connect_time = None, competence = COMPERENCE_USER, birthday = None, phone = None):
         self.account = account
         self.password_hash = generate_password_hash(password)
         self.name = name
@@ -234,6 +236,8 @@ class User(sqlAlchemy.Model):
         self.creating_time = creating_time
         if login_time is None:
             login_time = datetime.utcnow()
+        if connect_time is None:
+            connect_time = datetime.utcnow()
         self.login_time = login_time
         self.competence = competence
 
@@ -388,7 +392,13 @@ def stream_tmeplate(template_name, **context):
 def utility_processor():
     def splitFilename(filename):
         return os.path.splitext(filename)
-    return dict(splitFilename = splitFilename)
+    def absoluteOrRelative(url = "", baseUrl = None):
+        if ("http://" in url[:7] or "https://" in url[:8]):
+            return url
+        if (baseUrl == None):
+            baseUrl = urlparse(request.url).scheme
+        return baseUrl + url
+    return dict(splitFilename = splitFilename, absoluteOrRelative = absoluteOrRelative)
 
 def TestPlatform():
     print ("---------- Operation System ----------")
@@ -428,8 +438,11 @@ def TestPlatform():
 '''
 Get current time as milliseconds since 1970-01-01
 '''
-def dates():
-    return int((time.time() + time.timezone) * 1000) # time.mktime(time.gmtime())
+def dates(customDate = None, isUTC = False):
+    if (customDate == None):
+        return int((time.time() + time.timezone) * 1000) # time.mktime(time.gmtime())
+    else:
+        return int((time.mktime(customDate.timetuple()) + (time.timezone if isUTC else 0)) * 1000)
 
 def getRealIP(request):
     if request.headers.getlist("X-Forwarded-For"):
@@ -456,7 +469,7 @@ def index():
     announcements = Announcement.query.all()
     menu = Menu.query.all()
     videos = sqlAlchemy.session.query(Video)
-    return render_template("index.htm", title = 'Index', announcements = announcements, menu = menu, videos = videos, Video = Video)
+    return render_template("index.htm", title = 'Index', announcements = announcements, menu = menu, videos = videos, Video = Video, thumbnail_folder = flaskApplication.config['VIDEO_THUMBNAIL_FOLDER'])
 
 @flaskApplication.route("/listUser/")
 @login_required
@@ -475,6 +488,14 @@ def announcements():
     announcements = sqlAlchemy.session.query(Announcement).all()
     return render_template('announcements.htm', title = "Announcements", announcements = announcements, menu = menu)
 
+@flaskApplication.route("/announcement/<int:id>")
+@login_required
+@access_permission(level = 5)
+def announcement(id):
+    menu = Menu.query.all()
+    announcements = sqlAlchemy.session.query(Announcement).all()
+    return render_template('announcement.htm', title = "Announcement", announcements = announcements, menu = menu)
+
 @flaskApplication.route("/menu/")
 @login_required
 @access_permission(level = 5)
@@ -483,13 +504,12 @@ def menu():
     announcements = sqlAlchemy.session.query(Announcement).all()
     return render_template('menu.htm', title = "Menu", announcements = announcements, menu = menu)
 
-@flaskApplication.route("/socketIO/")
+@flaskApplication.route("/chat/")
 @login_required
-@access_permission(level = 5)
 def socketIO():
     menu = Menu.query.all()
     announcements = sqlAlchemy.session.query(Announcement).all()
-    return render_template('socketIO.htm', title = "socketIO", announcements = announcements, menu = menu)
+    return render_template('chat.htm', title = "Chat", announcements = announcements, menu = menu)
 
 @flaskApplication.route('/video/')
 def randomVideo(): # 隨機Video
@@ -582,6 +602,7 @@ def login():
     if form.validate(): # request.method == 'POST':
         user = User.getByAccount(form.account.data)
         if user:
+            # user.password = form.password.data
             if (user.verify_password(form.password.data)):
                 user.authenticated = True
                 user.login_time = datetime.utcnow()
@@ -611,6 +632,8 @@ def logout():
 @login_required
 @access_permission(level = 5)
 def upload_file():
+    announcements = Announcement.query.all()
+    menu = Menu.query.all()
     if (request.method == 'POST'):
         files = request.files.getlist('files[]')
         uploadFilesStatus = []
@@ -625,9 +648,7 @@ def upload_file():
                 print("Unsupported File Type!!")
                 uploadFilesStatus.append((1, "Unsupported File Type")) # 1: failed
         successFiles = [info for status, info  in uploadFilesStatus if status == 0]
-        return "<h2>上傳" + str(len(files)) + "個檔案中，成功" + str(len(successFiles)) + "個檔案</h2><p>" + "</p><p>".join(successFiles) + "</p>"
-    announcements = Announcement.query.all()
-    menu = Menu.query.all()
+        return render_template('uploadSuccess.htm', title = 'Upload Success', announcements = announcements, menu = menu, successFiles = successFiles, files = files)
     return render_template('upload.htm', title = 'Upload', announcements = announcements, menu = menu)
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[-1] in flaskApplication.config['ALLOWED_EXTENSIONS']
@@ -643,34 +664,17 @@ def media(path):
     return redirect(mediaFileUrl, code = 302)
 
 
-# @socketio.on('connect', namespace = '/chat')
-# def socketio_chat_connect():
-#     emit('hello', {})
-    # emit('new message', {
-    #     'username': self.username,
-    #     'message': "message"
-    # })
+@socketio.on('typing', namespace = '/test')
+def socketio_chat_typing(message):
+    emit('typing', {
+        'name': connection[getRealIP(request)][request.sid]["name"],
+    }, broadcast = True)
 
-
-# @socketio.on('add user', namespace = '/chat')
-# def socketio_chat_add_user(message):
-#     emit('login', {})
-#     emit('user join', {
-#         'username': self.username,
-#         'numUsers': len(connection)
-#     }, broadcast = True)
-
-# @socketio.on('typing', namespace = '/test')
-# def socketio_chat_typing(message):
-#     emit('typing', {
-#         'username': self.username,
-#     }, broadcast = True)
-
-# @socketio.on('stop typing', namespace = '/test')
-# def socketio_chat_stop_typing(message):
-#     emit('stop_typing', {
-#         'username': self.username,
-#     }, broadcast = True)
+@socketio.on('stop typing', namespace = '/test')
+def socketio_chat_stop_typing(message):
+    emit('stop_typing', {
+        'name': connection[getRealIP(request)][request.sid]["name"],
+    }, broadcast = True)
 
 
 
@@ -680,48 +684,58 @@ def socketio_test_ping():
 
 @socketio.on('get path', namespace = '/test')
 def socketio_get_path(data):
-    connection[request.sid]["path"] = data["path"]
+    connection[getRealIP(request)][request.sid]["path"] = data["path"]
 
 @socketio.on('report ping', namespace = '/test')
 def socketio_test_pong(data):
-    connection[request.sid]["ping2"] = data["ping"]
+    connection[getRealIP(request)][request.sid]["ping2"] = data["ping"]
 
 @socketio.on('test pong', namespace = '/test')
 def socketio_test_pong():
-    connection[request.sid]["ping"] = dates() - connection[request.sid]["ping_time"]
-    del connection[request.sid]["ping_time"]
+    connection[getRealIP(request)][request.sid]["ping"] = dates() - connection[getRealIP(request)][request.sid]["ping_time"]
+    del connection[getRealIP(request)][request.sid]["ping_time"]
 def socketio_server_ping_client():
-    connection[request.sid]["ping_time"] = dates()
+    connection[getRealIP(request)][request.sid]["ping_time"] = dates()
     emit('test ping')
 
 @socketio.on('connect', namespace = '/test')
 def socketio_connect():
-    connection[request.sid] = {
+    current_user.connect_time = datetime.utcnow()
+    sqlAlchemy.session.commit()
+    if getRealIP(request) not in connection:
+        connection[getRealIP(request)] = {}
+    connection[getRealIP(request)][request.sid] = {
         "ip": getRealIP(request),
+        "login_ip": current_user.login_ip,
+        "login_time": dates(current_user.login_time, isUTC = True),
         "name": current_user.name,
         "account": current_user.account,
-        "connect_time": dates()
+        "connect_time": dates(current_user.connect_time, isUTC = True)
     }
-    emit('connect success', connection[request.sid])
-    emit('user online', connection[request.sid], broadcast = True)
+    emit('connect success', connection[getRealIP(request)][request.sid])
+    emit('user online', connection[getRealIP(request)][request.sid], broadcast = True)
     socketio_server_ping_client()
 
 @socketio.on('disconnect', namespace = '/test')
 def socketio_disconnect():
-    emit('user left', connection[request.sid], broadcast = True)
-    del connection[request.sid]
+    emit('user left', connection[getRealIP(request)][request.sid], broadcast = True)
+    del connection[getRealIP(request)][request.sid]
 
 @socketio.on('new message', namespace = '/test')
 def socketio_new_message(message):
     emit('new message', {
-        'name': connection[request.sid]["name"],
+        'name': connection[getRealIP(request)][request.sid]["name"],
         'message': message
     }, broadcast = True)
 
+@socketio.on('report play history', namespace = '/test')
+def socketio_report_play_history(data):
+    print(colorama.Fore.RED + str(data) + colorama.Style.RESET_ALL)
+
 @socketio.on('disconnect request', namespace = '/test')
 def disconnect_request():
-    # emit('user left', connection[request.sid], broadcast = True)
-    # del connection[request.sid]
+    # emit('user left', connection[getRealIP(request)][request.sid], broadcast = True)
+    # del connection[getRealIP(request)][request.sid]
     disconnect()
 
 @socketio.on('PauseVideo', namespace = '/test')

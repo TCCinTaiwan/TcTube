@@ -28,12 +28,12 @@
 {% block main %}
     {% for video in videos %}
         <a href="/video/{{video.id}}" title="" class="song">
-            <img src="{{video.thumbnail}}" alt="">
+            <img src="{{ absoluteOrRelative(video.thumbnail, thumbnail_folder) }}" alt="">
             {% if (video.artist != "undefined") %}
-            {{video.artist}}<br>
-            {{video.title}}
+                {{video.artist}}<br>
+                {{video.title}}
             {% else%}
-            {{video.title}}
+                {{video.title}}
             {% endif %}
         </a>
     {% endfor %}

@@ -1,0 +1,10 @@
+{% extends 'base.htm' %}
+{% block css %}
+{{ super () }}
+<link rel="stylesheet" href="/file/css/style.css">
+{% endblock %}
+
+{% block main %}
+<div id="messages"></div>
+<input id="inputMessage" placeholder="Type here..." />
+{% endblock %}
