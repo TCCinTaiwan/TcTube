@@ -1,7 +1,7 @@
 {% extends 'base.htm' %}
 {% block main %}
-    <h2>上傳{% len(files)) %}個檔案中，成功{% len(successFiles)) %}個檔案</h2>
+    <h2>上傳{% len(files) %}個檔案中，成功{% len(successFiles) %}個檔案</h2>
     {% for successFile in successFiles %}
-        <p>successFile</p>
+        <p>{% successFile %}</p>
     {% endfor %}
 {% endblock %}

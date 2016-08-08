@@ -6,6 +6,7 @@
 * **[Browser Support](#browser-support)**
 * **[Installation](#installation)**
 * **[Usage](#usage)**
+* **[ShortKey](#shortkey)**
 * **[Todo](#todo)**
 * **[Contributing](#contributing)**
 * **[Coding Style](#coding-style)**
@@ -102,6 +103,26 @@ python main.py
 
 >Make sure port 80, 8000 (TCP) is open.
 
+## ShortKey[↶](#)
+* <kbd>Ctrl</kbd> + <kbd>←</kbd>: 上一首
+* <kbd>Ctrl</kbd> + <kbd>→</kbd>: 下一首
+* <kbd>Shift</kbd> 滾輪: 播放速度
+* <kbd>←</kbd>: 往前
+* <kbd>→</kbd>: 往後
+* <kbd>+</kbd>: 增加音量
+* <kbd>-</kbd>: 減少音量
+* <kbd>Space</kbd>: 播放/暫停
+* <kbd>0</kbd>: 跳到影片開頭
+* <kbd>1</kbd>: 跳到影片10%位置
+* <kbd>2</kbd>: 跳到影片20%位置
+* <kbd>3</kbd>: 跳到影片30%位置
+* <kbd>4</kbd>: 跳到影片40%位置
+* <kbd>5</kbd>: 跳到影片50%位置
+* <kbd>6</kbd>: 跳到影片60%位置
+* <kbd>7</kbd>: 跳到影片70%位置
+* <kbd>8</kbd>: 跳到影片80%位置
+* <kbd>9</kbd>: 跳到影片90%位置
+
 ## Todo[↶](#)
 1. 資料庫:
     - 部門
@@ -133,6 +154,7 @@ python main.py
 18. Youtube跟Video整合:
     - 斷線時跳過
     - Youtube斷線時使用本地
+19. 修復上傳功能
 
 ## Contributing[↶](#)
 1. Create an issue and describe your idea

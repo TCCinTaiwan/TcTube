@@ -1,51 +1,54 @@
 # coding=utf-8
-try:
-    from flask import (
-        Flask,
-        render_template,
-        request,
-        send_file,
-        redirect,
-        Response,
-        send_from_directory,
-        make_response,
-        stream_with_context,
-        url_for,
-        abort,
-        flash,
-        jsonify
-    )
-    from flask.ext.login import (
-        LoginManager,
-        UserMixin,
-        login_required,
-        login_user,
-        current_user,
-        logout_user,
-        confirm_login,
-        login_fresh,
-        AnonymousUserMixin
-    )
-    from flask.ext.sqlalchemy import SQLAlchemy
-    from flask.ext.compress import Compress
-    from flask_socketio import SocketIO, send, emit, disconnect
-    from wtforms import form, fields, validators
-    from functools import wraps, partial
-    from werkzeug.security import generate_password_hash, check_password_hash
-    import binascii, os, re, json, random, subprocess, sqlite3, time, numpy, sys
-    from jinja2 import Environment, FileSystemLoader
-    from pygments import highlight
-    from pygments.lexers import BashLexer
-    from pygments.formatters import HtmlFormatter
-    from functools import partial
-    from datetime import datetime
-    from urllib.parse import urlparse
-    import colorama
-    import requests
-    import platform
-except ImportError:
-    import setup
-    raise ImportError('Try "python setup.py install" or "pip install -r requirements.txt"')
+# 載入Flask函式庫
+from flask import (
+    Flask,
+    render_template,
+    request,
+    send_file,
+    redirect,
+    Response,
+    send_from_directory,
+    make_response,
+    stream_with_context,
+    url_for,
+    abort,
+    flash,
+    jsonify
+)
+# 載入Flask Login函式庫
+from flask.ext.login import (
+    LoginManager,
+    UserMixin,
+    login_required,
+    login_user,
+    current_user,
+    logout_user,
+    confirm_login,
+    login_fresh,
+    AnonymousUserMixin
+)
+# 載入Flask資料庫函式庫
+from flask.ext.sqlalchemy import SQLAlchemy
+# 載入Falsk壓縮函式庫
+from flask.ext.compress import Compress
+# 載入以Flask實現的SocketIO函式庫
+from flask_socketio import SocketIO, send, emit, disconnect
+from wtforms import form, fields, validators
+# 用來搭配Python裝飾使用
+from functools import wraps, partial
+from werkzeug.security import generate_password_hash, check_password_hash
+import binascii, os, re, json, random, subprocess, sqlite3, time, numpy, sys
+# 載入時間函式庫
+from datetime import datetime
+# 匯入urlparse，用來分解請求網址
+from urllib.parse import urlparse
+# 載入colorma模組，用來改變終端機文字輸出樣式
+import colorama
+# 載入requests模組，用來製作Proxy
+import requests
+# 載入platform模組，可以用來獲取系統訊息
+import platform
+# raise ImportError('Try "python setup.py install" or "pip install -r requirements.txt"')
 
 flaskApplication = Flask(__name__, static_url_path = "", static_folder = "static/", template_folder = 'templates/')
 flaskApplication.debug = True
@@ -73,6 +76,7 @@ login_manager = LoginManager()
 colorama.init()
 connection = {}
 
+# 定義類別屬性
 class classproperty(object):
     def __init__(self, getter):
         self.getter = getter
@@ -402,13 +406,13 @@ def utility_processor():
 
 def TestPlatform():
     print ("---------- Operation System ----------")
-    #  获取Python版本
+    # 获取Python版本
     print(platform.python_version())
 
-    #   获取操作系统可执行程序的结构，，(’32bit’, ‘WindowsPE’)
+    # 获取操作系统可执行程序的结构，，(’32bit’, ‘WindowsPE’)
     print(platform.architecture())
 
-    #   计算机的网络名称，’acer-PC’
+    # 计算机的网络名称，’acer-PC’
     print(platform.node())
 
     #获取操作系统名称及版本号，’Windows-7-6.1.7601-SP1′

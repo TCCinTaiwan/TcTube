@@ -34,7 +34,7 @@ header > a > h1 {
 }
 #menu {
     position: absolute;
-    top: 130px;
+    top: 140px;
     left: 0;
     bottom: 0;
     width: 298px;
@@ -42,10 +42,10 @@ header > a > h1 {
     border-right: 2px red solid;
 }
 .message > #menu {
-    top: 130px;
+    top: 140px;
 }
 .nomessage > #menu {
-    top: 80px;
+    top: 90px;
 }
 #menu > div > .dTreeNode {
     font-size: 14px;
@@ -68,16 +68,16 @@ main {
     right: 0;
     left: 300px;
     bottom: 0;
-    top: 130px;
+    top: 140px;
     width: calc(100% - 300px);
-    min-height: calc(100% - 130px);
+    min-height: calc(100% - 140px);
     overflow-y: auto;
 }
 .message > main {
-    top: 130px;
+    top: 140px;
 }
 .nomessage > main {
-    top: 80px;
+    top: 90px;
 }
 .removed {
     -webkit-animation: disapear 1s;
