@@ -178,7 +178,7 @@
             socket.on('connect', function() {
                 console.log('連線到Server...');
                 clientPingServer();
-            });
+            }); // socket.connected
             socket.on('connect success', function(data) {
                 socket.emit("get path", {path: location.pathname});
                 console.log(data["name"] + "(" + data["account"] + "@" + data["ip"] + ')確認連線到Server');

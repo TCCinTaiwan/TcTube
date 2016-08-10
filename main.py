@@ -48,10 +48,13 @@ import colorama
 import requests
 # 載入platform模組，可以用來獲取系統訊息
 import platform
+import logging
+from logging.handlers import RotatingFileHandler
 # raise ImportError('Try "python setup.py install" or "pip install -r requirements.txt"')
 
+
 flaskApplication = Flask(__name__, static_url_path = "", static_folder = "static/", template_folder = 'templates/')
-flaskApplication.debug = True
+flaskApplication.debug = False
 flaskApplication.config['FOLDER'] = os.getcwd()
 flaskApplication.config['VIDEO_FOLDER'] = "file/video/"
 flaskApplication.config['VIDEO_THUMBNAIL_FOLDER'] = "/file/image/streamshot/"
@@ -70,7 +73,7 @@ flaskApplication.config['DATABASE_FILE'] = 'database.db'
 flaskApplication.config["SECRET_KEY"] = "0" * 24 # binascii.hexlify(os.urandom(24))
 flaskApplication.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + flaskApplication.config['DATABASE_FILE']
 flaskApplication.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-socketio = SocketIO(flaskApplication, ping_timeout = 20, ping_interval = 0, binary = True) # , ping_timeout = 30, ping_interval = 30, binary = True
+socketio = SocketIO(flaskApplication, async_mode = "eventlet", ping_timeout = 20, ping_interval = 0, binary = True) # , ping_timeout = 30, ping_interval = 30, binary = True
 sqlAlchemy = SQLAlchemy(flaskApplication)
 login_manager = LoginManager()
 colorama.init()
@@ -806,8 +809,16 @@ if __name__ == '__main__':
     login_manager.init_app(flaskApplication)
     login_manager.session_protection = "strong"
     # login_manager.anonymous_user = Anonymous
+    # formatter = logging.Formatter("[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s")
+    # handler = logging.handlers.RotatingFileHandler('access.log', maxBytes = 100000, backupCount = 3)
+    # handler.setLevel(logging.INFO)
+    # handler.setFormatter(formatter)
+    # flaskApplication.logger.addHandler(handler)
+    # flaskApplication.logger.warning('A warning occurred (%d apples)', 42)
+    # flaskApplication.logger.error('An error occurred')
+    # flaskApplication.logger.info('Info')
     print(colorama.Fore.GREEN + "----------- Start Flask -----------" + colorama.Style.RESET_ALL)
-    socketio.run(flaskApplication, host = os.getenv('IP', "0.0.0.0"), port = int(os.getenv('PORT', flaskApplication.config['PORT'])))
+    socketio.run(flaskApplication, host = os.getenv('IP', "0.0.0.0"), port = int(os.getenv('PORT', flaskApplication.config['PORT'])), debug = flaskApplication.debug)
     # flaskApplication.run(host = os.getenv('IP', "0.0.0.0"), port = int(os.getenv('PORT', flaskApplication.config['PORT'])), threaded = True) #processes=1~9999
     socketio.emit("bye", broadcast = True)
     print(colorama.Fore.RED + "----------- Stop Flask -----------" + colorama.Style.RESET_ALL)

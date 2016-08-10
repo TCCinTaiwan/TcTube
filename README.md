@@ -74,9 +74,13 @@
 3. 下載nginx後，把檔案放在TcTube底下，或者修改 [main.py](main.py) 中nginx路徑。
 >最好下載最新的穩定版本(Stable version)
 
-4. 把 [setup/nginx.conf](setup/nginx.conf)複製到 nginx-*/conf/ 底下，取代原本的 nginx.conf。
+4. 把 [setup/nginx-main.conf](setup/nginx-main.conf)複製到主要伺服器 nginx-*/conf/ 底下，取代原本的 nginx.conf。
 
->假如是Linux要執行則是取代/etc/nginx/nginx.conf，還要修改路徑。
+>假如是Ubuntu要執行則是取代/etc/nginx/nginx.conf，還要修改路徑，其他系統以此類推。
+
+5. 把 [setup/nginx-substation.conf](setup/nginx-substation.conf)複製到次要伺服器 nginx-*/conf/ 底下，取代原本的 nginx.conf。
+
+5. 修改主要伺服器nginx.conf檔案的upstream伺服器列表(Port要正確)。
 
 ### Media Server
 
@@ -101,7 +105,7 @@ cd TcTube
 python main.py
 ```
 
->Make sure port 80, 8000 (TCP) is open.
+>Make sure port 80, 8000, 8080 (TCP) is open.
 
 ## ShortKey[↶](#)
 * <kbd>Ctrl</kbd> + <kbd>←</kbd>: 上一首
