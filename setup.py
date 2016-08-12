@@ -20,5 +20,6 @@ setup(
         "colorama==0.3.7",
         "numpy==1.11.1",
         "requests==2.8.1",
+        "eventlet==0.17.4",
     ],
 )
