@@ -59,10 +59,9 @@
     You can use pip:
 
     ```bash
+    pip install pip --upgrade
     pip install -r TcTube/requirements.txt
     ```
-
-    >Make sure your pip is lastest varsion.
 
     Or you can run [setup.py](setup.py) :
 

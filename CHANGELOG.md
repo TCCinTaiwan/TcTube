@@ -3,6 +3,14 @@
 ## [↶Back to ReadMe](README.md)
 
 ## 0.3.2
+* 2016-08-19
+    - 增加upgrade.py
+    - 更新函式庫版本
+    - 更新nginx設定檔
+* 2016-08-18
+    - nginx.conf加註解
+* 2016-08-16
+    - Fuck upstream_addr and sendfile!
 * 2016-08-08
     - 測試負載平衡
 * 2016-08-05

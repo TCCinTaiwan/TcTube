@@ -3,11 +3,12 @@
 {% block css %}
 {{ super () }}
 <style type="text/css" media="screen">
-    main {
+    .songs {
         background: #5A6B7C;
-        column-width: 200px;
+        columns: 10 200px;
         column-gap: 0px;
-        padding: 0 10px;
+        padding: 0 5px;
+        margin: 0 auto;
     }
     .song {
         width: 200px;
@@ -23,18 +24,50 @@
         width: 100%;
         height: auto;
     }
+    #query {
+        width: 300px;
+        max-width: 300px;
+    }
 </style>
 {% endblock %}
 {% block main %}
-    {% for video in videos %}
-        <a href="/video/{{video.id}}" title="" class="song">
-            <img src="{{ absoluteOrRelative(video.thumbnail, thumbnail_folder) }}" alt="">
-            {% if (video.artist != "undefined") %}
-                {{video.artist}}<br>
-                {{video.title}}
-            {% else%}
-                {{video.title}}
-            {% endif %}
-        </a>
-    {% endfor %}
+    <select name="" disabled>
+        <option value="">全部</option>
+    </select>
+    <input type="text" name="query" id="query" placeholder="請輸入搜尋條件(部分支持正規表示)">
+    <div class="songs">
+        {% for video in videos %}
+            <a href="/video/{{video.id}}" title="" class="song">
+                <img src="{{ absoluteOrRelative(video.thumbnail, thumbnail_folder) }}" alt="">
+                {% if (video.artist != "undefined") %}
+                    {{video.artist}}<br>
+                    {{video.title}}
+                {% else%}
+                    {{video.title}}
+                {% endif %}
+            </a>
+        {% endfor %}
+    </div>
+{% endblock %}
+{% block javascript %}
+    {{ super() }}
+    <script>
+        var songNodes = document.getElementsByClassName('song');
+        query.oninput = function(event) {
+            for (var i = 0; i < songNodes.length; i++) {
+                songNodes[i].style.display = (songNodes[i].innerText.split("\n").filter(
+                    function(value) {
+                        // 噴錯: \後面沒東西 *前面沒東西
+                        var words = query.value.replace(/[\\]$/g, "").trim().split(" ");
+                        for (var wordIndex = 0; wordIndex < words.length; wordIndex++) {
+                            if (value.search(words[wordIndex]) !== -1) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    }
+                ).length === 0) ? "none" : "";
+            }
+        }
+    </script>
 {% endblock %}

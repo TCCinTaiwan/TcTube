@@ -343,8 +343,8 @@ class SignupForm(form.Form):
 
 @flaskApplication.before_request
 def check_login():
-    if request.remote_addr != "127.0.0.1": # 規定必須用Nginx的Proxy
-        return redirect("/", code = 302)
+    # if request.remote_addr != "127.0.0.1": # 規定必須用Nginx的Proxy
+    #     return redirect(url_for("/"), code = 302)
     # if request.endpoint == 'static' and not current_user.is_authenticated:
     #     return render_template('error.htm', title = "Forbidden",error = "權限不足", redirect = "/", redirectTime = 100), 403
     return None
@@ -382,11 +382,11 @@ def unauthorized():
 #             return user
 #     return None
 
-@flaskApplication.after_request
-def add_header(response):
-    # print(colorama.Fore.GREEN + current_user.name + colorama.Fore.RESET)
-    response.cache_control.max_age = 300
-    return response
+# @flaskApplication.after_request
+# def add_header(response):
+#     # print(colorama.Fore.GREEN + current_user.name + colorama.Fore.RESET)
+#     response.cache_control.max_age = 300
+#     return response
 
 def stream_tmeplate(template_name, **context):
     flaskApplication.update_template_context(context)
@@ -469,13 +469,15 @@ def access_permission(func = None, level = None):
         return func(*args, **kwargs)
     return wrapper
 
-@flaskApplication.route('/')
+@flaskApplication.route('/', methods = ['GET','POST'])
 @login_required
 @access_permission(level = 10)
 def index():
     announcements = Announcement.query.all()
     menu = Menu.query.all()
-    videos = sqlAlchemy.session.query(Video)
+    videos = None
+    # videos = sqlAlchemy.session.query(Video).filter(Video.title.like("%" + request.form.query.data + "%")).all()
+    videos = sqlAlchemy.session.query(Video).all()
     return render_template("index.htm", title = 'Index', announcements = announcements, menu = menu, videos = videos, Video = Video, thumbnail_folder = flaskApplication.config['VIDEO_THUMBNAIL_FOLDER'])
 
 @flaskApplication.route("/listUser/")
@@ -820,7 +822,7 @@ if __name__ == '__main__':
     print(colorama.Fore.GREEN + "----------- Start Flask -----------" + colorama.Style.RESET_ALL)
     socketio.run(flaskApplication, host = os.getenv('IP', "0.0.0.0"), port = int(os.getenv('PORT', flaskApplication.config['PORT'])), debug = flaskApplication.debug)
     # flaskApplication.run(host = os.getenv('IP', "0.0.0.0"), port = int(os.getenv('PORT', flaskApplication.config['PORT'])), threaded = True) #processes=1~9999
-    socketio.emit("bye", broadcast = True)
+    # socketio.emit("bye", broadcast = True)
     print(colorama.Fore.RED + "----------- Stop Flask -----------" + colorama.Style.RESET_ALL)
     if not os.environ.get('WERKZEUG_RUN_MAIN'):
         if (os.name == "nt"):

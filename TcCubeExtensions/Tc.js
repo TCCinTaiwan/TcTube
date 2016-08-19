@@ -10,8 +10,12 @@ chrome.tabs.query({}, function(tabs) {
             {action: "getVideoUrls"},
             function(response) {
                 console.log(response);
-                if (response.data.length > 0) {
-                    video.src = response.data[0];
+                if (typeof response !== "undefined"){
+                    if (response.data.length > 0) {
+                        video.src = response.data[0];
+                    } else {
+                        window.close();
+                    }
                 } else {
                     window.close();
                 }
