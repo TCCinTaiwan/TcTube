@@ -86,6 +86,7 @@ class classproperty(object):
     def __get__(self, instance, owner):
         return self.getter(owner)
 
+# 資料庫轉Json格式的API
 class JsonAPI(object):
     __public__ = None
     def api(self, rows):
@@ -115,6 +116,7 @@ class JsonAPI(object):
     def collection(cls):
         return cls.api(cls, cls.query.all())
 
+# 資料庫公告
 class Announcement(sqlAlchemy.Model, JsonAPI):
     __tablename__ = 'announcements'
     __public__ = [
@@ -127,6 +129,7 @@ class Announcement(sqlAlchemy.Model, JsonAPI):
     def __repr__(self):
         return '<Announcement %r>' % (self.id)
 
+# 資料庫選單
 class Menu(sqlAlchemy.Model, JsonAPI):
     __tablename__ = 'menu'
     __public__ = [
@@ -163,6 +166,7 @@ class Menu(sqlAlchemy.Model, JsonAPI):
     def __repr__(self):
         return '<Menu %r>' % (self.name)
 
+# 資料庫影片
 class Video(sqlAlchemy.Model, JsonAPI):
     __tablename__ = 'videos'
     __public__ = [
@@ -181,6 +185,8 @@ class Video(sqlAlchemy.Model, JsonAPI):
         self.artist = artist
     def __repr__(self):
         return '<Video %r>' % (self.title)
+
+# 資料庫影片來源
 class VideoSource(sqlAlchemy.Model, JsonAPI):
     __tablename__ = 'videoSources'
     __public__ = "source"
@@ -193,10 +199,7 @@ class VideoSource(sqlAlchemy.Model, JsonAPI):
     def __repr__(self):
         return '<VideoSource %r>' % (self.source)
 
-# class Anonymous(AnonymousUserMixin):
-#   def __init__(self):
-#     self.name = 'Guest'
-
+# 資料庫使用者
 class User(sqlAlchemy.Model):
     __tablename__ = 'users'
     COMPERENCE_ADMIN = 0
@@ -272,7 +275,7 @@ class User(sqlAlchemy.Model):
     def get(cls,id):
         return cls.query.filter_by(id = id).first()
 
-# Define login and registration forms (for flask-login)
+# 定義登入表單
 class LoginForm(form.Form):
     account = fields.TextField(
         "帳號",
@@ -290,9 +293,12 @@ class LoginForm(form.Form):
         ]
     )
     submit = fields.SubmitField("登入", render_kw = {"class": "123"})
+
+# 定義登出表單
 class LogoutForm(form.Form):
     submit = fields.SubmitField("登出")
 
+# 定義註冊表單
 class SignupForm(form.Form):
     account   = fields.TextField(
         'Account',
@@ -341,6 +347,7 @@ class SignupForm(form.Form):
     )
     submit = fields.SubmitField("Send")
 
+# 預先檢查，可用來檢測Flask靜態檔案權限
 @flaskApplication.before_request
 def check_login():
     # if request.remote_addr != "127.0.0.1": # 規定必須用Nginx的Proxy
@@ -349,19 +356,21 @@ def check_login():
     #     return render_template('error.htm', title = "Forbidden",error = "權限不足", redirect = "/", redirectTime = 100), 403
     return None
 
+# 回傳當前使用者
 @login_manager.user_loader
 def load_user(user_id):
     return User.get(user_id)
 
-@login_manager.header_loader
-def load_user_from_header(header_val):
-    header_val = header_val.replace('Basic ', '', 1)
-    try:
-        header_val = base64.b64decode(header_val)
-    except TypeError:
-        pass
-    return User.query.filter_by(api_key = header_val).first()
+# @login_manager.header_loader
+# def load_user_from_header(header_val):
+#     header_val = header_val.replace('Basic ', '', 1)
+#     try:
+#         header_val = base64.b64decode(header_val)
+#     except TypeError:
+#         pass
+#     return User.query.filter_by(api_key = header_val).first()
 
+# 登入確認
 @login_manager.unauthorized_handler
 def unauthorized():
     flash('請登入再繼續')
@@ -388,6 +397,7 @@ def unauthorized():
 #     response.cache_control.max_age = 300
 #     return response
 
+# 串流樣板
 def stream_tmeplate(template_name, **context):
     flaskApplication.update_template_context(context)
     template = flaskApplication.jinja_env.get_template(template_name)
@@ -395,6 +405,7 @@ def stream_tmeplate(template_name, **context):
     templateStream.enable_buffering(5)
     return templateStream
 
+# 樣板預處理
 @flaskApplication.context_processor
 def utility_processor():
     def splitFilename(filename):
@@ -407,40 +418,6 @@ def utility_processor():
         return baseUrl + url
     return dict(splitFilename = splitFilename, absoluteOrRelative = absoluteOrRelative)
 
-def TestPlatform():
-    print ("---------- Operation System ----------")
-    # 获取Python版本
-    print(platform.python_version())
-
-    # 获取操作系统可执行程序的结构，，(’32bit’, ‘WindowsPE’)
-    print(platform.architecture())
-
-    # 计算机的网络名称，’acer-PC’
-    print(platform.node())
-
-    #获取操作系统名称及版本号，’Windows-7-6.1.7601-SP1′
-    print(platform.platform())
-
-    #计算机处理器信息，’Intel64 Family 6 Model 42 Stepping 7, GenuineIntel’
-    print(platform.processor())
-
-    # 获取操作系统中Python的构建日期
-    print(platform.python_build())
-
-    #  获取系统中python解释器的信息
-    print(platform.python_compiler())
-
-    if platform.python_branch() == "":
-        print(platform.python_implementation())
-        print(platform.python_revision())
-    print(platform.release())
-    print(platform.system())
-
-    #  获取操作系统的版本
-    print(platform.version())
-
-    #  包含上面所有的信息汇总
-    print(platform.uname())
 
 '''
 Get current time as milliseconds since 1970-01-01
@@ -451,6 +428,7 @@ def dates(customDate = None, isUTC = False):
     else:
         return int((time.mktime(customDate.timetuple()) + (time.timezone if isUTC else 0)) * 1000)
 
+# 真實IP(Proxy沒隱藏的話)
 def getRealIP(request):
     if request.headers.getlist("X-Forwarded-For"):
         return request.headers.getlist("X-Forwarded-For")[0]
@@ -480,6 +458,7 @@ def index():
     videos = sqlAlchemy.session.query(Video).all()
     return render_template("index.htm", title = 'Index', announcements = announcements, menu = menu, videos = videos, Video = Video, thumbnail_folder = flaskApplication.config['VIDEO_THUMBNAIL_FOLDER'])
 
+# 列出層級比當前使用者低的使用者
 @flaskApplication.route("/listUser/")
 @login_required
 @access_permission(level = 5)
@@ -489,6 +468,7 @@ def listUser():
     users = User.query.filter(User.competence > current_user.competence)
     return render_template('listUser.htm', title = "List Users", users = users, announcements = announcements, menu = menu)
 
+# 管理公告
 @flaskApplication.route("/announcements/")
 @login_required
 @access_permission(level = 5)
@@ -497,14 +477,15 @@ def announcements():
     announcements = sqlAlchemy.session.query(Announcement).all()
     return render_template('announcements.htm', title = "Announcements", announcements = announcements, menu = menu)
 
-@flaskApplication.route("/announcement/<int:id>")
-@login_required
-@access_permission(level = 5)
-def announcement(id):
-    menu = Menu.query.all()
-    announcements = sqlAlchemy.session.query(Announcement).all()
-    return render_template('announcement.htm', title = "Announcement", announcements = announcements, menu = menu)
+# @flaskApplication.route("/announcement/<int:id>")
+# @login_required
+# @access_permission(level = 5)
+# def announcement(id):
+#     menu = Menu.query.all()
+#     announcements = sqlAlchemy.session.query(Announcement).all()
+#     return render_template('announcement.htm', title = "Announcement", announcements = announcements, menu = menu)
 
+# 管理選單
 @flaskApplication.route("/menu/")
 @login_required
 @access_permission(level = 5)
@@ -513,6 +494,7 @@ def menu():
     announcements = sqlAlchemy.session.query(Announcement).all()
     return render_template('menu.htm', title = "Menu", announcements = announcements, menu = menu)
 
+# 聊天室
 @flaskApplication.route("/chat/")
 @login_required
 def socketIO():
@@ -525,8 +507,9 @@ def randomVideo(): # 隨機Video
     # with open('static/playlist.json', "r", encoding = 'utf8') as jsonFile:
     #     jsonData = json.load(jsonFile)
     videos = random.randrange(len(sqlAlchemy.session.query(Video).all()))
-    return redirect("/video/" + str(videos), code = 301)
+    return redirect("/video/" + str(videos), code = 302)
 
+# 指定播放影片編號
 @flaskApplication.route('/video/<int:videoNum>')
 @login_required
 @access_permission(level = 10)
@@ -536,6 +519,7 @@ def video(videoNum):
     announcements = Announcement.query.all()
     return render_template('video.htm', videoNum = videoNum, videos = videos, announcements = announcements, menu = menu)
 
+# 列出影片、選單跟公告的Json
 @flaskApplication.route('/api/')
 def api():
     return jsonify(video = Video.collection, menu = Menu.collection, announcement = Announcement.collection)
@@ -550,11 +534,12 @@ def debug():
             tempdict[key] = request.environ[key]
     return jsonify(tempdict)
 
-
+# 列出Socket IO連線使用者
 @flaskApplication.route("/api/online/")
 def online():
     return jsonify(connection)
 
+# 列出影片資料夾
 @flaskApplication.route('/list/')
 def listRoot():
     return list("")
@@ -590,7 +575,8 @@ def list(path):
 # def mimetype(filepath):
 #     return magic.from_file(filepath)
 
-@flaskApplication.route('/view/<path:path>') # 強制檢視影片，而不是看瀏覽器而下載或觀看
+# 強制檢視影片，而不是看瀏覽器而下載或觀看
+@flaskApplication.route('/view/<path:path>')
 @login_required
 def view(path):
     announcements = Announcement.query.all()
@@ -598,11 +584,13 @@ def view(path):
     absolutePath = re.match(r"^http(s|)://[^/:]{1,}", request.url).group(0)
     return render_template('viewMedia.htm', mediaFile = absolutePath + ":" + str(flaskApplication.config['NGINX_PORT']) + "/" + flaskApplication.config['VIDEO_FOLDER'] + path)
 
-@flaskApplication.route('/signup/')
-def signup():
-    form = SignupForm(request.form)
-    return render_template('signup.htm', title = "Sign Up", form = form)
+# 註冊(沒做回傳)
+# @flaskApplication.route('/signup/')
+# def signup():
+#     form = SignupForm(request.form)
+#     return render_template('signup.htm', title = "Sign Up", form = form)
 
+# 登入
 @flaskApplication.route('/login/', methods = ['GET','POST'])
 def login():
     form = LoginForm(request.form)
@@ -630,6 +618,7 @@ def login():
 #     req = requests.get(url, stream = True, params = request.args)
 #     return Response(stream_with_context(req.iter_content(1024)), content_type = req.headers['content-type'])
 
+# 登出
 @flaskApplication.route('/logout/', methods = ['POST'])
 @login_required
 def logout():
@@ -637,6 +626,7 @@ def logout():
     next = request.args.get('next')
     return redirect(next or url_for("index"))
 
+# 上傳檔案
 @flaskApplication.route('/upload/', methods = ['GET','POST']) # 上傳檔案
 @login_required
 @access_permission(level = 5)
@@ -667,11 +657,15 @@ def filename_filter(filename):
     # filename = re.sub(r'^-|-$', '', filename)
     return filename
 
-@flaskApplication.route("/file/<path:path>") # 轉址到nginx伺服器
+# 轉址到nginx伺服器
+@flaskApplication.route("/file/<path:path>")
 def media(path):
     mediaFileUrl = re.sub(r"(:[0-9]{0,}|)/file/", ":" + str(flaskApplication.config['NGINX_PORT']) + "/file/", request.url) # nginx port
     return redirect(mediaFileUrl, code = 302)
 
+@socketio.on_error(namespace = '/test')
+def error_handler_chat(e):
+    print(e)
 
 @socketio.on('typing', namespace = '/test')
 def socketio_chat_typing(message):
@@ -709,26 +703,37 @@ def socketio_server_ping_client():
 
 @socketio.on('connect', namespace = '/test')
 def socketio_connect():
-    current_user.connect_time = datetime.utcnow()
+    realIP = getRealIP(request)
+    connectTime = datetime.utcnow()
+    print("Connect: ", realIP)
     sqlAlchemy.session.commit()
-    if getRealIP(request) not in connection:
-        connection[getRealIP(request)] = {}
-    connection[getRealIP(request)][request.sid] = {
-        "ip": getRealIP(request),
-        "login_ip": current_user.login_ip,
-        "login_time": dates(current_user.login_time, isUTC = True),
-        "name": current_user.name,
-        "account": current_user.account,
-        "connect_time": dates(current_user.connect_time, isUTC = True)
+    if realIP not in connection:
+        connection[realIP] = {}
+    connection[realIP][request.sid] = {
+        "ip": realIP
     }
-    emit('connect success', connection[getRealIP(request)][request.sid])
-    emit('user online', connection[getRealIP(request)][request.sid], broadcast = True)
+
+    if (current_user.is_authenticated):
+        current_user.connect_time = connectTime
+        connection[realIP][request.sid].update(
+            {
+                "login_ip": current_user.login_ip,
+                "login_time": dates(current_user.login_time, isUTC = True),
+                "name": current_user.name,
+                "account": current_user.account,
+                "connect_time": dates(current_user.connect_time, isUTC = True)
+            }
+        )
+    emit('connect success', connection[realIP][request.sid])
+    emit('user online', connection[realIP][request.sid], broadcast = True)
     socketio_server_ping_client()
 
 @socketio.on('disconnect', namespace = '/test')
 def socketio_disconnect():
-    emit('user left', connection[getRealIP(request)][request.sid], broadcast = True)
-    del connection[getRealIP(request)][request.sid]
+    realIP = getRealIP(request)
+    print("Disconnect: ", realIP)
+    emit('user left', connection[realIP][request.sid], broadcast = True)
+    del connection[realIP][request.sid]
 
 @socketio.on('new message', namespace = '/test')
 def socketio_new_message(message):
@@ -773,8 +778,8 @@ def test_message(message):
     )
 
 if __name__ == '__main__':
+    # 啟動nginx
     if not os.environ.get('WERKZEUG_RUN_MAIN'):
-        # TestPlatform()
         if (os.name == "nt"):
             nginxRunning = b'nginx' in subprocess.Popen(
                 'tasklist',
@@ -807,6 +812,7 @@ if __name__ == '__main__':
                 os.system("sudo /etc/init.d/nginx start")
             else:
                 print(colorama.Fore.GREEN + "Nginx is already running!!" + colorama.Style.RESET_ALL)
+
     Compress(flaskApplication)
     login_manager.init_app(flaskApplication)
     login_manager.session_protection = "strong"
@@ -820,10 +826,12 @@ if __name__ == '__main__':
     # flaskApplication.logger.error('An error occurred')
     # flaskApplication.logger.info('Info')
     print(colorama.Fore.GREEN + "----------- Start Flask -----------" + colorama.Style.RESET_ALL)
-    socketio.run(flaskApplication, host = os.getenv('IP', "0.0.0.0"), port = int(os.getenv('PORT', flaskApplication.config['PORT'])), debug = flaskApplication.debug)
     # flaskApplication.run(host = os.getenv('IP', "0.0.0.0"), port = int(os.getenv('PORT', flaskApplication.config['PORT'])), threaded = True) #processes=1~9999
+    socketio.run(flaskApplication, host = os.getenv('IP', "0.0.0.0"), port = int(os.getenv('PORT', flaskApplication.config['PORT'])), debug = flaskApplication.debug)
     # socketio.emit("bye", broadcast = True)
     print(colorama.Fore.RED + "----------- Stop Flask -----------" + colorama.Style.RESET_ALL)
+
+    # 關閉nginx
     if not os.environ.get('WERKZEUG_RUN_MAIN'):
         if (os.name == "nt"):
             os.system("taskkill /f /im nginx.exe")

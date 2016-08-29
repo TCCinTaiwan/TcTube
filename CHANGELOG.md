@@ -9,6 +9,7 @@
     - 更新nginx設定檔
 * 2016-08-18
     - nginx.conf加註解
+    - 加入簡單影片搜尋
 * 2016-08-16
     - Fuck upstream_addr and sendfile!
 * 2016-08-08
