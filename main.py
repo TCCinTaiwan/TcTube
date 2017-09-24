@@ -16,7 +16,7 @@ from flask import (
     jsonify
 )
 # 載入Flask Login函式庫
-from flask.ext.login import (
+from flask_login import (
     LoginManager,
     UserMixin,
     login_required,
@@ -28,9 +28,9 @@ from flask.ext.login import (
     AnonymousUserMixin
 )
 # 載入Flask資料庫函式庫
-from flask.ext.sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy
 # 載入Falsk壓縮函式庫
-from flask.ext.compress import Compress
+from flask_compress import Compress
 # 載入以Flask實現的SocketIO函式庫
 from flask_socketio import SocketIO, send, emit, disconnect
 from wtforms import form, fields, validators
